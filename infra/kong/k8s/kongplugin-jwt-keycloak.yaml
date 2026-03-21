@@ -1,0 +1,20 @@
+# JWT validation for Keycloak-issued access tokens (RS256).
+# Realm JWKS: {KEYCLOAK_BASE}/realms/{realm}/protocol/openid-connect/certs
+# Map Kong consumers / credentials to your realm signing keys (or use Enterprise OIDC plugin).
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: jwt-keycloak
+  namespace: core-services
+  annotations:
+    health-platform.dev/keycloak-issuer: "http://keycloak.data.svc.cluster.local:8080/realms/health-platform"
+plugin: jwt
+config:
+  uri_param_names: []
+  header_names:
+    - authorization
+  claims_to_verify:
+    - exp
+  maximum_expiration: 7200
+  key_claim_name: kid
+  secret_is_base64: false

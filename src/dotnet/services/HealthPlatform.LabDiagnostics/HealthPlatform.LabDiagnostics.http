@@ -1,0 +1,6 @@
+@HealthPlatform.LabDiagnostics_HostAddress = http://localhost:5049
+
+GET {{HealthPlatform.LabDiagnostics_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

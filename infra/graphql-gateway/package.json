@@ -1,0 +1,16 @@
+{
+  "name": "health-platform-graphql-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node gateway.mjs",
+    "dev": "node --watch gateway.mjs"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.2",
+    "@graphql-tools/schema": "^10.0.16",
+    "@graphql-tools/stitch": "^9.4.7",
+    "graphql": "^16.10.0"
+  }
+}
