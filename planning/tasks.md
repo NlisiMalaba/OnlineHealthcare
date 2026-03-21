@@ -1,0 +1,592 @@
+# Implementation Plan: Online Healthcare Platform
+
+## Overview
+
+Incremental implementation of the Online Healthcare Platform across 19 microservices (.NET 8 / ASP.NET Core), 4 Python FastAPI AI services, Flutter mobile/web clients, and Next.js dashboards. Tasks are ordered: infrastructure → auth/identity → core domain services → AI services → real-time layer → client applications → cross-cutting concerns.
+
+Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python services). Each property test references its property number from the design document.
+
+---
+
+## Tasks
+
+- [ ] 1. Infrastructure and Project Scaffolding
+  - Initialise the monorepo structure with solution files for all .NET 8 microservices, Python FastAPI services, Flutter apps, and Next.js dashboards
+  - Configure Docker Compose for local development (PostgreSQL, MongoDB, Redis, Elasticsearch, Kafka, Keycloak)
+  - Create Kubernetes namespace manifests (`core-services`, `ai-services`, `realtime`, `data`, `monitoring`) and base Helm chart templates
+  - Set up Istio service mesh configuration for mTLS between services
+  - Configure Kong API Gateway with route definitions, rate-limiting plugins, and JWT validation plugin pointing to Keycloak
+  - Set up Apollo GraphQL Gateway with schema stitching stubs for all core services
+  - Configure Prometheus, Grafana, and ELK Stack base manifests
+  - Configure OpenTelemetry SDK in the shared .NET library and Python base service
+  - _Requirements: 17.1, 17.2_
+
+- [ ] 2. Shared Libraries and Cross-Cutting Concerns
+  - Create `HealthPlatform.Shared` .NET class library with: base entity types (UUID PKs, timestamps), error response envelope (`code`, `message`, `details`, `trace_id`), `IPaymentGateway` interface, Kafka producer/consumer base classes, and AuditLog writer
+  - Implement AES-256 at-rest encryption helpers and TLS enforcement middleware
+  - Implement idempotency key middleware for payment and order endpoints
+  - Implement RBAC policy definitions (`patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`) as ASP.NET Core authorization policies
+  - Create shared FsCheck generators for domain types (UUID, timestamps, enums, geo-points) to be reused across all property tests
+  - _Requirements: 17.1, 17.2, 17.5, 17.6_
+
+- [ ] 3. Auth Service (Keycloak Integration)
+  - [ ] 3.1 Configure Keycloak realm with client definitions for Flutter (PKCE), Next.js (authorization code), and internal services (client credentials)
+    - Define roles: `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`
+    - Configure MFA (TOTP + SMS OTP) as required for `doctor`, `pharmacy`, `admin` roles
+    - _Requirements: 17.3_
+  - [ ] 3.2 Implement Auth Service wrapper in .NET 8 that handles new-device detection and triggers step-up authentication
+    - Persist device fingerprints per user; compare on each login
+    - _Requirements: 17.4_
+  - [ ] 3.3 Implement account lockout logic: 5 consecutive failed logins → lock account + emit notification event
+    - _Requirements: 17.8_
+  - [ ]* 3.4 Write property test for account lockout (Property 31)
+    - **Property 31: Account Lockout After Failed Logins**
+    - **Validates: Requirements 17.8**
+  - [ ]* 3.5 Write unit tests for new-device detection and MFA enforcement
+    - Test step-up auth trigger on unrecognized device
+    - Test MFA bypass attempt rejection
+    - _Requirements: 17.3, 17.4_
+
+- [ ] 4. Checkpoint — Auth layer complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 5. User & Profile Service
+  - [ ] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
+    - On successful registration, publish `patient.registered` Kafka event consumed by Health Records Service to create linked HealthRecord
+    - Return `IDENTITY_CONFLICT` (409) for duplicate phone/email
+    - _Requirements: 1.1, 1.2, 1.6_
+  - [ ]* 5.2 Write property test for patient registration creates linked health record (Property 1)
+    - **Property 1: Patient Registration Creates Linked Health Record**
+    - **Validates: Requirements 1.2**
+  - [ ]* 5.3 Write property test for duplicate registration rejection (Property 3)
+    - **Property 3: Duplicate Registration Rejection**
+    - **Validates: Requirements 1.6**
+  - [ ] 5.4 Implement Patient profile update endpoint (name, DOB, blood type, allergies, chronic conditions, photo upload to S3)
+    - Timestamp and persist every change to the linked HealthRecord
+    - _Requirements: 1.3, 1.4, 1.5_
+  - [ ]* 5.5 Write property test for profile update round trip (Property 2)
+    - **Property 2: Profile Update Round Trip**
+    - **Validates: Requirements 1.3**
+  - [ ] 5.6 Implement Doctor registration endpoint (name, license number, specialty, experience, clinic address, fees, availability, photo, credentials)
+    - Set account to `pending` state on submission; queue license verification task for Admin Service
+    - Return `LICENSE_INVALID` (422) on admin rejection with reason
+    - _Requirements: 2.1, 2.2, 2.7_
+  - [ ]* 5.7 Write property test for doctor registration starts in pending state (Property 4)
+    - **Property 4: Doctor Registration Starts in Pending State**
+    - **Validates: Requirements 2.2**
+  - [ ] 5.8 Implement license verification state transition: `pending` → `verified` (activate + notify) or `rejected` (notify with reason)
+    - _Requirements: 2.3, 2.7_
+  - [ ]* 5.9 Write property test for license verification state transition (Property 5)
+    - **Property 5: License Verification State Transition**
+    - **Validates: Requirements 2.3, 2.7**
+  - [ ] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials
+    - Publish `doctor.availability_changed` Kafka event consumed by Search Service for real-time index update
+    - _Requirements: 2.4, 2.5, 2.6_
+  - [ ] 5.11 Implement Pharmacy registration and profile management endpoints
+    - _Requirements: 13.1_
+  - [ ]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
+    - _Requirements: 1.6, 2.2, 2.7_
+
+- [ ] 6. Search Service (Elasticsearch)
+  - [ ] 6.1 Define and create Elasticsearch indices: Doctor (name, specialty, rating, geo_point, fee range, availability), Pharmacy (name, location, stock summary), Lab Partner (name, location, test types, pricing)
+    - _Requirements: 3.1, 3.3, 21.3_
+  - [ ] 6.2 Implement Kafka consumers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
+    - _Requirements: 3.5_
+  - [ ] 6.3 Implement doctor search endpoint with filters (specialty, rating, fee range, availability) and geo-distance proximity sorting
+    - Return empty-state response with suggestion message when no results match
+    - _Requirements: 3.1, 3.2, 3.4, 3.6_
+  - [ ]* 6.4 Write property test for doctor search proximity ordering (Property 6)
+    - **Property 6: Doctor Search Proximity Ordering**
+    - **Validates: Requirements 3.2**
+  - [ ] 6.5 Implement pharmacy and lab partner search endpoints with geo-distance sorting
+    - _Requirements: 7.1, 21.3_
+  - [ ]* 6.6 Write unit tests for empty-state response, filter combinations, and index sync
+    - _Requirements: 3.6_
+
+- [ ] 7. Appointment Service
+  - [ ] 7.1 Implement availability slot management CRUD for doctors (day of week, start/end time, slot duration, appointment type)
+    - _Requirements: 2.5_
+  - [ ] 7.2 Implement appointment booking: select slot → create `pending_payment` appointment → hold slot for 10 minutes via Redis TTL
+    - Reject concurrent booking of the same slot within the hold window with `SLOT_UNAVAILABLE` (409)
+    - _Requirements: 4.1, 4.2_
+  - [ ]* 7.3 Write property test for slot hold exclusivity (Property 7)
+    - **Property 7: Slot Hold Exclusivity**
+    - **Validates: Requirements 4.1**
+  - [ ] 7.4 Implement appointment confirmation on `payment.completed` Kafka event; publish `appointment.confirmed` event
+    - Send confirmation notifications to patient and doctor via Notification Service
+    - _Requirements: 4.4_
+  - [ ]* 7.5 Write property test for appointment confirmation notifies both parties (Property 8)
+    - **Property 8: Appointment Confirmation Notifies Both Parties**
+    - **Validates: Requirements 4.4**
+  - [ ] 7.6 Implement appointment reminder scheduler: send reminder 30 minutes before scheduled time to patient and doctor
+    - _Requirements: 4.5_
+  - [ ] 7.7 Implement appointment cancellation: >2 hours before → release slot + refund event; <2 hours → apply doctor cancellation policy
+    - _Requirements: 4.6, 4.7_
+  - [ ]* 7.8 Write property test for early cancellation releases slot (Property 9)
+    - **Property 9: Early Cancellation Releases Slot**
+    - **Validates: Requirements 4.6**
+  - [ ] 7.9 Implement doctor-initiated appointment reschedule with patient notification
+    - _Requirements: 4.8_
+  - [ ] 7.10 Implement physical appointment response: include clinic address and GPS navigation link
+    - _Requirements: 4.3_
+  - [ ]* 7.11 Write unit tests for slot expiry, cancellation policy edge cases, and reschedule flow
+    - _Requirements: 4.1, 4.6, 4.7, 4.8_
+
+- [ ] 8. Telemedicine Service
+  - [ ] 8.1 Implement session lifecycle: on `appointment.confirmed` for virtual appointments, create TelemedicineSession record; on join request, generate Agora/Twilio RTC token and channel
+    - _Requirements: 5.1, 5.2_
+  - [ ] 8.2 Implement recording consent workflow: persist `recording_consent` flag; only set `recording_enabled = true` when consent is `true`
+    - _Requirements: 5.8_
+  - [ ]* 8.3 Write property test for recording requires consent (Property 10)
+    - **Property 10: Recording Requires Consent**
+    - **Validates: Requirements 5.8**
+  - [ ] 8.4 Implement WebSocket session events: session duration ticks, file/image sharing events, in-session chat messages via Socket.io
+    - _Requirements: 5.3, 5.7_
+  - [ ] 8.5 Implement auto-reconnect logic: on network interruption, attempt reconnect for up to 60 seconds before surfacing reconnection prompt
+    - _Requirements: 5.6_
+  - [ ] 8.6 On session end, generate session summary document (stored in MongoDB) and attach reference to patient's HealthRecord via Health Records Service
+    - Publish `telemedicine.session_ended` Kafka event
+    - _Requirements: 5.5_
+  - [ ]* 8.7 Write unit tests for reconnect timeout, session summary attachment, and mode switching
+    - _Requirements: 5.2, 5.5, 5.6_
+
+- [ ] 9. Checkpoint — Appointment and Telemedicine flows complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 10. Prescription Service
+  - [ ] 10.1 Implement prescription creation endpoint: record medication name, dosage, frequency, duration, special instructions; link to doctor and patient health record; default expiry to issued_at + 30 days if not specified
+    - Publish `prescription.issued` Kafka event; notify patient
+    - _Requirements: 6.1, 6.2, 6.3, 6.6_
+  - [ ]* 10.2 Write property test for prescription default expiry (Property 12)
+    - **Property 12: Prescription Default Expiry**
+    - **Validates: Requirements 6.6**
+  - [ ] 10.3 Implement prescription guard for medication orders: validate prescription is active, non-expired, non-dispensed; mark as `dispensed` on first use; reject duplicates with `PRESCRIPTION_DISPENSED` (422)
+    - _Requirements: 6.4, 6.5, 6.7_
+  - [ ]* 10.4 Write property test for prescription guard for medication orders (Property 11)
+    - **Property 11: Prescription Guard for Medication Orders**
+    - **Validates: Requirements 6.4, 6.5**
+  - [ ] 10.5 Implement prescription cancellation by doctor (before dispensed) with mandatory reason
+    - _Requirements: 6.8_
+  - [ ] 10.6 Implement drug interaction check: before finalizing prescription, compare against patient's active medication schedule; emit alert event to prescribing doctor if interaction detected
+    - _Requirements: 9.8_
+  - [ ]* 10.7 Write property test for drug interaction alert before finalization (Property 21)
+    - **Property 21: Drug Interaction Alert Before Finalization**
+    - **Validates: Requirements 9.8**
+  - [ ]* 10.8 Write unit tests for expiry edge cases, cancellation, and interaction check with empty schedule
+    - _Requirements: 6.6, 6.7, 6.8, 9.8_
+
+- [ ] 11. Pharmacy & Inventory Service
+  - [ ] 11.1 Implement medication order creation: filter pharmacies by stock availability; sync prescription data to selected pharmacy in real time; notify pharmacy with prescription details and delivery address
+    - _Requirements: 7.1, 7.2, 7.3_
+  - [ ]* 11.2 Write property test for pharmacy stock filter (Property 13)
+    - **Property 13: Pharmacy Stock Filter**
+    - **Validates: Requirements 7.1**
+  - [ ] 11.3 Implement pharmacy order workflow: confirm / reject / request-clarification actions; on confirmation assign delivery agent and generate tracking link; support pickup alternative
+    - Publish `order.status_changed` Kafka event on each status transition; notify patient
+    - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.9_
+  - [ ] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; publish inventory change events to Search Service
+    - _Requirements: 7.8_
+  - [ ] 11.5 Implement low-stock alert: when inventory item quantity falls at or below pharmacy-configured threshold, emit low-stock notification event to pharmacy
+    - _Requirements: 13.6_
+  - [ ]* 11.6 Write property test for low stock alert threshold (Property 25)
+    - **Property 25: Low Stock Alert Threshold**
+    - **Validates: Requirements 13.6**
+  - [ ] 11.7 Implement pharmacy dashboard data endpoints: incoming orders, order statuses, inventory levels, daily summary report
+    - _Requirements: 13.1, 13.2, 13.3, 13.7_
+  - [ ]* 11.8 Write unit tests for order rejection with alternative pharmacy suggestion, pickup flow, and stock sync
+    - _Requirements: 7.9, 7.6_
+
+- [ ] 12. Payment & Credit Service
+  - [ ] 12.1 Implement `IPaymentGateway` interface and concrete implementations for Stripe, Flutterwave, Paystack, and M-Pesa
+    - Implement webhook endpoints per gateway with idempotency key validation
+    - _Requirements: 8.1_
+  - [ ] 12.2 Implement insurance claim submission: transmit claim data to insurer REST API; display claim status to patient; poll or receive status via webhook
+    - _Requirements: 8.2, 8.3_
+  - [ ] 12.3 Implement credit line payment: validate against patient's credit limit; record outstanding balance; send repayment reminders; emit balance warning when balance exceeds 80% of limit
+    - _Requirements: 8.4, 8.7, 8.8_
+  - [ ]* 12.4 Write property test for credit balance warning threshold (Property 15)
+    - **Property 15: Credit Balance Warning Threshold**
+    - **Validates: Requirements 8.8**
+  - [ ] 12.5 Implement instalment plan creation: display instalment amount, frequency, total repayable, and due dates before confirmation; store as scheduled payment records; send due-date reminders 24 hours before; record missed payments and apply late fees
+    - _Requirements: 8.9, 8.10, 8.11, 8.12_
+  - [ ] 12.6 Implement payment completion: generate digital receipt (S3), attach to patient transaction history; publish `payment.completed` Kafka event
+    - _Requirements: 8.13, 8.15_
+  - [ ]* 12.7 Write property test for payment receipt round trip (Property 16)
+    - **Property 16: Payment Receipt Round Trip**
+    - **Validates: Requirements 8.13**
+  - [ ] 12.8 Implement payment failure handling: retain appointment/order in `pending` state for 10 minutes; publish `payment.failed` event; notify patient with descriptive error
+    - _Requirements: 8.14_
+  - [ ]* 12.9 Write property test for failed payment preserves pending state (Property 17)
+    - **Property 17: Failed Payment Preserves Pending State**
+    - **Validates: Requirements 8.14**
+  - [ ]* 12.10 Write unit tests for gateway abstraction, idempotency, instalment edge cases, and transaction history display
+    - _Requirements: 8.1, 8.9, 8.15_
+
+- [ ] 13. Checkpoint — Prescription, Pharmacy, and Payment flows complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 14. Medication Adherence Tracking
+  - [ ] 14.1 Implement medication schedule generation: on `prescription.dispensed` Kafka event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
+    - _Requirements: 9.1_
+  - [ ]* 14.2 Write property test for medication schedule generation (Property 18)
+    - **Property 18: Medication Schedule Generation**
+    - **Validates: Requirements 9.1**
+  - [ ] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time
+    - _Requirements: 9.2_
+  - [ ] 14.4 Implement adherence event recording: on patient confirmation → record `taken` event with timestamp; on 2-hour overdue → record `missed` event
+    - _Requirements: 9.3, 9.4_
+  - [ ]* 14.5 Write property test for missed dose detection (Property 19)
+    - **Property 19: Missed Dose Detection**
+    - **Validates: Requirements 9.4**
+  - [ ] 14.6 Implement consecutive missed dose alert: after 3 consecutive `missed` adherence events, emit notification event to all patient next-of-kin
+    - _Requirements: 9.5, 10.5_
+  - [ ]* 14.7 Write property test for consecutive missed doses alert (Property 20)
+    - **Property 20: Consecutive Missed Doses Alert**
+    - **Validates: Requirements 9.5, 10.5**
+  - [ ] 14.8 Implement adherence summary endpoints: weekly and monthly summaries for patient and prescribing doctor; schedule completion notification
+    - _Requirements: 9.6, 9.7_
+  - [ ]* 14.9 Write unit tests for schedule completion, zero-dose-schedule edge case, and summary aggregation
+    - _Requirements: 9.6, 9.7_
+
+- [ ] 15. Next of Kin Management
+  - [ ] 15.1 Implement next-of-kin CRUD: allow patient to add up to 3 contacts (name, relationship, phone, email, mental health contact flag); notify contact on addition
+    - _Requirements: 10.1, 10.2, 22.8_
+  - [ ] 15.2 Implement emergency alert dispatch: doctor-triggered or system-triggered alert sends simultaneous SMS + push to all patient next-of-kin; log alert with timestamp, trigger reason, and delivery status
+    - _Requirements: 10.3, 10.4, 10.6_
+  - [ ]* 15.3 Write property test for emergency alert reaches all next of kin (Property 22)
+    - **Property 22: Emergency Alert Reaches All Next of Kin**
+    - **Validates: Requirements 10.4**
+  - [ ] 15.4 Implement notification retry logic for next-of-kin: up to 3 retries at 5-minute intervals; log final delivery status
+    - _Requirements: 10.7_
+  - [ ]* 15.5 Write property test for next of kin notification retry (Property 23)
+    - **Property 23: Next of Kin Notification Retry**
+    - **Validates: Requirements 10.7**
+  - [ ]* 15.6 Write unit tests for max 3 contacts enforcement, alert with no next-of-kin, and retry exhaustion
+    - _Requirements: 10.1, 10.7_
+
+- [ ] 16. Health Records Service
+  - [ ] 16.1 Implement HealthRecord creation (triggered by `patient.registered` event) and HealthRecordEntry CRUD in MongoDB (consultation notes, diagnoses, prescription refs, allergies, vitals, lab result refs, vaccinations)
+    - _Requirements: 11.1, 11.2_
+  - [ ] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
+    - _Requirements: 11.4, 11.7_
+  - [ ]* 16.3 Write property test for health record access control (Property 24)
+    - **Property 24: Health Record Access Control**
+    - **Validates: Requirements 11.4, 11.7**
+  - [ ] 16.4 Implement patient self-access endpoint and PDF export (generate PDF from record entries, store in S3, return signed URL)
+    - _Requirements: 11.3, 11.6_
+  - [ ] 16.5 Implement access grant audit logging: every grant, revoke, and access attempt writes to AuditLog table with actor, timestamp, and action
+    - _Requirements: 11.5, 17.5_
+  - [ ]* 16.6 Write unit tests for PDF export, access revocation, and audit log completeness
+    - _Requirements: 11.5, 11.6, 11.7_
+
+- [ ] 17. Notification Service
+  - [ ] 17.1 Implement Kafka consumers for all notification-triggering events; route to FCM/APNs (push), Twilio/Africa's Talking (SMS), or SendGrid/SES (email) based on patient preferences
+    - _Requirements: 16.1, 16.4_
+  - [ ] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
+    - _Requirements: 16.2_
+  - [ ] 17.3 Implement notification log: persist delivery status, timestamp, and channel for every sent notification
+    - _Requirements: 16.3_
+  - [ ]* 17.4 Write property test for notification log completeness (Property 29)
+    - **Property 29: Notification Log Completeness**
+    - **Validates: Requirements 16.3**
+  - [ ] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery
+    - _Requirements: 16.5_
+  - [ ]* 17.6 Write property test for critical notification SMS fallback (Property 30)
+    - **Property 30: Critical Notification SMS Fallback**
+    - **Validates: Requirements 16.5**
+  - [ ]* 17.7 Write unit tests for preference-based channel routing, retry queue, and dead-letter handling
+    - _Requirements: 16.2, 16.5_
+
+- [ ] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 19. Lab & Diagnostics Service
+  - [ ] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
+    - _Requirements: 21.1, 21.2_
+  - [ ]* 19.2 Write property test for lab order attached to health record (Property 32)
+    - **Property 32: Lab Order Attached to Health Record**
+    - **Validates: Requirements 21.1**
+  - [ ] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch
+    - _Requirements: 21.3_
+  - [ ] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
+    - _Requirements: 21.4, 21.5, 21.6_
+  - [ ] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
+    - _Requirements: 21.9_
+  - [ ]* 19.6 Write property test for critical lab result alert (Property 33)
+    - **Property 33: Critical Lab Result Alert**
+    - **Validates: Requirements 21.9**
+  - [ ] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
+    - _Requirements: 21.7_
+  - [ ] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
+    - _Requirements: 21.8_
+  - [ ]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
+    - _Requirements: 21.2, 21.6, 21.8_
+
+- [ ] 20. Referral Service
+  - [ ] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
+    - Notify receiving doctor and patient; publish `referral.created` Kafka event
+    - _Requirements: 26.1, 26.2, 30.1, 30.2_
+  - [ ]* 20.2 Write property test for referral requires patient consent (Property 39)
+    - **Property 39: Referral Requires Patient Consent**
+    - **Validates: Requirements 30.2**
+  - [ ] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
+    - Notify referring doctor and patient on status change
+    - _Requirements: 26.4, 26.5, 30.4, 30.5, 30.6_
+  - [ ] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
+    - _Requirements: 26.6, 30.7, 30.8_
+  - [ ] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
+    - _Requirements: 26.7_
+  - [ ]* 20.6 Write property test for referral timeout reminder (Property 36)
+    - **Property 36: Referral Timeout Reminder**
+    - **Validates: Requirements 26.7**
+  - [ ]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
+    - _Requirements: 26.4, 30.2, 30.8_
+
+- [ ] 21. Queue Management Service
+  - [ ] 21.1 Implement queue entry creation: patient with confirmed physical appointment joins virtual queue; assign queue position and compute estimated wait time based on patients ahead and doctor's average consultation duration
+    - _Requirements: 31.1, 31.2_
+  - [ ]* 21.2 Write property test for queue position and wait time assignment (Property 40)
+    - **Property 40: Queue Position and Wait Time Assignment**
+    - **Validates: Requirements 31.2**
+  - [ ] 21.3 Implement real-time queue position display via WebSocket (Socket.io); update at least every 2 minutes; push position-2 notification to patient
+    - _Requirements: 31.3, 31.4_
+  - [ ] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
+    - _Requirements: 31.5, 31.6, 31.7_
+  - [ ] 21.5 Implement delay recalculation: if doctor schedule delayed >15 minutes, recalculate all estimated wait times in queue and notify all affected patients
+    - _Requirements: 31.8_
+  - [ ]* 21.6 Write property test for queue recalculation on delay (Property 41)
+    - **Property 41: Queue Recalculation on Delay**
+    - **Validates: Requirements 31.8**
+  - [ ]* 21.7 Write unit tests for zero-length queue, absent patient removal, and wait time analytics recording
+    - _Requirements: 31.6, 31.7_
+
+- [ ] 22. Checkpoint — Lab, Referral, and Queue flows complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 23. Mental Health Service
+  - [ ] 23.1 Implement therapy session booking using the standard appointment flow (appointment type = `therapy`); attach session summary to patient health record (visible only to patient and therapist unless broader access granted)
+    - _Requirements: 22.1, 22.2_
+  - [ ] 23.2 Implement mood log CRUD: patient records rating (1–5) and optional notes; store in MongoDB; display time-series chart data endpoint for patient and (with consent) therapist
+    - _Requirements: 22.3, 22.4_
+  - [ ] 23.3 Implement consecutive low mood prompt: after 3 consecutive mood log entries with rating = 1, emit mental health resource prompt event for patient
+    - _Requirements: 22.5_
+  - [ ]* 23.4 Write property test for consecutive low mood prompt (Property 34)
+    - **Property 34: Consecutive Low Mood Prompt**
+    - **Validates: Requirements 22.5**
+  - [ ] 23.5 Implement crisis protocol trigger: on crisis keyword detection in mood log or AI assistant input, immediately display crisis helpline numbers, prompt emergency services contact, and notify patient's mental health next-of-kin
+    - _Requirements: 22.6, 22.7_
+  - [ ]* 23.6 Write unit tests for broader access consent toggle, crisis protocol with no mental health contact, and mood chart data aggregation
+    - _Requirements: 22.2, 22.4, 22.7_
+
+- [ ] 24. Maternal & Pediatric Service
+  - [ ] 24.1 Implement antenatal record creation: capture estimated due date, gestational age, assigned obstetric doctor; auto-generate recommended checkup appointment schedule; notify patient
+    - Increase reminder frequency when due date is within 4 weeks
+    - _Requirements: 24.1, 24.2, 24.8_
+  - [ ] 24.2 Implement antenatal checkup recording: doctor records fetal measurements, maternal vitals, and clinical notes into antenatal record; send fetal monitoring reminders at doctor-configured intervals
+    - _Requirements: 24.3, 24.4_
+  - [ ] 24.3 Implement birth plan CRUD: patient creates/updates birth plan (labour preferences, delivery method, pain management, postnatal care); notify assigned obstetric doctor on update; support sharing with any doctor
+    - _Requirements: 24.5, 24.6, 24.7_
+  - [ ] 24.4 Implement child profile management: guardian creates child profiles (name, DOB, blood type, allergies); each profile gets a linked HealthRecord
+    - _Requirements: 25.1, 25.2_
+  - [ ] 24.5 Implement vaccination record and schedule: generate recommended vaccination schedule from child DOB and national guidelines; send reminder 7 days before due vaccination; record administered vaccines (name, date, batch, provider)
+    - _Requirements: 25.4, 25.5, 25.6, 27.4, 27.5, 27.6_
+  - [ ] 24.6 Implement growth tracking: guardian records height, weight, and developmental milestones; display growth chart against age-appropriate reference percentiles; alert guardian if measurements fall outside expected range
+    - _Requirements: 25.7, 25.8, 25.9_
+  - [ ]* 24.7 Write property test for child growth out-of-range alert (Property 35)
+    - **Property 35: Child Growth Out-of-Range Alert**
+    - **Validates: Requirements 25.9**
+  - [ ]* 24.8 Write unit tests for due-date proximity reminder escalation, birth plan sharing, and vaccination schedule generation
+    - _Requirements: 24.7, 24.8, 25.4_
+
+- [ ] 25. Wellness & Care Plan Service
+  - [ ] 25.1 Implement health goal CRUD: patient creates goals for steps, weight, sleep, water intake, or custom metrics; on wellness entry recording, compare against active goals and return progress
+    - _Requirements: 27.1, 27.2, 27.3_
+  - [ ] 25.2 Implement care plan management: doctor assigns care plan to patient (condition, tasks, monitoring targets, review interval); send task-due reminders to patient; record task completions with timestamp; notify doctor when review interval is reached
+    - _Requirements: 27.7, 27.8, 27.9, 27.10_
+  - [ ]* 25.3 Write unit tests for goal progress calculation, care plan task completion, and review interval notification
+    - _Requirements: 27.2, 27.9, 27.10_
+
+- [ ] 26. Second Opinion Service
+  - [ ] 26.1 Implement second opinion request: patient selects doctor and specifies health record sections to share; notify selected doctor; grant read-only access to specified sections for duration of second opinion
+    - _Requirements: 28.1, 28.2_
+  - [ ] 26.2 Implement second opinion response workflow: doctor accepts (submit clinical notes/recommendations, notify patient, attach response to health record) or declines (mandatory reason, notify patient)
+    - _Requirements: 28.3, 28.4, 28.5_
+  - [ ] 26.3 Enforce second opinion restrictions: reject any attempt by second-opinion doctor to issue prescriptions, modify health record, or assume primary treating doctor role; log attempt
+    - _Requirements: 28.6_
+  - [ ]* 26.4 Write property test for second opinion access restrictions (Property 37)
+    - **Property 37: Second Opinion Access Restrictions**
+    - **Validates: Requirements 28.6**
+  - [ ] 26.5 Implement access revocation on completion or decline: revoke second-opinion doctor's access to shared sections; log revocation with timestamp
+    - _Requirements: 28.7_
+  - [ ]* 26.6 Write property test for second opinion access revocation (Property 38)
+    - **Property 38: Second Opinion Access Revocation**
+    - **Validates: Requirements 28.7**
+  - [ ]* 26.7 Write unit tests for read-only enforcement, decline with reason, and access revocation audit log
+    - _Requirements: 28.3, 28.6, 28.7_
+
+- [ ] 27. Checkpoint — Mental Health, Maternal/Pediatric, Wellness, and Second Opinion flows complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 28. Ratings & Reviews Service
+  - [ ] 28.1 Implement post-consultation rating prompt: after appointment marked complete, allow patient to submit rating (1–5) and optional written review; enforce one rating per appointment
+    - _Requirements: 15.1, 15.6_
+  - [ ]* 28.2 Write property test for one rating per appointment (Property 28)
+    - **Property 28: One Rating Per Appointment**
+    - **Validates: Requirements 15.6**
+  - [ ] 28.3 Implement prohibited content flagging: scan submitted review against prohibited content list; place flagged reviews in `flagged` state; exclude from published reviews
+    - _Requirements: 15.5_
+  - [ ]* 28.4 Write property test for prohibited content flagging (Property 27)
+    - **Property 27: Prohibited Content Flagging**
+    - **Validates: Requirements 15.5**
+  - [ ] 28.5 Implement doctor average rating recalculation: update doctor's `average_rating` and `total_reviews` within 5 minutes of new rating submission; update Elasticsearch index
+    - _Requirements: 15.2, 15.3_
+  - [ ] 28.6 Implement doctor public response to patient review
+    - _Requirements: 15.4_
+  - [ ]* 28.7 Write unit tests for duplicate rating rejection, moderation queue, and rating recalculation timing
+    - _Requirements: 15.3, 15.5, 15.6_
+
+- [ ] 29. Admin Service
+  - [ ] 29.1 Implement admin dashboard data endpoints: platform-wide metrics (total patients, doctors, pharmacies, lab partners, DAU, transaction volumes)
+    - _Requirements: 29.1_
+  - [ ] 29.2 Implement user management endpoints: view, approve, suspend, or permanently deactivate doctor/pharmacy/lab partner accounts
+    - _Requirements: 29.2_
+  - [ ] 29.3 Implement license verification queue: surface pending doctor registrations; record approval/rejection with reason; notify affected doctor
+    - _Requirements: 29.3, 29.4_
+  - [ ] 29.4 Implement dispute management: view reported disputes; add resolution notes; close dispute and notify all parties
+    - _Requirements: 29.5, 29.6_
+  - [ ] 29.5 Implement platform configuration management: credit thresholds, instalment plan parameters, cancellation policies, content moderation rules
+    - _Requirements: 29.7_
+  - [ ] 29.6 Implement exportable analytics reports (CSV): consultation volumes, revenue, user growth, geographic distribution
+    - _Requirements: 29.8, 12.5_
+  - [ ]* 29.7 Write unit tests for account suspension, dispute closure notification, and config update propagation
+    - _Requirements: 29.2, 29.6, 29.7_
+
+- [ ] 30. Doctor Dashboard Service (Next.js + Analytics)
+  - [ ] 30.1 Implement doctor dashboard data endpoints: upcoming appointments, recent consultations, pending prescriptions, patient list (name, last consultation, active prescriptions)
+    - Update dashboard data within 5 minutes of new consultation, payment, or appointment event via Kafka consumer
+    - _Requirements: 12.1, 12.4, 12.6_
+  - [ ] 30.2 Implement revenue analytics endpoints: total earnings, earnings by period, earnings by consultation type
+    - _Requirements: 12.2_
+  - [ ] 30.3 Implement patient analytics endpoints: total active patients, new patients per period, consultation frequency
+    - _Requirements: 12.3_
+  - [ ] 30.4 Implement CSV export for doctor analytics data
+    - _Requirements: 12.5_
+  - [ ]* 30.5 Write unit tests for dashboard staleness (>5 min), revenue aggregation, and CSV export format
+    - _Requirements: 12.5, 12.6_
+
+- [ ] 31. AI/ML Services (Python FastAPI)
+  - [ ] 31.1 Implement Symptom Checker service: accept patient-reported symptoms (text + voice); return possible conditions and recommended specialist types; recommend relevant doctors from platform; log all interactions in MongoDB
+    - Respond in patient's selected platform language
+    - _Requirements: 14.1, 14.2, 14.3, 14.6, 20.5_
+  - [ ] 31.2 Implement emergency keyword detection in AI Assistant and Mood Log inputs: on detection, return emergency contact options and crisis protocol trigger; integrate with Mental Health Service crisis protocol
+    - _Requirements: 14.7, 22.6_
+  - [ ]* 31.3 Write property test for emergency keyword detection (Property 26)
+    - **Property 26: Emergency Keyword Detection**
+    - **Validates: Requirements 14.7, 22.6**
+  - [ ] 31.4 Implement informational disclaimer: when patient question requires clinical judgment, include disclaimer that response is informational only and recommend consulting a doctor
+    - _Requirements: 14.4_
+  - [ ] 31.5 Implement Credit Scoring Engine: compute credit score from patient payment history (on-time payments, missed payments, outstanding balances); expose deterministic scoring endpoint; publish `credit_score.updated` Kafka event on score change; notify patient on credit limit change
+    - _Requirements: 8.5, 8.6_
+  - [ ]* 31.6 Write property test for credit score determinism (Property 14)
+    - **Property 14: Credit Score Determinism**
+    - **Validates: Requirements 8.5**
+  - [ ] 31.7 Implement Analytics Service: aggregate consultation volumes, revenue, user growth, and geographic distribution for admin and doctor dashboards; expose read-only endpoints backed by PostgreSQL read replica
+    - _Requirements: 12.2, 12.3, 29.1, 29.8_
+  - [ ]* 31.8 Write unit tests for symptom checker with empty symptom list, credit score with no payment history, and analytics with zero-data state
+    - _Requirements: 14.1, 8.5_
+
+- [ ] 32. Checkpoint — AI/ML services complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 33. Dental and Optical Consultation Extensions
+  - [ ] 33.1 Register `dental` and `optical` as distinct appointment types in the Appointment Service; prompt doctor to attach clinical notes and prescriptions on completion
+    - _Requirements: 23.1, 23.2_
+  - [ ] 33.2 Implement optical prescription issuance: attach to patient health record; notify patient; block eyewear order if prescription is expired with `OPTICAL_PRESCRIPTION_EXPIRED` (422)
+    - _Requirements: 23.3, 23.6_
+  - [ ] 33.3 Implement eyewear order flow: patient orders glasses/contact lenses from integrated optical partners using valid optical prescription; display order status and estimated delivery date
+    - _Requirements: 23.4, 23.5_
+  - [ ]* 33.4 Write unit tests for expired optical prescription block and eyewear order status display
+    - _Requirements: 23.5, 23.6_
+
+- [ ] 34. Multi-Language and Accessibility Support
+  - [ ] 34.1 Implement i18n framework in Flutter app and Next.js dashboards: support minimum 2 languages at launch; apply language selection immediately across all UI text; store preference in user profile
+    - _Requirements: 20.1, 20.2_
+  - [ ] 34.2 Implement text size adjustment settings in Flutter app and Next.js dashboards
+    - _Requirements: 20.4_
+  - [ ] 34.3 Implement screen reader compatibility: add semantic labels to all interactive Flutter widgets; ensure Next.js dashboards use proper ARIA roles and labels
+    - _Requirements: 20.3_
+  - [ ]* 34.4 Write unit tests for language switching persistence and i18n string completeness for all supported languages
+    - _Requirements: 20.1, 20.2_
+
+- [ ] 35. IoT Device Integration (Future Phase — Scaffold Only)
+  - [ ] 35.1 Scaffold IoT Gateway service: define MQTT message schema for biometric readings (blood pressure, glucose, heart rate, oxygen saturation); implement Kafka producer publishing to `iot.reading_received` topic
+    - _Requirements: 18.1, 18.2_
+  - [ ] 35.2 Scaffold TimescaleDB schema for time-series biometric data; implement Health Records Service consumer for `iot.reading_received` to attach readings to patient health record
+    - _Requirements: 18.2_
+  - [ ] 35.3 Scaffold out-of-range alert logic: define normal range thresholds per patient; emit alert to doctor and next-of-kin on critical reading
+    - _Requirements: 18.3, 18.4_
+  - [ ]* 35.4 Write unit tests for MQTT message normalization and out-of-range threshold evaluation
+    - _Requirements: 18.3_
+
+- [ ] 36. Emergency Response Integration (Future Phase — Scaffold Only)
+  - [ ] 36.1 Implement manual SOS button in Flutter app: on activation, trigger emergency alert to next-of-kin and local emergency services webhook; transmit patient GPS location, health record summary, and active prescriptions
+    - _Requirements: 19.3, 19.4_
+  - [ ] 36.2 Scaffold IoT-triggered collapse detection consumer: on `iot.reading_received` event indicating collapse, trigger same emergency alert flow as manual SOS
+    - _Requirements: 19.1, 19.2_
+  - [ ] 36.3 Implement emergency alert resolution logging: record resolution time, responding party, and outcome in AuditLog
+    - _Requirements: 19.5_
+  - [ ]* 36.4 Write unit tests for SOS trigger with no GPS location and emergency alert audit log completeness
+    - _Requirements: 19.3, 19.5_
+
+- [ ] 37. Flutter Mobile & Web Client
+  - [ ] 37.1 Implement patient-facing screens: registration/login (phone, email, social), profile management, doctor search with filters and map view, appointment booking flow, telemedicine session (video/audio/chat), prescription list, medication order flow, adherence tracking, health record viewer, next-of-kin management, SOS button
+    - _Requirements: 1.1, 3.1, 4.1, 5.1, 6.3, 7.1, 9.2, 11.3, 10.1, 19.3_
+  - [ ] 37.2 Implement doctor-facing screens in Flutter mobile: appointment list, telemedicine session, prescription issuance, patient health record (with access control), referral creation, queue management
+    - _Requirements: 2.1, 4.8, 5.3, 6.1, 11.2, 26.1, 31.5_
+  - [ ] 37.3 Implement real-time features in Flutter: WebSocket subscription for queue position updates, session duration ticks, in-session chat, and notification delivery
+    - _Requirements: 5.7, 31.3_
+  - [ ] 37.4 Implement AI Assistant chat interface in Flutter: text and voice input, symptom checker flow, emergency keyword UI response
+    - _Requirements: 14.1, 14.5, 14.7_
+  - [ ] 37.5 Implement wellness, maternal, pediatric, mental health, and second opinion screens in Flutter
+    - _Requirements: 22.3, 24.1, 25.1, 27.1, 28.1_
+
+- [ ] 38. Next.js Dashboards
+  - [ ] 38.1 Implement Doctor Dashboard (Next.js): upcoming appointments, recent consultations, pending prescriptions, patient list, revenue analytics, patient analytics, CSV export
+    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+  - [ ] 38.2 Implement Pharmacy Dashboard (Next.js): real-time incoming orders, order status management, inventory management, daily summary report
+    - _Requirements: 13.1, 13.2, 13.3, 13.5, 13.7_
+  - [ ] 38.3 Implement Admin Panel (Next.js): platform metrics, user management, license verification queue, dispute management, platform configuration, exportable analytics
+    - _Requirements: 29.1, 29.2, 29.3, 29.5, 29.7, 29.8_
+  - [ ] 38.4 Implement Lab Partner Dashboard (Next.js): order queue, result upload interface, radiology report upload
+    - _Requirements: 21.4, 21.7_
+
+- [ ] 39. Security Hardening and Compliance
+  - [ ] 39.1 Implement AuditLog immutability enforcement: configure PostgreSQL append-only permissions on `audit_log` table; ship logs to ELK Stack
+    - _Requirements: 17.5_
+  - [ ] 39.2 Implement GDPR right-to-erasure pipeline: soft-delete + anonymization of patient PII on account deletion request, subject to legal retention requirements
+    - _Requirements: 17.7_
+  - [ ] 39.3 Implement data residency configuration: make database region and encryption key region configurable per platform operator deployment
+    - _Requirements: 17.6_
+  - [ ] 39.4 Implement circuit breaker pattern on all external gateway calls (payment gateways, Agora/Twilio, insurer APIs) using Polly (.NET)
+    - _Requirements: 17.2_
+  - [ ] 39.5 Implement Saga pattern for multi-step workflows (appointment booking + payment + notification) as choreography-based sagas via Kafka with compensating transactions
+    - _Requirements: 4.1, 8.14_
+  - [ ]* 39.6 Write integration tests for health record access control matrix across all role combinations (patient, doctor, pharmacy, lab_partner, insurer, admin)
+    - _Requirements: 17.5, 11.4, 11.7_
+  - [ ]* 39.7 Write integration tests for end-to-end saga: appointment booking → payment failure → compensating transaction releases slot
+    - _Requirements: 4.1, 8.14_
+
+- [ ] 40. Final Checkpoint — Full platform integration
+  - Ensure all tests pass, ask the user if questions arise.
+
+---
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for a faster MVP
+- Each task references specific requirements for traceability
+- Property tests use **FsCheck** for C# (.NET) services and **Hypothesis** for Python (FastAPI) services
+- Each property test must run a minimum of 100 iterations and include the tag comment: `// Feature: online-healthcare-platform, Property {N}: {property_title}`
+- Checkpoints ensure incremental validation at logical boundaries
+- IoT (Task 35) and Emergency Response (Task 36) are future-phase scaffolds — implement interfaces and data models but do not wire to live external services
+- All 41 correctness properties from the design document are covered by property-based test sub-tasks
