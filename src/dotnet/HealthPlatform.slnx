@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/services/">
+    <Project Path="services/HealthPlatform.Admin/HealthPlatform.Admin.csproj" />
+    <Project Path="services/HealthPlatform.Appointment/HealthPlatform.Appointment.csproj" />
+    <Project Path="services/HealthPlatform.Auth/HealthPlatform.Auth.csproj" />
+    <Project Path="services/HealthPlatform.HealthRecords/HealthPlatform.HealthRecords.csproj" />
+    <Project Path="services/HealthPlatform.LabDiagnostics/HealthPlatform.LabDiagnostics.csproj" />
+    <Project Path="services/HealthPlatform.MaternalPediatric/HealthPlatform.MaternalPediatric.csproj" />
+    <Project Path="services/HealthPlatform.MentalHealth/HealthPlatform.MentalHealth.csproj" />
+    <Project Path="services/HealthPlatform.Notification/HealthPlatform.Notification.csproj" />
+    <Project Path="services/HealthPlatform.PaymentCredit/HealthPlatform.PaymentCredit.csproj" />
+    <Project Path="services/HealthPlatform.PharmacyInventory/HealthPlatform.PharmacyInventory.csproj" />
+    <Project Path="services/HealthPlatform.Prescription/HealthPlatform.Prescription.csproj" />
+    <Project Path="services/HealthPlatform.QueueManagement/HealthPlatform.QueueManagement.csproj" />
+    <Project Path="services/HealthPlatform.Referral/HealthPlatform.Referral.csproj" />
+    <Project Path="services/HealthPlatform.Search/HealthPlatform.Search.csproj" />
+    <Project Path="services/HealthPlatform.Telemedicine/HealthPlatform.Telemedicine.csproj" />
+    <Project Path="services/HealthPlatform.UserProfile/HealthPlatform.UserProfile.csproj" />
+    <Project Path="services/HealthPlatform.WellnessCarePlan/HealthPlatform.WellnessCarePlan.csproj" />
+  </Folder>
+  <Folder Name="/shared/">
+    <Project Path="shared/HealthPlatform.Shared/HealthPlatform.Shared.csproj" />
+  </Folder>
+</Solution>

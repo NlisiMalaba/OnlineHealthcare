@@ -1,0 +1,6 @@
+@HealthPlatform.Telemedicine_HostAddress = http://localhost:5102
+
+GET {{HealthPlatform.Telemedicine_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
