@@ -1,0 +1,241 @@
+_format_version: "3.0"
+_transform: false
+
+# DB-less Kong. Pair with infra/kong/k8s/kongplugin-jwt-keycloak.yaml when using Kong Ingress Controller.
+# Keycloak issuer (dev): http://localhost:8080/realms/health-platform
+
+services:
+  - name: apollo-graphql
+    url: http://apollo-gateway:4000
+    routes:
+      - name: graphql
+        paths:
+          - /graphql
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 300
+              policy: local
+              fault_tolerant: true
+
+  - name: user-profile
+    url: http://user-profile:8080
+    routes:
+      - name: user-profile-api
+        paths:
+          - /api/v1/users
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: appointment
+    url: http://appointment:8080
+    routes:
+      - name: appointment-api
+        paths:
+          - /api/v1/appointments
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: telemedicine
+    url: http://telemedicine:8080
+    routes:
+      - name: telemedicine-api
+        paths:
+          - /api/v1/telemedicine
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: prescription
+    url: http://prescription:8080
+    routes:
+      - name: prescription-api
+        paths:
+          - /api/v1/prescriptions
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: pharmacy
+    url: http://pharmacy-inventory:8080
+    routes:
+      - name: pharmacy-api
+        paths:
+          - /api/v1/pharmacy
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: payment
+    url: http://payment-credit:8080
+    routes:
+      - name: payment-api
+        paths:
+          - /api/v1/payments
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              policy: local
+
+  - name: notification
+    url: http://notification:8080
+    routes:
+      - name: notification-api
+        paths:
+          - /api/v1/notifications
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 200
+              policy: local
+
+  - name: health-records
+    url: http://health-records:8080
+    routes:
+      - name: health-records-api
+        paths:
+          - /api/v1/health-records
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: lab-diagnostics
+    url: http://lab-diagnostics:8080
+    routes:
+      - name: lab-api
+        paths:
+          - /api/v1/labs
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: referral
+    url: http://referral:8080
+    routes:
+      - name: referral-api
+        paths:
+          - /api/v1/referrals
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: queue-management
+    url: http://queue-management:8080
+    routes:
+      - name: queue-api
+        paths:
+          - /api/v1/queues
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 200
+              policy: local
+
+  - name: admin
+    url: http://admin:8080
+    routes:
+      - name: admin-api
+        paths:
+          - /api/v1/admin
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              policy: local
+
+  - name: search
+    url: http://search:8080
+    routes:
+      - name: search-api
+        paths:
+          - /api/v1/search
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 300
+              policy: local
+
+  - name: wellness
+    url: http://wellness-care-plan:8080
+    routes:
+      - name: wellness-api
+        paths:
+          - /api/v1/wellness
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: maternal-pediatric
+    url: http://maternal-pediatric:8080
+    routes:
+      - name: maternal-api
+        paths:
+          - /api/v1/maternal
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: mental-health
+    url: http://mental-health:8080
+    routes:
+      - name: mental-health-api
+        paths:
+          - /api/v1/mental-health
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+
+  - name: auth
+    url: http://auth:8080
+    routes:
+      - name: auth-api
+        paths:
+          - /api/v1/auth
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              policy: local

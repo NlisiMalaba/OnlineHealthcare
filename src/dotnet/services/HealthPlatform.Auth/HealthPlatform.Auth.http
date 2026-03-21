@@ -1,0 +1,6 @@
+@HealthPlatform.Auth_HostAddress = http://localhost:5014
+
+GET {{HealthPlatform.Auth_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
