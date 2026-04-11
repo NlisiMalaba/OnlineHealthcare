@@ -2,42 +2,37 @@
 
 ## Overview
 
-Incremental implementation of the Online Healthcare Platform across 19 microservices (.NET 8 / ASP.NET Core), 4 Python FastAPI AI services, Flutter mobile/web clients, and Next.js dashboards. Tasks are ordered: infrastructure → auth/identity → core domain services → AI services → real-time layer → client applications → cross-cutting concerns.
+Incremental implementation of the Online Healthcare Platform using **Clean Architecture** in a single .NET 8 / ASP.NET Core application (`HealthPlatform.API`) and a separate Python FastAPI project (`HealthPlatform.AI`) within the same monorepo. Flutter mobile/web clients and Next.js dashboards are also part of the monorepo. Tasks are ordered: infrastructure → auth/identity → core domain modules → AI services → real-time layer → client applications → cross-cutting concerns.
 
-Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python services). Each property test references its property number from the design document.
+Property-based tests use **FsCheck** (C# / .NET) and **Hypothesis** (Python). Each property test references its property number from the design document.
 
 ---
 
 ## Tasks
 
 - [ ] 1. Infrastructure and Project Scaffolding
-  - Initialise the monorepo structure with solution files for all .NET 8 microservices, Python FastAPI services, Flutter apps, and Next.js dashboards
-  - Configure Docker Compose for local development (PostgreSQL, MongoDB, Redis, Elasticsearch, Kafka, Keycloak)
-  - Create Kubernetes namespace manifests (`core-services`, `ai-services`, `realtime`, `data`, `monitoring`) and base Helm chart templates
-  - Set up Istio service mesh configuration for mTLS between services
-  - Configure Kong API Gateway with route definitions, rate-limiting plugins, and JWT validation plugin pointing to Keycloak
-  - Set up Apollo GraphQL Gateway with schema stitching stubs for all core services
-  - Configure Prometheus, Grafana, and ELK Stack base manifests
-  - Configure OpenTelemetry SDK in the shared .NET library and Python base service
+  - Initialise the monorepo structure: `src/HealthPlatform.Domain`, `src/HealthPlatform.Application`, `src/HealthPlatform.Infrastructure`, `src/HealthPlatform.API` (.NET 8 solution), `services/ai/` (Python FastAPI project), Flutter apps, and Next.js dashboards
+  - Configure Docker Compose for local development (PostgreSQL, MongoDB, Redis, Elasticsearch)
+  - Configure Hangfire for background job processing (outbox processor, scheduled reminders)
+  - Configure Serilog structured logging and OpenTelemetry SDK in the .NET project and Python AI project
+  - Set up ASP.NET Core rate limiting middleware and health check endpoints
   - _Requirements: 17.1, 17.2_
 
 - [ ] 2. Shared Libraries and Cross-Cutting Concerns
-  - Create `HealthPlatform.Shared` .NET class library with: base entity types (UUID PKs, timestamps), error response envelope (`code`, `message`, `details`, `trace_id`), `IPaymentGateway` interface, Kafka producer/consumer base classes, and AuditLog writer
+  - Create `HealthPlatform.Domain` base types: base entity (UUID PK, timestamps), domain event base class, value objects
+  - Create `HealthPlatform.Application` shared types: error response envelope (`code`, `message`, `details`, `trace_id`), `IPaymentGateway` interface, MediatR command/query base classes, outbox domain event dispatcher
   - Implement AES-256 at-rest encryption helpers and TLS enforcement middleware
   - Implement idempotency key middleware for payment and order endpoints
   - Implement RBAC policy definitions (`patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`) as ASP.NET Core authorization policies
   - Create shared FsCheck generators for domain types (UUID, timestamps, enums, geo-points) to be reused across all property tests
   - _Requirements: 17.1, 17.2, 17.5, 17.6_
 
-- [ ] 3. Auth Service (Keycloak Integration)
-  - [ ] 3.1 Configure Keycloak realm with client definitions for Flutter (PKCE), Next.js (authorization code), and internal services (client credentials)
-    - Define roles: `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`
-    - Configure MFA (TOTP + SMS OTP) as required for `doctor`, `pharmacy`, `admin` roles
+- [ ] 3. Auth Module (ASP.NET Core Identity)
+  - [ ] 3.1 Configure ASP.NET Core Identity with JWT bearer token issuance; define roles: `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`; configure MFA (TOTP + SMS OTP) as required for `doctor`, `pharmacy`, `admin` roles
     - _Requirements: 17.3_
-  - [ ] 3.2 Implement Auth Service wrapper in .NET 8 that handles new-device detection and triggers step-up authentication
-    - Persist device fingerprints per user; compare on each login
+  - [ ] 3.2 Implement new-device detection: persist device fingerprints per user; compare on each login; trigger step-up authentication on unrecognized device
     - _Requirements: 17.4_
-  - [ ] 3.3 Implement account lockout logic: 5 consecutive failed logins → lock account + emit notification event
+  - [ ] 3.3 Implement account lockout logic: 5 consecutive failed logins → lock account + emit domain event for notification
     - _Requirements: 17.8_
   - [ ]* 3.4 Write property test for account lockout (Property 31)
     - **Property 31: Account Lockout After Failed Logins**
@@ -50,9 +45,9 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
 - [ ] 4. Checkpoint — Auth layer complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. User & Profile Service
+- [ ] 5. Identity Module — User & Profile
   - [ ] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
-    - On successful registration, publish `patient.registered` Kafka event consumed by Health Records Service to create linked HealthRecord
+    - On successful registration, publish `PatientRegistered` domain event handled in-process to create linked HealthRecord
     - Return `IDENTITY_CONFLICT` (409) for duplicate phone/email
     - _Requirements: 1.1, 1.2, 1.6_
   - [ ]* 5.2 Write property test for patient registration creates linked health record (Property 1)
@@ -68,7 +63,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
     - **Property 2: Profile Update Round Trip**
     - **Validates: Requirements 1.3**
   - [ ] 5.6 Implement Doctor registration endpoint (name, license number, specialty, experience, clinic address, fees, availability, photo, credentials)
-    - Set account to `pending` state on submission; queue license verification task for Admin Service
+    - Set account to `pending` state on submission; queue license verification task for Admin module
     - Return `LICENSE_INVALID` (422) on admin rejection with reason
     - _Requirements: 2.1, 2.2, 2.7_
   - [ ]* 5.7 Write property test for doctor registration starts in pending state (Property 4)
@@ -80,17 +75,17 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
     - **Property 5: License Verification State Transition**
     - **Validates: Requirements 2.3, 2.7**
   - [ ] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials
-    - Publish `doctor.availability_changed` Kafka event consumed by Search Service for real-time index update
+    - Trigger Elasticsearch index update on availability change
     - _Requirements: 2.4, 2.5, 2.6_
   - [ ] 5.11 Implement Pharmacy registration and profile management endpoints
     - _Requirements: 13.1_
   - [ ]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
     - _Requirements: 1.6, 2.2, 2.7_
 
-- [ ] 6. Search Service (Elasticsearch)
+- [ ] 6. Search Module (Elasticsearch)
   - [ ] 6.1 Define and create Elasticsearch indices: Doctor (name, specialty, rating, geo_point, fee range, availability), Pharmacy (name, location, stock summary), Lab Partner (name, location, test types, pricing)
     - _Requirements: 3.1, 3.3, 21.3_
-  - [ ] 6.2 Implement Kafka consumers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
+  - [ ] 6.2 Implement domain event handlers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
     - _Requirements: 3.5_
   - [ ] 6.3 Implement doctor search endpoint with filters (specialty, rating, fee range, availability) and geo-distance proximity sorting
     - Return empty-state response with suggestion message when no results match
@@ -112,8 +107,8 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 7.3 Write property test for slot hold exclusivity (Property 7)
     - **Property 7: Slot Hold Exclusivity**
     - **Validates: Requirements 4.1**
-  - [ ] 7.4 Implement appointment confirmation on `payment.completed` Kafka event; publish `appointment.confirmed` event
-    - Send confirmation notifications to patient and doctor via Notification Service
+  - [ ] 7.4 Implement appointment confirmation on `PaymentCompleted` domain event; publish `AppointmentConfirmed` domain event
+    - Send confirmation notifications to patient and doctor via Notification module
     - _Requirements: 4.4_
   - [ ]* 7.5 Write property test for appointment confirmation notifies both parties (Property 8)
     - **Property 8: Appointment Confirmation Notifies Both Parties**
@@ -132,20 +127,20 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 7.11 Write unit tests for slot expiry, cancellation policy edge cases, and reschedule flow
     - _Requirements: 4.1, 4.6, 4.7, 4.8_
 
-- [ ] 8. Telemedicine Service
-  - [ ] 8.1 Implement session lifecycle: on `appointment.confirmed` for virtual appointments, create TelemedicineSession record; on join request, generate Agora/Twilio RTC token and channel
+- [ ] 8. Telemedicine Module
+  - [ ] 8.1 Implement session lifecycle: on `AppointmentConfirmed` domain event for virtual appointments, create TelemedicineSession record; on join request, generate Agora/Twilio RTC token and channel
     - _Requirements: 5.1, 5.2_
   - [ ] 8.2 Implement recording consent workflow: persist `recording_consent` flag; only set `recording_enabled = true` when consent is `true`
     - _Requirements: 5.8_
   - [ ]* 8.3 Write property test for recording requires consent (Property 10)
     - **Property 10: Recording Requires Consent**
     - **Validates: Requirements 5.8**
-  - [ ] 8.4 Implement WebSocket session events: session duration ticks, file/image sharing events, in-session chat messages via Socket.io
+  - [ ] 8.4 Implement SignalR session events: session duration ticks, file/image sharing events, in-session chat messages
     - _Requirements: 5.3, 5.7_
   - [ ] 8.5 Implement auto-reconnect logic: on network interruption, attempt reconnect for up to 60 seconds before surfacing reconnection prompt
     - _Requirements: 5.6_
-  - [ ] 8.6 On session end, generate session summary document (stored in MongoDB) and attach reference to patient's HealthRecord via Health Records Service
-    - Publish `telemedicine.session_ended` Kafka event
+  - [ ] 8.6 On session end, generate session summary document (stored in MongoDB) and attach reference to patient's HealthRecord via Health Records module
+    - Publish `TelemedicineSessionEnded` domain event
     - _Requirements: 5.5_
   - [ ]* 8.7 Write unit tests for reconnect timeout, session summary attachment, and mode switching
     - _Requirements: 5.2, 5.5, 5.6_
@@ -153,9 +148,9 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
 - [ ] 9. Checkpoint — Appointment and Telemedicine flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Prescription Service
+- [ ] 10. Prescriptions Module
   - [ ] 10.1 Implement prescription creation endpoint: record medication name, dosage, frequency, duration, special instructions; link to doctor and patient health record; default expiry to issued_at + 30 days if not specified
-    - Publish `prescription.issued` Kafka event; notify patient
+    - Publish `PrescriptionIssued` domain event; notify patient
     - _Requirements: 6.1, 6.2, 6.3, 6.6_
   - [ ]* 10.2 Write property test for prescription default expiry (Property 12)
     - **Property 12: Prescription Default Expiry**
@@ -175,16 +170,16 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 10.8 Write unit tests for expiry edge cases, cancellation, and interaction check with empty schedule
     - _Requirements: 6.6, 6.7, 6.8, 9.8_
 
-- [ ] 11. Pharmacy & Inventory Service
+- [ ] 11. Pharmacy & Inventory Module
   - [ ] 11.1 Implement medication order creation: filter pharmacies by stock availability; sync prescription data to selected pharmacy in real time; notify pharmacy with prescription details and delivery address
     - _Requirements: 7.1, 7.2, 7.3_
   - [ ]* 11.2 Write property test for pharmacy stock filter (Property 13)
     - **Property 13: Pharmacy Stock Filter**
     - **Validates: Requirements 7.1**
   - [ ] 11.3 Implement pharmacy order workflow: confirm / reject / request-clarification actions; on confirmation assign delivery agent and generate tracking link; support pickup alternative
-    - Publish `order.status_changed` Kafka event on each status transition; notify patient
+    - Publish `OrderStatusChanged` domain event on each status transition; notify patient
     - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.9_
-  - [ ] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; publish inventory change events to Search Service
+  - [ ] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; trigger Elasticsearch index update on stock change
     - _Requirements: 7.8_
   - [ ] 11.5 Implement low-stock alert: when inventory item quantity falls at or below pharmacy-configured threshold, emit low-stock notification event to pharmacy
     - _Requirements: 13.6_
@@ -196,7 +191,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 11.8 Write unit tests for order rejection with alternative pharmacy suggestion, pickup flow, and stock sync
     - _Requirements: 7.9, 7.6_
 
-- [ ] 12. Payment & Credit Service
+- [ ] 12. Payments & Credit Module
   - [ ] 12.1 Implement `IPaymentGateway` interface and concrete implementations for Stripe, Flutterwave, Paystack, and M-Pesa
     - Implement webhook endpoints per gateway with idempotency key validation
     - _Requirements: 8.1_
@@ -209,12 +204,12 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
     - **Validates: Requirements 8.8**
   - [ ] 12.5 Implement instalment plan creation: display instalment amount, frequency, total repayable, and due dates before confirmation; store as scheduled payment records; send due-date reminders 24 hours before; record missed payments and apply late fees
     - _Requirements: 8.9, 8.10, 8.11, 8.12_
-  - [ ] 12.6 Implement payment completion: generate digital receipt (S3), attach to patient transaction history; publish `payment.completed` Kafka event
+  - [ ] 12.6 Implement payment completion: generate digital receipt (S3), attach to patient transaction history; publish `PaymentCompleted` domain event
     - _Requirements: 8.13, 8.15_
   - [ ]* 12.7 Write property test for payment receipt round trip (Property 16)
     - **Property 16: Payment Receipt Round Trip**
     - **Validates: Requirements 8.13**
-  - [ ] 12.8 Implement payment failure handling: retain appointment/order in `pending` state for 10 minutes; publish `payment.failed` event; notify patient with descriptive error
+  - [ ] 12.8 Implement payment failure handling: retain appointment/order in `pending` state for 10 minutes; publish `PaymentFailed` domain event; notify patient with descriptive error
     - _Requirements: 8.14_
   - [ ]* 12.9 Write property test for failed payment preserves pending state (Property 17)
     - **Property 17: Failed Payment Preserves Pending State**
@@ -225,13 +220,13 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
 - [ ] 13. Checkpoint — Prescription, Pharmacy, and Payment flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Medication Adherence Tracking
-  - [ ] 14.1 Implement medication schedule generation: on `prescription.dispensed` Kafka event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
+- [ ] 14. Medication Adherence Module
+  - [ ] 14.1 Implement medication schedule generation: on `PrescriptionDispensed` domain event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
     - _Requirements: 9.1_
   - [ ]* 14.2 Write property test for medication schedule generation (Property 18)
     - **Property 18: Medication Schedule Generation**
     - **Validates: Requirements 9.1**
-  - [ ] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time
+  - [ ] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time via Hangfire recurring jobs
     - _Requirements: 9.2_
   - [ ] 14.4 Implement adherence event recording: on patient confirmation → record `taken` event with timestamp; on 2-hour overdue → record `missed` event
     - _Requirements: 9.3, 9.4_
@@ -248,7 +243,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 14.9 Write unit tests for schedule completion, zero-dose-schedule edge case, and summary aggregation
     - _Requirements: 9.6, 9.7_
 
-- [ ] 15. Next of Kin Management
+- [ ] 15. Next of Kin Module
   - [ ] 15.1 Implement next-of-kin CRUD: allow patient to add up to 3 contacts (name, relationship, phone, email, mental health contact flag); notify contact on addition
     - _Requirements: 10.1, 10.2, 22.8_
   - [ ] 15.2 Implement emergency alert dispatch: doctor-triggered or system-triggered alert sends simultaneous SMS + push to all patient next-of-kin; log alert with timestamp, trigger reason, and delivery status
@@ -264,8 +259,8 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 15.6 Write unit tests for max 3 contacts enforcement, alert with no next-of-kin, and retry exhaustion
     - _Requirements: 10.1, 10.7_
 
-- [ ] 16. Health Records Service
-  - [ ] 16.1 Implement HealthRecord creation (triggered by `patient.registered` event) and HealthRecordEntry CRUD in MongoDB (consultation notes, diagnoses, prescription refs, allergies, vitals, lab result refs, vaccinations)
+- [ ] 16. Health Records Module
+  - [ ] 16.1 Implement HealthRecord creation (triggered by `PatientRegistered` domain event) and HealthRecordEntry CRUD in MongoDB (consultation notes, diagnoses, prescription refs, allergies, vitals, lab result refs, vaccinations)
     - _Requirements: 11.1, 11.2_
   - [ ] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
     - _Requirements: 11.4, 11.7_
@@ -279,8 +274,8 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 16.6 Write unit tests for PDF export, access revocation, and audit log completeness
     - _Requirements: 11.5, 11.6, 11.7_
 
-- [ ] 17. Notification Service
-  - [ ] 17.1 Implement Kafka consumers for all notification-triggering events; route to FCM/APNs (push), Twilio/Africa's Talking (SMS), or SendGrid/SES (email) based on patient preferences
+- [ ] 17. Notifications Module
+  - [ ] 17.1 Implement MediatR domain event handlers for all notification-triggering events; route to FCM/APNs (push), Twilio/Africa's Talking (SMS), or SendGrid/SES (email) based on patient preferences
     - _Requirements: 16.1, 16.4_
   - [ ] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
     - _Requirements: 16.2_
@@ -289,7 +284,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 17.4 Write property test for notification log completeness (Property 29)
     - **Property 29: Notification Log Completeness**
     - **Validates: Requirements 16.3**
-  - [ ] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery
+  - [ ] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery via Hangfire retry job
     - _Requirements: 16.5_
   - [ ]* 17.6 Write property test for critical notification SMS fallback (Property 30)
     - **Property 30: Critical Notification SMS Fallback**
@@ -300,7 +295,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
 - [ ] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 19. Lab & Diagnostics Service
+- [ ] 19. Lab & Diagnostics Module
   - [ ] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
     - _Requirements: 21.1, 21.2_
   - [ ]* 19.2 Write property test for lab order attached to health record (Property 32)
@@ -322,9 +317,9 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
     - _Requirements: 21.2, 21.6, 21.8_
 
-- [ ] 20. Referral Service
+- [ ] 20. Referrals Module
   - [ ] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
-    - Notify receiving doctor and patient; publish `referral.created` Kafka event
+    - Notify receiving doctor and patient; publish `ReferralCreated` domain event
     - _Requirements: 26.1, 26.2, 30.1, 30.2_
   - [ ]* 20.2 Write property test for referral requires patient consent (Property 39)
     - **Property 39: Referral Requires Patient Consent**
@@ -342,13 +337,13 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
     - _Requirements: 26.4, 30.2, 30.8_
 
-- [ ] 21. Queue Management Service
+- [ ] 21. Queue Management Module
   - [ ] 21.1 Implement queue entry creation: patient with confirmed physical appointment joins virtual queue; assign queue position and compute estimated wait time based on patients ahead and doctor's average consultation duration
     - _Requirements: 31.1, 31.2_
   - [ ]* 21.2 Write property test for queue position and wait time assignment (Property 40)
     - **Property 40: Queue Position and Wait Time Assignment**
     - **Validates: Requirements 31.2**
-  - [ ] 21.3 Implement real-time queue position display via WebSocket (Socket.io); update at least every 2 minutes; push position-2 notification to patient
+  - [ ] 21.3 Implement real-time queue position display via SignalR; update at least every 2 minutes; push position-2 notification to patient
     - _Requirements: 31.3, 31.4_
   - [ ] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
     - _Requirements: 31.5, 31.6, 31.7_
@@ -363,7 +358,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
 - [ ] 22. Checkpoint — Lab, Referral, and Queue flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 23. Mental Health Service
+- [ ] 23. Mental Health Module
   - [ ] 23.1 Implement therapy session booking using the standard appointment flow (appointment type = `therapy`); attach session summary to patient health record (visible only to patient and therapist unless broader access granted)
     - _Requirements: 22.1, 22.2_
   - [ ] 23.2 Implement mood log CRUD: patient records rating (1–5) and optional notes; store in MongoDB; display time-series chart data endpoint for patient and (with consent) therapist
@@ -378,7 +373,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 23.6 Write unit tests for broader access consent toggle, crisis protocol with no mental health contact, and mood chart data aggregation
     - _Requirements: 22.2, 22.4, 22.7_
 
-- [ ] 24. Maternal & Pediatric Service
+- [ ] 24. Maternal & Pediatric Module
   - [ ] 24.1 Implement antenatal record creation: capture estimated due date, gestational age, assigned obstetric doctor; auto-generate recommended checkup appointment schedule; notify patient
     - Increase reminder frequency when due date is within 4 weeks
     - _Requirements: 24.1, 24.2, 24.8_
@@ -398,7 +393,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 24.8 Write unit tests for due-date proximity reminder escalation, birth plan sharing, and vaccination schedule generation
     - _Requirements: 24.7, 24.8, 25.4_
 
-- [ ] 25. Wellness & Care Plan Service
+- [ ] 25. Wellness & Care Plan Module
   - [ ] 25.1 Implement health goal CRUD: patient creates goals for steps, weight, sleep, water intake, or custom metrics; on wellness entry recording, compare against active goals and return progress
     - _Requirements: 27.1, 27.2, 27.3_
   - [ ] 25.2 Implement care plan management: doctor assigns care plan to patient (condition, tasks, monitoring targets, review interval); send task-due reminders to patient; record task completions with timestamp; notify doctor when review interval is reached
@@ -406,7 +401,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 25.3 Write unit tests for goal progress calculation, care plan task completion, and review interval notification
     - _Requirements: 27.2, 27.9, 27.10_
 
-- [ ] 26. Second Opinion Service
+- [ ] 26. Second Opinion Module
   - [ ] 26.1 Implement second opinion request: patient selects doctor and specifies health record sections to share; notify selected doctor; grant read-only access to specified sections for duration of second opinion
     - _Requirements: 28.1, 28.2_
   - [ ] 26.2 Implement second opinion response workflow: doctor accepts (submit clinical notes/recommendations, notify patient, attach response to health record) or declines (mandatory reason, notify patient)
@@ -427,7 +422,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
 - [ ] 27. Checkpoint — Mental Health, Maternal/Pediatric, Wellness, and Second Opinion flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 28. Ratings & Reviews Service
+- [ ] 28. Ratings & Reviews Module
   - [ ] 28.1 Implement post-consultation rating prompt: after appointment marked complete, allow patient to submit rating (1–5) and optional written review; enforce one rating per appointment
     - _Requirements: 15.1, 15.6_
   - [ ]* 28.2 Write property test for one rating per appointment (Property 28)
@@ -445,7 +440,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 28.7 Write unit tests for duplicate rating rejection, moderation queue, and rating recalculation timing
     - _Requirements: 15.3, 15.5, 15.6_
 
-- [ ] 29. Admin Service
+- [ ] 29. Admin Module
   - [ ] 29.1 Implement admin dashboard data endpoints: platform-wide metrics (total patients, doctors, pharmacies, lab partners, DAU, transaction volumes)
     - _Requirements: 29.1_
   - [ ] 29.2 Implement user management endpoints: view, approve, suspend, or permanently deactivate doctor/pharmacy/lab partner accounts
@@ -461,9 +456,9 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 29.7 Write unit tests for account suspension, dispute closure notification, and config update propagation
     - _Requirements: 29.2, 29.6, 29.7_
 
-- [ ] 30. Doctor Dashboard Service (Next.js + Analytics)
+- [ ] 30. Doctor Dashboard Module (Next.js + Analytics)
   - [ ] 30.1 Implement doctor dashboard data endpoints: upcoming appointments, recent consultations, pending prescriptions, patient list (name, last consultation, active prescriptions)
-    - Update dashboard data within 5 minutes of new consultation, payment, or appointment event via Kafka consumer
+    - Update dashboard data within 5 minutes of new consultation, payment, or appointment event via domain event handlers
     - _Requirements: 12.1, 12.4, 12.6_
   - [ ] 30.2 Implement revenue analytics endpoints: total earnings, earnings by period, earnings by consultation type
     - _Requirements: 12.2_
@@ -474,18 +469,18 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
   - [ ]* 30.5 Write unit tests for dashboard staleness (>5 min), revenue aggregation, and CSV export format
     - _Requirements: 12.5, 12.6_
 
-- [ ] 31. AI/ML Services (Python FastAPI)
-  - [ ] 31.1 Implement Symptom Checker service: accept patient-reported symptoms (text + voice); return possible conditions and recommended specialist types; recommend relevant doctors from platform; log all interactions in MongoDB
+- [ ] 31. AI/ML Services (Python FastAPI — HealthPlatform.AI)
+  - [ ] 31.1 Implement Symptom Checker endpoint: accept patient-reported symptoms (text + voice); return possible conditions and recommended specialist types; recommend relevant doctors from platform; log all interactions in MongoDB
     - Respond in patient's selected platform language
     - _Requirements: 14.1, 14.2, 14.3, 14.6, 20.5_
-  - [ ] 31.2 Implement emergency keyword detection in AI Assistant and Mood Log inputs: on detection, return emergency contact options and crisis protocol trigger; integrate with Mental Health Service crisis protocol
+  - [ ] 31.2 Implement emergency keyword detection endpoint: on detection in AI Assistant or Mood Log inputs, return emergency contact options and crisis protocol trigger; integrate with Mental Health module via HTTP callback
     - _Requirements: 14.7, 22.6_
   - [ ]* 31.3 Write property test for emergency keyword detection (Property 26)
     - **Property 26: Emergency Keyword Detection**
     - **Validates: Requirements 14.7, 22.6**
   - [ ] 31.4 Implement informational disclaimer: when patient question requires clinical judgment, include disclaimer that response is informational only and recommend consulting a doctor
     - _Requirements: 14.4_
-  - [ ] 31.5 Implement Credit Scoring Engine: compute credit score from patient payment history (on-time payments, missed payments, outstanding balances); expose deterministic scoring endpoint; publish `credit_score.updated` Kafka event on score change; notify patient on credit limit change
+  - [ ] 31.5 Implement Credit Scoring Engine: compute credit score from patient payment history (on-time payments, missed payments, outstanding balances); expose deterministic scoring endpoint called by the .NET Payments module; notify patient on credit limit change
     - _Requirements: 8.5, 8.6_
   - [ ]* 31.6 Write property test for credit score determinism (Property 14)
     - **Property 14: Credit Score Determinism**
@@ -519,19 +514,19 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
     - _Requirements: 20.1, 20.2_
 
 - [ ] 35. IoT Device Integration (Future Phase — Scaffold Only)
-  - [ ] 35.1 Scaffold IoT Gateway service: define MQTT message schema for biometric readings (blood pressure, glucose, heart rate, oxygen saturation); implement Kafka producer publishing to `iot.reading_received` topic
+  - [ ] 35.1 Scaffold IoT adapter: define biometric reading schema (blood pressure, glucose, heart rate, oxygen saturation); implement HTTP endpoint that receives normalized readings and calls the Health Records module's internal API
     - _Requirements: 18.1, 18.2_
-  - [ ] 35.2 Scaffold TimescaleDB schema for time-series biometric data; implement Health Records Service consumer for `iot.reading_received` to attach readings to patient health record
+  - [ ] 35.2 Scaffold TimescaleDB schema for time-series biometric data; implement Health Records module handler to attach readings to patient health record
     - _Requirements: 18.2_
-  - [ ] 35.3 Scaffold out-of-range alert logic: define normal range thresholds per patient; emit alert to doctor and next-of-kin on critical reading
+  - [ ] 35.3 Scaffold out-of-range alert logic: define normal range thresholds per patient; emit domain event to notify doctor and next-of-kin on critical reading
     - _Requirements: 18.3, 18.4_
-  - [ ]* 35.4 Write unit tests for MQTT message normalization and out-of-range threshold evaluation
+  - [ ]* 35.4 Write unit tests for reading normalization and out-of-range threshold evaluation
     - _Requirements: 18.3_
 
 - [ ] 36. Emergency Response Integration (Future Phase — Scaffold Only)
   - [ ] 36.1 Implement manual SOS button in Flutter app: on activation, trigger emergency alert to next-of-kin and local emergency services webhook; transmit patient GPS location, health record summary, and active prescriptions
     - _Requirements: 19.3, 19.4_
-  - [ ] 36.2 Scaffold IoT-triggered collapse detection consumer: on `iot.reading_received` event indicating collapse, trigger same emergency alert flow as manual SOS
+  - [ ] 36.2 Scaffold IoT-triggered collapse detection handler: on critical biometric reading indicating collapse, trigger same emergency alert flow as manual SOS
     - _Requirements: 19.1, 19.2_
   - [ ] 36.3 Implement emergency alert resolution logging: record resolution time, responding party, and outcome in AuditLog
     - _Requirements: 19.5_
@@ -543,7 +538,7 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
     - _Requirements: 1.1, 3.1, 4.1, 5.1, 6.3, 7.1, 9.2, 11.3, 10.1, 19.3_
   - [ ] 37.2 Implement doctor-facing screens in Flutter mobile: appointment list, telemedicine session, prescription issuance, patient health record (with access control), referral creation, queue management
     - _Requirements: 2.1, 4.8, 5.3, 6.1, 11.2, 26.1, 31.5_
-  - [ ] 37.3 Implement real-time features in Flutter: WebSocket subscription for queue position updates, session duration ticks, in-session chat, and notification delivery
+  - [ ] 37.3 Implement real-time features in Flutter: SignalR subscription for queue position updates, session duration ticks, in-session chat, and notification delivery
     - _Requirements: 5.7, 31.3_
   - [ ] 37.4 Implement AI Assistant chat interface in Flutter: text and voice input, symptom checker flow, emergency keyword UI response
     - _Requirements: 14.1, 14.5, 14.7_
@@ -561,19 +556,19 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
     - _Requirements: 21.4, 21.7_
 
 - [ ] 39. Security Hardening and Compliance
-  - [ ] 39.1 Implement AuditLog immutability enforcement: configure PostgreSQL append-only permissions on `audit_log` table; ship logs to ELK Stack
+  - [ ] 39.1 Implement AuditLog immutability enforcement: configure PostgreSQL append-only permissions on `audit_log` table; ship logs to centralized log store
     - _Requirements: 17.5_
   - [ ] 39.2 Implement GDPR right-to-erasure pipeline: soft-delete + anonymization of patient PII on account deletion request, subject to legal retention requirements
     - _Requirements: 17.7_
   - [ ] 39.3 Implement data residency configuration: make database region and encryption key region configurable per platform operator deployment
     - _Requirements: 17.6_
-  - [ ] 39.4 Implement circuit breaker pattern on all external gateway calls (payment gateways, Agora/Twilio, insurer APIs) using Polly (.NET)
+  - [ ] 39.4 Implement circuit breaker pattern on all external HTTP calls (payment gateways, Agora/Twilio, insurer APIs, AI service) using Polly (.NET)
     - _Requirements: 17.2_
-  - [ ] 39.5 Implement Saga pattern for multi-step workflows (appointment booking + payment + notification) as choreography-based sagas via Kafka with compensating transactions
+  - [ ] 39.5 Implement outbox-based compensating transactions for multi-step workflows (appointment booking + payment + notification): on payment failure, outbox processor triggers slot release and notification
     - _Requirements: 4.1, 8.14_
   - [ ]* 39.6 Write integration tests for health record access control matrix across all role combinations (patient, doctor, pharmacy, lab_partner, insurer, admin)
     - _Requirements: 17.5, 11.4, 11.7_
-  - [ ]* 39.7 Write integration tests for end-to-end saga: appointment booking → payment failure → compensating transaction releases slot
+  - [ ]* 39.7 Write integration tests for end-to-end flow: appointment booking → payment failure → compensating transaction releases slot
     - _Requirements: 4.1, 8.14_
 
 - [ ] 40. Final Checkpoint — Full platform integration
@@ -585,8 +580,9 @@ Property-based tests use **FsCheck** (C# services) and **Hypothesis** (Python se
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP
 - Each task references specific requirements for traceability
-- Property tests use **FsCheck** for C# (.NET) services and **Hypothesis** for Python (FastAPI) services
+- Property tests use **FsCheck** for C# (.NET) and **Hypothesis** for Python (FastAPI)
 - Each property test must run a minimum of 100 iterations and include the tag comment: `// Feature: online-healthcare-platform, Property {N}: {property_title}`
 - Checkpoints ensure incremental validation at logical boundaries
 - IoT (Task 35) and Emergency Response (Task 36) are future-phase scaffolds — implement interfaces and data models but do not wire to live external services
 - All 41 correctness properties from the design document are covered by property-based test sub-tasks
+- The architecture is designed to scale to microservices in the future: each domain module has clear boundaries and can be extracted into a separate deployable service when needed

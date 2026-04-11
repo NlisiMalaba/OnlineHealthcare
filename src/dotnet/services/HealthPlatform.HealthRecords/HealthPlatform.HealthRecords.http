@@ -1,6 +1,0 @@
-@HealthPlatform.HealthRecords_HostAddress = http://localhost:5088
-
-GET {{HealthPlatform.HealthRecords_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
