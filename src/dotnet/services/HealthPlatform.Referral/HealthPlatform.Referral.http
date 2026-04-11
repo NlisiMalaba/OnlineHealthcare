@@ -1,6 +1,0 @@
-@HealthPlatform.Referral_HostAddress = http://localhost:5124
-
-GET {{HealthPlatform.Referral_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

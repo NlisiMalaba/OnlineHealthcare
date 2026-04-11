@@ -7,9 +7,9 @@ The Online Healthcare Platform is a comprehensive digital health ecosystem conne
 ### Design Goals
 
 - **Patient-centric**: Every workflow starts and ends with the patient's health outcome.
-- **Extensible**: Microservices architecture allows independent scaling and future feature addition (IoT, emergency response).
+- **Extensible**: Clean architecture with clear domain boundaries makes it straightforward to extract services or scale to microservices in the future.
 - **Compliant**: AES-256 at rest, TLS 1.2+ in transit, full audit logging, RBAC, and MFA throughout.
-- **Resilient**: Event-driven via Kafka; no single point of failure; graceful degradation.
+- **Resilient**: In-process domain events with outbox pattern; graceful degradation on external service failures.
 - **Inclusive**: Multi-language, accessibility-first, multi-currency payment support.
 
 ### Key Stakeholders
@@ -22,13 +22,20 @@ The Online Healthcare Platform is a comprehensive digital health ecosystem conne
 | Lab Partner | Next.js dashboard / REST API |
 | Insurer | REST API integration |
 | Admin | Next.js admin panel |
-| AI/ML Services | Python FastAPI internal services |
+| AI/ML Services | Python FastAPI project (separate project within the monorepo) |
 
 ---
 
 ## Architecture
 
 ### High-Level System Architecture
+
+The platform uses **Clean Architecture** across two projects within the Online Healthcare monorepo:
+
+1. **HealthPlatform.API** — .NET 8 / ASP.NET Core application (the main backend)
+2. **HealthPlatform.AI** — Python FastAPI project (AI/ML services: symptom checker, credit scoring, analytics, NLP)
+
+The two projects communicate over HTTP (REST). The .NET backend calls the Python AI project's internal endpoints; no external traffic reaches the Python project directly.
 
 ```mermaid
 graph TB
@@ -40,43 +47,23 @@ graph TB
         NA[Next.js Admin Panel]
     end
 
-    subgraph API_Layer["API Layer"]
-        GW[API Gateway - Kong]
-        GQL[GraphQL Gateway - Apollo]
-        REST[REST Gateway - Third-party]
+    subgraph API["HealthPlatform.API (.NET 8 / ASP.NET Core)"]
+        CTRL[Controllers / Minimal API Endpoints]
+        APP[Application Layer - Use Cases & Domain Events]
+        DOM[Domain Layer - Entities, Value Objects, Domain Services]
+        INFRA[Infrastructure Layer - Repositories, EF Core, External Clients]
     end
 
-    subgraph Core_Services["Core Microservices (.NET 8 / ASP.NET Core)"]
-        AUTH[Auth Service]
-        USER[User & Profile Service]
-        APPT[Appointment Service]
-        TELE[Telemedicine Service]
-        RX[Prescription Service]
-        PHARM[Pharmacy & Inventory Service]
-        PAY[Payment & Credit Service]
-        NOTIF[Notification Service]
-        HEALTH[Health Records Service]
-        LAB[Lab & Diagnostics Service]
-        REFER[Referral Service]
-        QUEUE[Queue Management Service]
-        ADMIN[Admin Service]
-        SEARCH[Search Service]
-        WELLNESS[Wellness & Care Plan Service]
-        MATERNAL[Maternal & Pediatric Service]
-        MENTAL[Mental Health Service]
-    end
-
-    subgraph AI_Services["AI/ML Services (Python FastAPI)"]
+    subgraph AI["HealthPlatform.AI (Python FastAPI)"]
         SYMPTOM[Symptom Checker]
         CREDIT[Credit Scoring Engine]
         ANALYTICS[Analytics & Insights]
         NLP[NLP / Crisis Detection]
     end
 
-    subgraph Realtime["Real-Time Layer"]
-        WS[WebSocket Server - Socket.io]
+    subgraph Realtime["Real-Time"]
+        WS[SignalR Hubs]
         WEBRTC[WebRTC - Agora.io / Twilio]
-        REDIS_PS[Redis Pub/Sub]
     end
 
     subgraph Data["Data Layer"]
@@ -84,79 +71,91 @@ graph TB
         MONGO[(MongoDB)]
         REDIS[(Redis Cache)]
         ES[(Elasticsearch)]
-        S3[(AWS S3)]
-        TSDB[(TimescaleDB - Future)]
-    end
-
-    subgraph Messaging["Event Streaming"]
-        KAFKA[Apache Kafka]
+        S3[(AWS S3 / Compatible)]
     end
 
     subgraph Infra["Infrastructure"]
-        K8S[Kubernetes]
-        CDN[CloudFront / Cloudflare]
-        OBS[Prometheus + Grafana + ELK]
+        CDN[CDN - CloudFront / Cloudflare]
+        OBS[Logging & Monitoring]
     end
 
-    Clients --> GW
-    GW --> GQL
-    GW --> REST
-    GQL --> Core_Services
-    REST --> Core_Services
-    Core_Services --> KAFKA
-    KAFKA --> NOTIF
-    KAFKA --> AI_Services
-    KAFKA --> Realtime
-    Core_Services --> Data
-    AI_Services --> Data
-    Realtime --> REDIS_PS
-    Core_Services --> SEARCH
-    SEARCH --> ES
+    Clients --> CTRL
+    CTRL --> APP
+    APP --> DOM
+    APP --> INFRA
+    INFRA --> PG
+    INFRA --> MONGO
+    INFRA --> REDIS
+    INFRA --> ES
+    INFRA --> S3
+    APP --> WS
+    WS --> WEBRTC
+    INFRA --> AI
+    AI --> PG
 ```
 
-### Microservices Decomposition
+### Clean Architecture Layer Responsibilities
 
-Each service owns its data, exposes internal gRPC interfaces, and publishes/consumes Kafka events. External clients interact only through the API Gateway.
-
-| Service | Responsibility | Primary DB |
+| Layer | Project Path | Responsibility |
 |---|---|---|
-| Auth Service | OAuth2/OIDC via Keycloak, MFA, RBAC, session management | Redis (sessions), PostgreSQL (users) |
-| User & Profile Service | Patient/Doctor/Pharmacy registration, profile CRUD, license verification queue | PostgreSQL |
-| Appointment Service | Slot management, booking, cancellation, reminders | PostgreSQL |
-| Telemedicine Service | Session lifecycle, WebRTC signaling, session recording consent | PostgreSQL, MongoDB (notes) |
-| Prescription Service | E-prescription CRUD, expiry, dispensing, drug interaction checks | PostgreSQL |
-| Pharmacy & Inventory Service | Order management, stock levels, delivery tracking | PostgreSQL |
-| Payment & Credit Service | Stripe + local gateways, credit scoring integration, instalment plans | PostgreSQL |
-| Notification Service | Multi-channel delivery (push/SMS/email), retry logic, preferences | PostgreSQL, Redis |
-| Health Records Service | Longitudinal records, access control, PDF export | PostgreSQL, MongoDB |
-| Lab & Diagnostics Service | Lab orders, result ingestion, radiology reports | PostgreSQL, S3 |
-| Referral Service | Doctor-to-doctor referrals, consent, status tracking | PostgreSQL |
-| Queue Management Service | Virtual clinic queues, wait time estimation | PostgreSQL, Redis |
-| Admin Service | Platform governance, verification, dispute management, config | PostgreSQL |
-| Search Service | Doctor/pharmacy/lab discovery via Elasticsearch | Elasticsearch |
-| Wellness & Care Plan Service | Health goals, care plans, vaccination records | PostgreSQL, MongoDB |
-| Maternal & Pediatric Service | Antenatal records, birth plans, child profiles, growth tracking | PostgreSQL, MongoDB |
-| Mental Health Service | Therapy sessions, mood logs, crisis protocol | PostgreSQL, MongoDB |
-| Symptom Checker (AI) | Symptom triage, specialist recommendation | MongoDB (interactions) |
-| Credit Scoring Engine (AI) | Payment history analysis, credit limit computation | PostgreSQL (read replica) |
-| Analytics Service (AI) | Dashboard aggregations, exportable reports | PostgreSQL (read replica) |
+| Domain | `src/HealthPlatform.Domain` | Entities, value objects, domain events, domain service interfaces, business rules |
+| Application | `src/HealthPlatform.Application` | Use cases (commands/queries via MediatR), domain event handlers, DTOs, validator interfaces |
+| Infrastructure | `src/HealthPlatform.Infrastructure` | EF Core repositories, PostgreSQL/MongoDB/Redis/Elasticsearch clients, external HTTP clients (payment gateways, Agora/Twilio, AI services), background jobs (Hangfire), notification delivery |
+| API | `src/HealthPlatform.API` | ASP.NET Core controllers / minimal API endpoints, SignalR hubs, auth middleware, request validation |
+
+### Domain Modules
+
+Rather than separate deployable services, the domain is organized into **feature modules** within the single application. Each module owns its entities, use cases, and repository interfaces.
+
+| Module | Responsibility |
+|---|---|
+| Identity | Patient/Doctor/Pharmacy registration, profile CRUD, license verification, MFA, account lockout |
+| Appointments | Slot management, booking, cancellation, reminders, slot hold via Redis |
+| Telemedicine | Session lifecycle, WebRTC signaling, recording consent |
+| Prescriptions | E-prescription CRUD, expiry, dispensing, drug interaction checks |
+| Pharmacy | Order management, inventory, delivery tracking |
+| Payments | Payment gateway abstraction, credit line, instalment plans, receipts |
+| Notifications | Multi-channel delivery (push/SMS/email), retry logic, preferences |
+| HealthRecords | Longitudinal records, access control, PDF export |
+| Labs | Lab orders, result ingestion, radiology reports |
+| Referrals | Doctor-to-doctor referrals, consent, status tracking |
+| Queue | Virtual clinic queues, wait time estimation |
+| Admin | Platform governance, verification, dispute management, config |
+| Search | Doctor/pharmacy/lab discovery via Elasticsearch |
+| Wellness | Health goals, care plans, vaccination records |
+| Maternal | Antenatal records, birth plans, child profiles, growth tracking |
+| MentalHealth | Therapy sessions, mood logs, crisis protocol |
+| Ratings | Post-consultation ratings and reviews |
+
+### Python AI Project (HealthPlatform.AI)
+
+A separate FastAPI project within the same monorepo at `services/ai/`. It exposes internal HTTP endpoints consumed only by the .NET backend. It reads from the shared PostgreSQL database (read replica or same instance in dev).
+
+| Module | Responsibility |
+|---|---|
+| Symptom Checker | Symptom triage, specialist recommendation |
+| Credit Scoring | Payment history analysis, credit limit computation |
+| Analytics | Dashboard aggregations, exportable reports |
+| NLP / Crisis Detection | Emergency keyword detection in free-text inputs |
 
 ---
 
 ## Components and Interfaces
 
-### API Gateway (Kong)
+### API Layer (ASP.NET Core)
 
-- Routes all client traffic; enforces rate limiting, authentication, and TLS termination.
-- GraphQL endpoint (`/graphql`) for Flutter clients — batched queries, subscriptions for real-time updates.
-- REST endpoints (`/api/v1/...`) for third-party integrations (insurers, lab partners, IoT devices).
-- JWT validation delegated to Auth Service / Keycloak.
+- All client traffic hits the ASP.NET Core application directly. No separate API gateway is needed at this stage.
+- REST endpoints (`/api/v1/...`) for Flutter clients and third-party integrations (insurers, lab partners).
+- SignalR hubs for real-time features (telemedicine chat, queue updates, dashboard refreshes).
+- JWT validation via ASP.NET Core authentication middleware (tokens issued by the application's own auth module using ASP.NET Core Identity + custom claims).
+- Rate limiting via ASP.NET Core rate limiting middleware.
 
-### Auth Service (Keycloak)
+### Authentication & Identity
 
-- OAuth2 / OIDC provider; issues JWTs with role claims (`patient`, `doctor`, `pharmacy`, `admin`).
-- MFA enforced for Doctor, Pharmacy, and Admin roles.
-- New-device detection triggers step-up authentication.
+- **ASP.NET Core Identity** for user management (patients, doctors, pharmacies, admins).
+- JWT bearer tokens with role claims (`patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`).
+- MFA enforced for Doctor, Pharmacy, and Admin roles (TOTP or SMS OTP).
+- New-device detection triggers step-up authentication for all roles.
 - Account lockout after 5 consecutive failed logins; unlock via email/SMS.
 
 ### Real-Time Communication
@@ -164,42 +163,40 @@ Each service owns its data, exposes internal gRPC interfaces, and publishes/cons
 ```mermaid
 sequenceDiagram
     participant P as Patient App
-    participant GW as API Gateway
-    participant TELE as Telemedicine Service
+    participant API as HealthPlatform.API
     participant AGORA as Agora.io / Twilio
-    participant WS as WebSocket Server
+    participant HUB as SignalR Hub
 
-    P->>GW: POST /appointments/{id}/join
-    GW->>TELE: Generate RTC token
-    TELE->>AGORA: Create channel + token
-    AGORA-->>TELE: Channel credentials
-    TELE-->>P: RTC token + channel name
+    P->>API: POST /appointments/{id}/join
+    API->>AGORA: Create channel + token
+    AGORA-->>API: Channel credentials
+    API-->>P: RTC token + channel name
     P->>AGORA: Join WebRTC channel (direct)
-    P->>WS: Subscribe to session events
-    WS-->>P: Session duration ticks, file shares, chat messages
+    P->>HUB: Subscribe to session events
+    HUB-->>P: Session duration ticks, file shares, chat messages
 ```
 
-- **WebRTC via Agora.io/Twilio**: Handles video/audio streams directly between clients via TURN/STUN servers. The platform never proxies media.
-- **Socket.io / WebSockets**: Used for in-session chat, file sharing events, queue position updates, and real-time dashboard refreshes.
-- **Redis Pub/Sub**: Backs the WebSocket server for horizontal scaling across multiple Socket.io nodes.
+- **WebRTC via Agora.io/Twilio**: Handles video/audio streams directly between clients. The platform never proxies media.
+- **SignalR**: Used for in-session chat, file sharing events, queue position updates, and real-time dashboard refreshes. Redis backplane for SignalR when scaling horizontally.
 
-### Notification Service
+### Notification Module
 
-- Consumes Kafka events from all services.
+- Triggered by domain events published in-process via MediatR.
 - Delivery channels: FCM/APNs (push), Twilio/Africa's Talking (SMS), SendGrid/SES (email).
 - Per-user preference store in PostgreSQL; Redis cache for hot preferences.
 - Critical notifications (emergency alerts, medication reminders) fall back to SMS if push fails.
 - Retry queue: up to 3 retries at 5-minute intervals for failed deliveries; final status logged.
+- Background retry jobs run via Hangfire.
 
-### Search Service (Elasticsearch)
+### Search Module (Elasticsearch)
 
 - Doctor index: name, specialty, rating, location (geo_point), fee range, availability.
 - Pharmacy index: name, location, stock summary.
 - Lab Partner index: name, location, test types, pricing.
-- Real-time index updates via Kafka consumers when profiles or availability change.
+- Index updates triggered synchronously (or via background job) when profiles or availability change.
 - Geo-distance queries for proximity sorting.
 
-### Payment & Credit Service
+### Payment Module
 
 ```mermaid
 flowchart LR
@@ -208,16 +205,16 @@ flowchart LR
     B -->|Mobile Money| D[Flutterwave / Paystack / M-Pesa]
     B -->|Insurance| E[Insurer API]
     B -->|Credit Line| F[Internal Credit Engine]
-    C & D & E & F --> G[Payment Service records transaction]
-    G --> H[Kafka: payment.completed]
-    H --> I[Appointment/Order Service confirms]
-    H --> J[Notification Service sends receipt]
+    C & D & E & F --> G[Payment module records transaction]
+    G --> H[Domain Event: PaymentCompleted]
+    H --> I[Appointment/Order confirmed]
+    H --> J[Notification sent to patient]
 ```
 
 - Payment gateway abstraction layer: all gateways implement `IPaymentGateway` interface.
-- Credit scoring runs as a Python FastAPI service, reading from PostgreSQL payment history.
+- Credit scoring runs as a Python FastAPI endpoint in `HealthPlatform.AI`, reading from PostgreSQL payment history.
 - Credit limit recalculated on each payment event; patient notified on limit change.
-- Instalment plans stored as scheduled payment records; due-date reminders via Notification Service.
+- Instalment plans stored as scheduled payment records; due-date reminders via background jobs (Hangfire).
 
 ---
 
@@ -703,15 +700,15 @@ AuditLog {
 
 ### Authentication & Authorization
 
-- **Keycloak** as the central identity provider: OAuth2 authorization code flow for web, PKCE for mobile.
-- **RBAC**: Roles — `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`. Fine-grained resource-level permissions enforced at the service layer.
+- **ASP.NET Core Identity** as the identity provider; JWT bearer tokens issued by the application.
+- **RBAC**: Roles — `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`. Fine-grained resource-level permissions enforced at the application layer via policy-based authorization.
 - **MFA**: TOTP or SMS OTP required for Doctor, Pharmacy, and Admin accounts. New-device detection triggers step-up auth for all roles.
 - **Account lockout**: 5 consecutive failed logins → temporary lock + notification.
 
 ### Data Encryption
 
-- **At rest**: AES-256 for all PostgreSQL and MongoDB data via database-level encryption (AWS RDS encryption / MongoDB Atlas encryption at rest). S3 server-side encryption (SSE-S3 or SSE-KMS).
-- **In transit**: TLS 1.2+ enforced at the API Gateway and all inter-service communication (mTLS within the Kubernetes cluster via Istio service mesh).
+- **At rest**: AES-256 for all PostgreSQL and MongoDB data via database-level encryption. S3 server-side encryption (SSE-S3 or SSE-KMS).
+- **In transit**: TLS 1.2+ enforced at the application layer and all outbound HTTP calls to external services.
 - **Telemedicine**: WebRTC media encrypted end-to-end by the Agora/Twilio SDK; signaling over TLS.
 
 ### Audit Logging
@@ -741,53 +738,39 @@ flowchart TD
 
 ## Scalability and Infrastructure Design
 
-### Kubernetes Deployment
+### Deployment
 
-- Each microservice deployed as a Kubernetes Deployment with HPA (Horizontal Pod Autoscaler) based on CPU/memory and custom Kafka consumer lag metrics.
-- Namespaces: `core-services`, `ai-services`, `realtime`, `data`, `monitoring`.
-- Istio service mesh for mTLS, traffic management, and observability.
+- Both projects (`HealthPlatform.API` and `HealthPlatform.AI`) are deployed as Docker containers.
+- Docker Compose for local development; a single VM or container host for initial production deployment.
+- The architecture is designed so that individual domain modules can be extracted into separate services later when scaling demands it.
 
 ### Database Strategy
 
 | Concern | Solution |
 |---|---|
-| ACID transactions (payments, appointments) | PostgreSQL with read replicas |
-| Unstructured clinical notes, AI interactions | MongoDB Atlas |
-| Session cache, rate limiting, pub/sub | Redis Cluster |
+| ACID transactions (payments, appointments) | PostgreSQL |
+| Unstructured clinical notes, AI interactions | MongoDB |
+| Session cache, rate limiting, SignalR backplane | Redis |
 | Doctor/pharmacy/lab search | Elasticsearch |
 | IoT time-series (future) | TimescaleDB |
-| File storage (reports, images, recordings) | AWS S3 with CloudFront CDN |
+| File storage (reports, images, recordings) | AWS S3 / compatible object storage with CDN |
 
-### Kafka Event Topics
+### Domain Event Strategy
 
-| Topic | Producers | Consumers |
-|---|---|---|
-| `appointment.created` | Appointment Service | Notification, Analytics |
-| `appointment.confirmed` | Appointment Service | Notification, Telemedicine |
-| `appointment.cancelled` | Appointment Service | Notification, Payment (refund) |
-| `prescription.issued` | Prescription Service | Notification, Pharmacy, Adherence |
-| `prescription.dispensed` | Pharmacy Service | Prescription, Adherence |
-| `payment.completed` | Payment Service | Appointment, Order, Notification |
-| `payment.failed` | Payment Service | Notification |
-| `order.status_changed` | Pharmacy Service | Notification |
-| `adherence.missed` | Adherence Service | Notification (patient + NOK) |
-| `lab_result.uploaded` | Lab Service | Notification, Health Records |
-| `referral.status_changed` | Referral Service | Notification |
-| `queue.position_changed` | Queue Service | Notification (WebSocket) |
-| `iot.reading_received` | IoT Gateway (future) | Health Records, Notification |
-| `crisis.detected` | Mental Health / AI Service | Notification, Emergency |
-| `credit_score.updated` | Credit Scoring Service | Payment Service, Notification |
+- Domain events are published in-process using **MediatR** notification handlers.
+- The **Outbox Pattern** (via a `DomainEvents` table in PostgreSQL + Hangfire background processor) ensures reliable side-effect delivery (notifications, index updates, credit score recalculation) even if the process restarts mid-request.
+- This replaces Kafka for the current phase. Kafka can be introduced later when cross-service event streaming is needed.
 
 ### Caching Strategy
 
-- **Redis**: Doctor availability slots (TTL 60s), search results (TTL 30s), user sessions (TTL configurable), notification preferences (TTL 5min).
-- **CDN (CloudFront)**: Static assets, profile photos, lab result PDFs (signed URLs with expiry).
+- **Redis**: Doctor availability slots (TTL 60s), search results (TTL 30s), user sessions (TTL configurable), notification preferences (TTL 5min), SignalR backplane.
+- **CDN**: Static assets, profile photos, lab result PDFs (signed URLs with expiry).
 
 ### Observability
 
-- **Prometheus + Grafana**: Service-level metrics (latency, error rate, throughput), Kafka consumer lag, DB connection pool.
-- **ELK Stack**: Centralized log aggregation; audit log search; error alerting.
-- **OpenTelemetry**: Distributed tracing across all microservices; trace IDs propagated via HTTP headers.
+- **Structured logging**: Serilog → console / file / Seq (or ELK in production).
+- **Health checks**: ASP.NET Core health check endpoints for all external dependencies (PostgreSQL, Redis, Elasticsearch, AI service).
+- **Distributed tracing**: OpenTelemetry SDK in both .NET and Python projects; trace IDs propagated via HTTP headers.
 
 ---
 
@@ -807,20 +790,19 @@ flowchart TD
 
 ### Pharmacies
 
-- Real-time order sync via WebSocket push to pharmacy dashboard.
+- Real-time order sync via SignalR push to pharmacy dashboard.
 - Inventory updates via REST API or CSV bulk import.
 
 ### IoT Devices (Future Phase)
 
-- MQTT broker (AWS IoT Core) receives device readings.
-- IoT Gateway service normalizes readings and publishes to `iot.reading_received` Kafka topic.
+- MQTT broker receives device readings; a lightweight IoT adapter normalizes readings and calls the Health Records module's internal API.
 - TimescaleDB stores time-series biometric data.
 - HL7 FHIR Device resource for device registration.
 
 ### Emergency Services (Future Phase)
 
 - Outbound webhook/API call to local emergency dispatch systems.
-- Patient GPS location transmitted in real time via WebSocket during active SOS.
+- Patient GPS location transmitted in real time via SignalR during active SOS.
 
 ---
 
@@ -1194,11 +1176,11 @@ All services follow a consistent error response envelope:
 
 ### Resilience Patterns
 
-- **Circuit Breaker**: Applied on all external gateway calls (payment gateways, Agora/Twilio, insurer APIs). Open circuit returns cached/degraded response.
-- **Retry with Exponential Backoff**: Kafka consumer retries, notification delivery retries, payment webhook retries.
-- **Dead Letter Queue**: Kafka DLQ for messages that fail after max retries; alerts sent to on-call.
+- **Circuit Breaker**: Applied on all external HTTP calls (payment gateways, Agora/Twilio, insurer APIs, AI service). Open circuit returns cached/degraded response. Implemented via Polly (.NET).
+- **Retry with Exponential Backoff**: Outbox processor retries, notification delivery retries, payment webhook retries.
+- **Dead Letter**: Outbox messages that fail after max retries are moved to a dead-letter table; alerts sent to on-call.
 - **Idempotency Keys**: All payment and order creation endpoints require idempotency keys to prevent duplicate processing on client retry.
-- **Saga Pattern**: Multi-step workflows (appointment booking + payment + notification) implemented as choreography-based sagas via Kafka events; compensating transactions on failure.
+- **Outbox Pattern**: Domain events written to a `DomainEvents` outbox table within the same database transaction; a Hangfire background job processes and dispatches them, ensuring at-least-once delivery without a message broker.
 
 ---
 
@@ -1259,7 +1241,7 @@ Avoid writing unit tests that duplicate what property tests already cover broadl
 
 ### Integration Testing
 
-- End-to-end flows tested in a staging environment with real Kafka, PostgreSQL, and Redis.
+- End-to-end flows tested in a local/staging environment with real PostgreSQL, Redis, and Elasticsearch (via Docker Compose).
 - Key flows: patient registration → appointment booking → telemedicine session → prescription → medication order → adherence tracking.
 - Payment gateway integrations tested against sandbox environments.
 - Notification delivery tested with test phone numbers and email addresses.

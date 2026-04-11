@@ -1,6 +1,0 @@
-@HealthPlatform.PaymentCredit_HostAddress = http://localhost:5019
-
-GET {{HealthPlatform.PaymentCredit_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

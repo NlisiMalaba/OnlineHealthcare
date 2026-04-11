@@ -1,6 +1,0 @@
-@HealthPlatform.QueueManagement_HostAddress = http://localhost:5057
-
-GET {{HealthPlatform.QueueManagement_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
