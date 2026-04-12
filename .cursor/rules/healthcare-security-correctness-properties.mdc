@@ -1,0 +1,71 @@
+---
+description: Security/compliance and non-negotiable correctness properties P1–P41
+alwaysApply: true
+---
+
+# Security and compliance (critical)
+
+- **Supply chain:** keep NuGet and pip dependencies patched; automated CVE scanning in CI where practical; do not merge known-critical vulnerable packages without mitigation.
+- Encryption at rest: AES-256 for PostgreSQL and MongoDB via database-level encryption; S3 SSE-S3 or SSE-KMS on all buckets
+- Encryption in transit: TLS 1.2+ on all inbound and outbound connections — no plain HTTP in production
+- Telemedicine: WebRTC media E2E encrypted by Agora/Twilio SDK; signaling over TLS via SignalR
+- Never log PHI (patient names, diagnoses, medication names, lab results) in plaintext — mask or omit
+- Account lockout: 5 consecutive failed logins → temporary lock + notification (P31)
+- MFA: Doctor, Pharmacy, Admin must present valid MFA claim on every protected request
+- Audit log: append-only (no UPDATE/DELETE on `AuditLog`). Every health record access, prescription issuance, referral, admin action, and access denial → `AuditLog` entry
+- Audit logs shipped to ELK; retention per region compliance profile
+- GDPR right to erasure: soft-delete + anonymization pipeline — never hard-delete patient records
+- HIPAA: minimum necessary access via resource-level policies
+- Health record access: doctor reads only if an active, non-revoked `HealthRecordAccess` grant exists (P24)
+- **Least privilege:** database users, object storage policies, and cloud roles follow minimum permissions for each deployable (API vs worker vs AI).
+- **OWASP API basics:** validate and constrain all inputs; parameterized queries only; authenticate and authorize every sensitive operation — no “internal” shortcuts on public routes.
+
+---
+
+# Correctness properties (must not be broken)
+
+Non-negotiable behavioural invariants. Any change that violates one is incorrect and must be revised before merge.
+
+| ID | Property |
+|----|-----------|
+| P1 | Patient Registration Creates Health Record — exactly one HealthRecord per new patient |
+| P2 | Profile Update Round Trip — updated fields unchanged on subsequent read |
+| P3 | Duplicate Registration Rejection — same phone/email → 409 `IDENTITY_CONFLICT` |
+| P4 | Doctor Registration Starts Pending — new doctor status = pending immediately |
+| P5 | License Verification State Transition — verified → active + notification; invalid → rejected + reason |
+| P6 | Doctor Search Proximity Ordering — ascending distance when location sort enabled |
+| P7 | Slot Hold Exclusivity — concurrent booking on held slot rejected within 10 minutes (Redis SET NX TTL) |
+| P8 | Appointment Confirmation Notifies Both Parties |
+| P9 | Early Cancellation Releases Slot — cancelled > 2h before → slot available + refund event |
+| P10 | Recording Requires Consent — `recording_enabled` iff `recording_consent`; never without consent |
+| P11 | Prescription Guard for Orders — valid active prescription; dispensed after use; second order rejected |
+| P12 | Prescription Default Expiry — no explicit expiry → `expires_at = issued_at + 30 days` |
+| P13 | Pharmacy Stock Filter — only pharmacies with qty > 0 for requested medication |
+| P14 | Credit Score Determinism — same input → same score always (pure function) |
+| P15 | Credit Balance Warning — balance > 80% of limit → warning notification |
+| P16 | Payment Receipt Round Trip — completed payment → receipt referencing payment ID |
+| P17 | Failed Payment Preserves Pending — failure → stays pending + failure notification |
+| P18 | Medication Schedule Generation — dispensed → schedule with correct dose times |
+| P19 | Missed Dose Detection — unconfirmed 2h after scheduled → `AdherenceEvent.status = missed` |
+| P20 | Consecutive Missed Doses Alert — 3+ consecutive missed → notify ALL next-of-kin |
+| P21 | Drug Interaction Alert Before Finalization — overlap → alert doctor before `active` |
+| P22 | Emergency Alert Reaches All Next of Kin — no contacts omitted |
+| P23 | Next of Kin Notification Retry — failed → at most 3 retries; failed after 3 |
+| P24 | Health Record Access Control — read iff grant exists; denial → AuditLog |
+| P25 | Low Stock Alert — qty ≤ `low_stock_threshold` → alert to pharmacy |
+| P26 | Emergency Keyword Detection — crisis keyword → emergency options or Crisis Protocol |
+| P27 | Prohibited Content Flagging — prohibited term → `flagged`; excluded from published list |
+| P28 | One Rating Per Appointment — second rating rejected; original unchanged |
+| P29 | Notification Log Completeness — every sent notification → `NotificationLog` |
+| P30 | Critical Notification SMS Fallback — push fails for emergency/medication → SMS attempt |
+| P31 | Account Lockout After Failed Logins — 5 failures → 423 `ACCOUNT_LOCKED` + notification |
+| P32 | Lab Order Attached to Health Record — doctor-created order attached and queryable |
+| P33 | Critical Lab Result Alert — `is_critical` → immediate alert to ordering doctor on upload |
+| P34 | Consecutive Low Mood Prompt — last 3 mood logs rating 1 → mental health resource prompt |
+| P35 | Child Growth Out-of-Range Alert — outside expected range → alert guardian |
+| P36 | Referral Timeout Reminder — pending > 48h no response → reminder to receiving doctor |
+| P37 | Second Opinion Access Restrictions — no prescriptions, record changes, or primary-only actions |
+| P38 | Second Opinion Access Revocation — completed/declined → access revoked + logged |
+| P39 | Referral Requires Patient Consent — shared sections need `patient_consent_at` before dispatch |
+| P40 | Queue Position and Wait Time — join → `queue_position > 0` AND `estimated_wait_minutes >= 0` |
+| P41 | Queue Recalculation on Delay — doctor delayed > 15min → recalculate waits + notify patients |

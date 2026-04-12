@@ -4,6 +4,10 @@
 
 The Online Healthcare Platform is a comprehensive digital health ecosystem connecting patients, doctors, pharmacies, insurers, labs, and platform operators. It delivers telemedicine, appointment booking, e-prescriptions, medication ordering and adherence, lab test ordering, mental health services, maternal/pediatric care, referral management, wellness tracking, and emergency response — all within a single, HIPAA/GDPR-compliant platform.
 
+### MVP scope (pilot deployment)
+
+The full design describes the **long-term** system. For the **first working release** (Zimbabwe-first pilot), use **[mvp.md](./mvp.md)** in the `planning/` folder: virtual consults, single payment provider, prescriptions and minimal health records, notifications, and doctor licence verification — without insurance, credit, instalments, full AI, labs, or pharmacy fulfilment unless explicitly pulled into the pilot.
+
 ### Design Goals
 
 - **Patient-centric**: Every workflow starts and ends with the patient's health outcome.

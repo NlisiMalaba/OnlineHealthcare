@@ -1,0 +1,29 @@
+---
+description: Priorities, SOLID/DI, PR discipline, configuration — senior defaults
+alwaysApply: true
+---
+
+# Engineering priorities
+
+Order of concern: **security** → **maintainability** → **scalability** → **readability**.
+
+- **SOLID:** one reason to change per type; prefer extending via new types/strategies over editing stable cores; Application/Domain depend on abstractions; Infrastructure implements them (**dependency inversion**).
+- **Use cases** live in **Application** handlers and **Domain** (entities, value objects, domain services). **Not** in controllers, minimal API lambdas, SignalR hub bodies beyond auth/dispatch, or UI.
+- **Dependency injection** for all I/O: loggers, clocks, repositories, gateways, `HttpClient` via `IHttpClientFactory` in Infrastructure — **no** `new HttpClient()`, SDK singletons, or direct static access inside handlers.
+- **One external capability = one interface** in Application (narrow interfaces over fat “god” abstractions).
+
+## Integration and concurrency
+
+- **Cross-module** coupling: prefer domain events and Application contracts over circular assembly references.
+- **Concurrency:** when touching slots, payments, or inventory, document ordering assumptions (locks, idempotency, transactions) in code or the PR.
+
+## Pull requests
+
+- **Scope:** fix or implement one coherent concern; avoid unrelated refactors, renames, or formatting-only churn in the same PR.
+- **Tests:** new or changed behaviour includes tests per `healthcare-testing-data-notifications.mdc`; do not reduce coverage on touched code without justification.
+- **Risk:** if work touches **P1–P41**, security, or audit/PHI handling, the PR states which properties or policies are affected.
+
+## Configuration and secrets
+
+- **Secrets:** environment variables, Key Vault / Parameter Store, or CI secret stores — **never** committed plaintext or checked into `appsettings*.json`.
+- **Non-secret** defaults may live in appsettings with env override; document new keys in the same PR.

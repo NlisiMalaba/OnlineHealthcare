@@ -1,0 +1,20 @@
+---
+description: HealthPlatform.AI FastAPI conventions (internal Python services)
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python AI project (HealthPlatform.AI)
+
+- Framework: FastAPI with Pydantic v2 models; **`async def`** for I/O endpoints; prefer **`httpx.AsyncClient`** (or equivalent) injected via dependencies — no ad-hoc clients per request without lifecycle management.
+- All endpoints are **internal** — bind to non-public interfaces; never exposed to the internet without edge auth.
+- **Service-to-service auth:** callers from .NET must authenticate (e.g. mTLS, signed JWT/service token from vault, or private network + shared secret rotation). Do not rely on “obscure URL” alone.
+- Read from PostgreSQL read replica (or same instance in dev) — **never write** to PostgreSQL from Python.
+- Structured logging: same trace ID as .NET via `traceparent` / `X-Trace-Id`; include in every log line.
+- OpenTelemetry SDK: propagate trace context through outbound HTTP calls.
+- Credit scoring must be **pure** (no side effects, no external calls during computation) — P14.
+- NLP crisis keyword list is **configuration-driven** — never hard-coded in source.
+- All endpoints return typed Pydantic response models — never raw dicts.
+- **Dependencies:** pin versions in lockfiles; run **`pip-audit`** / equivalent in CI; fix or justify high/critical CVEs.
+- Use Hypothesis for property-based tests; minimum 100 examples per property.
+- Tag format for Hypothesis tests: `# Feature: online-healthcare-platform, Property {N}: {property_title}`
