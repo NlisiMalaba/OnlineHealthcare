@@ -1,0 +1,63 @@
+---
+description: Monorepo layout, layer dependencies, domain modules, and domain events
+alwaysApply: true
+---
+
+# Architecture and domain
+
+Comprehensive digital health ecosystem: telemedicine, appointments, e-prescriptions, labs, mental health, maternal care.
+
+**Stack:** .NET 8 / ASP.NET Core · Clean Architecture · EF Core · PostgreSQL · MongoDB · Redis · Elasticsearch · SignalR · WebRTC (Agora/Twilio) · Hangfire · MediatR · Outbox Pattern  
+**AI/ML:** Python FastAPI (HealthPlatform.AI) · FsCheck (C#) · Hypothesis (Python)
+
+## Two deployable projects in one monorepo
+
+- **HealthPlatform.API** → .NET 8 / ASP.NET Core (main backend — all client traffic)
+- **HealthPlatform.AI** → Python FastAPI (AI/ML services — internal only, no external traffic)
+
+## .NET project layout
+
+- `src/HealthPlatform.Domain` → Entities, value objects, domain events, domain service interfaces, business rules
+- `src/HealthPlatform.Application` → MediatR commands/queries/handlers, domain event handlers, DTOs, validator interfaces
+- `src/HealthPlatform.Infrastructure` → EF Core repos, PostgreSQL/MongoDB/Redis/Elasticsearch clients, external HTTP clients, Hangfire jobs, notification delivery
+- `src/HealthPlatform.API` → ASP.NET Core controllers/minimal API endpoints, SignalR hubs, auth middleware, request validation
+
+## Python AI project layout (`services/ai/`)
+
+- `services/ai/symptom_checker/` — Symptom triage, specialist recommendation
+- `services/ai/credit_scoring/` — Payment history analysis, credit limit computation
+- `services/ai/analytics/` — Dashboard aggregations, exportable reports
+- `services/ai/nlp/` — Emergency keyword detection in free-text inputs
+
+## Strict dependency rules — never violate
+
+- **Domain** → zero external dependencies
+- **Application** → depends only on Domain
+- **Infrastructure** → depends on Application + Domain (implements Application interfaces)
+- **API** → depends only on Application (dispatches MediatR requests; no direct DB access)
+- **HealthPlatform.AI** → called only by HealthPlatform.API over internal HTTP; never receives external traffic
+- Never import Infrastructure types into Application or Domain
+- Never import API types into any other project
+
+## Domain modules
+
+Existing modules (feature folders in Application and Domain): Identity, Appointments, Telemedicine, Prescriptions, Pharmacy, Payments, Notifications, HealthRecords, Labs, Referrals, Queue, Admin, Search, Wellness, Maternal, MentalHealth, Ratings.
+
+Never dump new features into the root Application folder — create a new module folder.
+
+## Domain modelling
+
+- Entities own **invariants**; use **value objects** where a concept has validation rules (e.g. dosage, currency).
+- **Domain services** for rules that do not belong to a single entity; keep methods **small** and **testable**.
+
+## Domain exceptions
+
+Throw typed domain exceptions from domain logic — never `ArgumentException` or `InvalidOperationException`.  
+Examples: `PrescriptionExpiredException`, `SlotUnavailableException`, `AccessDeniedException`, `AccountLockedException`.
+
+## Domain events (MediatR `INotification`)
+
+- Name pattern: `{Subject}{PastTense}DomainEvent` (e.g. `AppointmentConfirmedDomainEvent`)
+- Always include: actor IDs, patient ID, timestamp, and any IDs needed by downstream handlers
+- Publish via `IMediator.Publish` — never static event handlers
+- All domain events are written to the DomainEvents outbox table within the same DB transaction (Outbox Pattern)

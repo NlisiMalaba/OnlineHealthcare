@@ -2,7 +2,9 @@
 
 ## Introduction
 
-The Online Healthcare Platform is a comprehensive digital health ecosystem that connects patients, private doctors, medical insurance providers, and pharmacies in a unified, accessible experience. The platform enables telemedicine consultations via video, audio, and chat; GPS-based physical appointment booking; e-prescriptions; medication ordering and delivery; medication adherence tracking; emergency contact management; and pharmacy workflow management. Future phases will introduce IoT-based patient monitoring for chronic conditions (NCDs) and full emergency response integration.
+The Online Healthcare Platform is a comprehensive digital health ecosystem that connects patients, private doctors, medical insurance providers, and pharmacies in a unified, accessible experience.
+
+**Deployment context:** The first production pilot targets **Zimbabwe**, with **USD** as the primary billing currency for MVP, **configurable** payment and SMS providers, and doctor verification aligned with **Health Professions Council of Zimbabwe (HPCZ)**-style licensing identifiers (exact rules require local legal and clinical governance). Requirements apply to the **full** platform; **[mvp.md](./mvp.md)** lists which requirements are **deferred** for the initial release. The platform enables telemedicine consultations via video, audio, and chat; GPS-based physical appointment booking; e-prescriptions; medication ordering and delivery; medication adherence tracking; emergency contact management; and pharmacy workflow management. Future phases will introduce IoT-based patient monitoring for chronic conditions (NCDs) and full emergency response integration.
 
 The platform is designed to be innovative, inclusive, and patient-centric — reducing barriers to quality healthcare access while empowering doctors, pharmacies, and insurers with modern digital tooling.
 

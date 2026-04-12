@@ -1,0 +1,165 @@
+---
+description: Application, Infrastructure, and API layer conventions for HealthPlatform
+alwaysApply: true
+---
+
+# Application layer
+
+## Command/query naming
+
+- Commands: `{Verb}{Noun}Command` (e.g. `ConfirmAppointmentCommand`)
+- Queries: `{Get|Search|List}{Noun}Query` (e.g. `GetPatientHealthRecordQuery`)
+- Handlers: `{CommandOrQueryName}Handler` in the same module folder
+
+## Commands vs queries (CQRS)
+
+- **Queries** do not mutate state or persist side effects (except harmless read-model/cache updates if explicitly designed).
+- **Commands** own the **transaction boundary**: one logical unit of work per handler; use explicit transaction (`IDbContext`/UoW) when multiple writes must commit or roll back together.
+
+## MediatR pipeline behaviours (register in this order)
+
+1. **LoggingBehaviour** — logs every request with timing and trace ID
+2. **ValidationBehaviour** — FluentValidation; throws `ValidationException` on failure
+3. **AuthorisationBehaviour** — RBAC policy; throws `AccessDeniedException` + writes `AuditLog` on failure
+
+Unhandled exceptions and validation failures are mapped to the **standard error envelope** (API middleware / exception handler) — never ad-hoc JSON shapes per endpoint.
+
+## Application interfaces (define here; implement in Infrastructure)
+
+Examples: `IPatientRepository`, `IDoctorRepository`, `IAppointmentRepository`, `IPrescriptionRepository`, `IHealthRecordRepository`, `IPaymentGateway`, `INotificationService`, `IStorageService`, `ISearchService`, `ICacheService`, `IAiServiceClient`, `IOutboxRepository`.
+
+Never reference EF Core, MongoDB drivers, Redis, or HTTP clients in Application.
+
+## Validators
+
+Every command and query MUST have a FluentValidation `AbstractValidator<T>` in the same module folder. Use `.NotEmpty()`, `.MaximumLength()`, `.GreaterThan()`, `.IsInEnum()` — never raw if-statements for input validation.
+
+## Result/response pattern
+
+- Handlers return typed DTOs — never EF Core entities or MongoDB documents directly
+- Not-found: throw `NotFoundException` (→ 404)
+- Conflict: throw `ConflictException` (→ 409)
+- Business rule violation: throw `DomainException` with a machine-readable code (→ 422)
+- Unauthorised: throw `AccessDeniedException` (→ 403) + write `AuditLog`
+
+---
+
+# Infrastructure layer
+
+## PostgreSQL / EF Core
+
+- All entity configurations via `IEntityTypeConfiguration<T>` in `Infrastructure/Persistence/Configurations/`
+- Never use data annotations on domain entities — fluent configuration only
+- Soft deletes: `IsDeleted` (bool) + `DeletedAt` (timestamp). Global query filter excludes soft-deleted records
+- Audit log table (`AuditLog`) is append-only — no UPDATE/DELETE permissions on this table, ever
+- Never bypass EF Core for writes except where raw SQL is demonstrably necessary (and must be reviewed)
+
+## MongoDB
+
+Used for: HealthRecordEntry, MoodLog, TherapySession summaries, AntenatalRecord entries, LabResult annotations, AI interaction logs.
+
+Never store structured relational data (foreign-key relationships, payment records) in MongoDB. Always use typed C# models with `BsonClassMap` — never `BsonDocument` for application logic.
+
+## Redis
+
+- Slot holds: key = `slot:{slotId}:hold`, TTL = 10 minutes. Atomic SET NX for exclusivity (P7)
+- Availability cache: TTL 60s. Search result cache: TTL 30s. Notification preferences: TTL 5min
+- Always set a TTL — never cache without expiry
+- Cache keys: `{feature}:{entityType}:{id}` (e.g. `availability:slot:abc-123`)
+- SignalR backplane uses Redis for horizontal scale — never in-memory backplane in production
+
+## Elasticsearch
+
+Doctor index fields: name, specialty, rating, clinic_location (geo_point), fee range, availability. Pharmacy: name, location, stock summary. Lab Partner: name, location, test types, pricing.
+
+Index updates via domain event handlers (or Hangfire for bulk). Geo-distance queries for proximity ordering (P6). Never query Elasticsearch from Application — always via `ISearchService`.
+
+## Outbox pattern
+
+- Domain events written to `DomainEvents` in the same DB transaction as the triggering write
+- Hangfire polls and dispatches outbox messages
+- At-least-once delivery: handlers must be idempotent
+- Failures after max retries → dead-letter table; on-call alert
+
+## External HTTP clients
+
+Register named `HttpClient` instances in Infrastructure with **Polly** (retry, circuit breaker, timeout). Open circuit returns cached or degraded response — never raw 503 to the client.
+
+`IPaymentGateway` implementations: Stripe, Flutterwave, Paystack, M-Pesa. HealthPlatform.AI via typed `IAiServiceClient` — never raw `HttpClient` in handlers.
+
+**Timeouts** are mandatory on outbound calls; **never** unbounded waits on user-facing request paths.
+
+## Hangfire jobs (`Infrastructure/Jobs/`)
+
+- Idempotent job methods
+- Recurring: outbox processor, instalment due-date reminders, referral timeout (48h), missed-dose detection (2h window), inactivity alerts, soft-delete cleanup
+- Use `[AutomaticRetry(Attempts = 3)]` with exponential backoff unless specified otherwise
+
+## S3 / object storage
+
+All uploads via `IStorageService` — never reference AWS SDK outside Infrastructure. Signed URLs for patient-facing file access. SSE-S3 or SSE-KMS on all buckets.
+
+## Idempotency keys
+
+Required on: all payment creation endpoints, medication order creation, appointment booking. Store idempotency key + result in Redis (TTL 24h).
+
+---
+
+# API layer
+
+## Endpoints
+
+All endpoints dispatch MediatR commands/queries — no business logic in controllers or endpoint delegates.
+
+- Route prefix: `/api/v1/{module}/...`
+- Version in URL path (not header)
+- **Breaking changes** (removed fields, semantic changes): new path version (`/api/v2/...`) or backward-compatible additive DTOs; document deprecation windows for clients.
+- **Correlation:** inbound `traceparent` / correlation ID flows through logging and outbound calls (OpenTelemetry); every response error includes `trace_id` in the envelope.
+
+## Input and payloads
+
+- Enforce **max request body size** and **upload size** limits at reverse proxy and ASP.NET Core.
+- List endpoints: **pagination** (cursor or offset) and **sensible defaults** for page size; avoid unbounded queries.
+
+## Authentication and authorisation
+
+- JWT bearer (ASP.NET Core Identity + custom claims)
+- Roles: patient, doctor, pharmacy, lab_partner, insurer, admin
+- MFA for doctor, pharmacy, admin (TOTP or SMS OTP) — verify MFA claim on protected endpoints
+- New-device detection → step-up auth for all roles
+- Register **authorization policies** and handlers at startup (API/Infrastructure); **resource-level** checks (e.g. “owns this appointment”) run inside the **MediatR handler** or a small dedicated service used by the handler — not duplicated as ad-hoc logic in controllers
+- Never check roles with string literals — use constants or enums
+
+## Error response envelope (always this shape)
+
+```json
+{
+  "error": {
+    "code": "MACHINE_READABLE_CONSTANT",
+    "message": "Human-readable, localizable string.",
+    "details": {},
+    "trace_id": "opentelemetry-trace-id"
+  }
+}
+```
+
+## HTTP status codes
+
+- **402** — payment required / failed (retain pending state 10 min)
+- **403** — access denied; always write `AuditLog`
+- **404** — not found
+- **409** — conflict (duplicate registration, slot held)
+- **422** — business rule violation
+- **423** — account locked
+- **503** — external service unavailable (Polly circuit open, degraded response)
+
+## Rate limiting
+
+Global middleware; stricter limits on auth endpoints (login, OTP verification).
+
+## SignalR hubs
+
+- Live in `API/Hubs/`
+- Validate JWT claim and role before processing
+- Redis backplane — never in-memory in multi-instance
+- Real-time: telemedicine chat, queue position, pharmacy order sync, dashboard refreshes

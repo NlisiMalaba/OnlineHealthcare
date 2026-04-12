@@ -1,0 +1,89 @@
+---
+description: Naming, C#/Python style, observability, and mistakes to avoid
+alwaysApply: true
+---
+
+# Naming conventions
+
+## C#
+
+- Files: PascalCase (`ConfirmAppointmentCommand.cs`)
+- Interfaces: `I` + PascalCase (`IPaymentGateway`, `ISearchService`)
+- Async methods: `Async` suffix (`GetByIdAsync`, `DispatchNotificationAsync`)
+- `CancellationToken`: always named `ct`, always last parameter
+- MediatR requests: `record` types preferred
+- DTOs: suffix `Dto` (`AppointmentDetailsDto`)
+- Hangfire jobs: suffix `Job` (`OutboxProcessorJob`)
+- SignalR hubs: suffix `Hub` (`TelemedicineHub`, `QueueHub`)
+- EF configurations: suffix `Configuration` (`AppointmentConfiguration`)
+- Domain events: suffix `DomainEvent` (`AppointmentConfirmedDomainEvent`)
+- Error codes: `SCREAMING_SNAKE_CASE` (`PRESCRIPTION_EXPIRED`, `SLOT_UNAVAILABLE`)
+
+## Other stacks
+
+- Python: `snake_case` files/functions; PascalCase classes; Pydantic models suffix `Request`/`Response`
+- Flutter/Dart: PascalCase widgets/classes; camelCase variables/functions
+- Next.js: PascalCase components; camelCase hooks (`useAppointments.ts`)
+
+---
+
+# Code style rules
+
+## C# 12+
+
+- Primary constructors, collection expressions, pattern matching
+- Prefer `record` for commands, queries, DTOs, domain events
+- File-scoped namespaces in all C# files
+- Nullable reference types enabled (`<Nullable>enable</Nullable>`); treat as errors in Domain + Application
+- Never suppress nullable with `!` without a comment explaining why
+- Guard clauses over deep nesting
+- Maximum method length: 40 lines; maximum class length: 200 lines
+- All I/O async — never `.Result` or `.Wait()`
+- Pass `CancellationToken` (`ct`) through the full call chain
+- `ILogger<T>` via constructor injection — never static loggers
+- Never log PHI in plaintext; include `trace_id` in log messages
+- Use `DateTime.UtcNow` for timestamps — never `DateTime.Now`
+- Parameterise all SQL — never string concatenation into queries
+- Never use AutoMapper — explicit mapping extension methods
+- **Magic values:** centralize durations, thresholds, and policy constants (or load from configuration) — especially when tied to P-properties or compliance.
+
+## Python
+
+- Type hints on all signatures; Pydantic v2 throughout; `async def` on FastAPI endpoints; read-only DB access; no raw dicts in endpoint signatures
+
+---
+
+# Observability
+
+- Structured logging: Serilog (.NET) → Seq/ELK; Python: JSON structured logs — **structured fields** (not only formatted strings) for filtering.
+- OpenTelemetry in .NET and Python; W3C `traceparent` end-to-end.
+- **Spans:** one meaningful span per use case step (e.g. “confirm appointment”), not per internal line — avoid span explosion.
+- **Metrics** on critical paths (booking, payment, notifications): latency histograms and error rates; alert on SLO breaches in production.
+- Health checks for: PostgreSQL, Redis, Elasticsearch, MongoDB, AI service (readiness vs liveness as appropriate).
+- Every .NET → Python HTTP call must include trace context in outbound headers.
+
+---
+
+# What not to do
+
+- Do **not** add business logic to controllers or endpoint delegates — use MediatR handlers
+- Do **not** inject `DbContext` into Application or Domain — use repository interfaces
+- Do **not** return EF entities or MongoDB documents from handlers — map to DTOs
+- Do **not** call HealthPlatform.AI directly from Application — use `IAiServiceClient` in Infrastructure
+- Do **not** expose HealthPlatform.AI to external traffic — internal network only
+- Do **not** start telemedicine recording without `recording_consent = true` (P10)
+- Do **not** allow a second medication order on an already-dispensed prescription (P11)
+- Do **not** write to Elasticsearch or MongoDB directly from request handlers — domain events + outbox
+- Do **not** use `Task.Run` in web request handlers
+- Do **not** use `DateTime.Now` — use `DateTime.UtcNow`
+- Do **not** use in-memory SignalR backplane in multi-instance environments
+- Do **not** catch `Exception` broadly without logging and re-throwing or mapping to the error envelope
+- Do **not** hard-delete patient records — soft-delete + anonymization (GDPR)
+- Do **not** update `AuditLog` records — append-only
+- Do **not** skip idempotency keys on payment or order creation endpoints
+- Do **not** store secrets in `appsettings.json` — use environment variables or a secrets manager
+- Do **not** skip `CancellationToken` propagation
+- Do **not** use raw `BsonDocument` in MongoDB application logic
+- Do **not** bypass Polly circuit breaker for external HTTP calls
+- Do **not** merge code that breaks any P1–P41 correctness property
+- Do **not** ship “temporary” hacks without a tracked follow-up (issue/ticket) when the shortcut touches security, payments, PHI, or audit behaviour

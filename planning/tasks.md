@@ -6,6 +6,10 @@ Incremental implementation of the Online Healthcare Platform using **Clean Archi
 
 Property-based tests use **FsCheck** (C# / .NET) and **Hypothesis** (Python). Each property test references its property number from the design document.
 
+### MVP (Zimbabwe-first pilot)
+
+The full task list below is the **complete platform** backlog. For a **working MVP** scope, task prioritisation, payment defaults, and explicit deferrals, see **[mvp.md](./mvp.md)**. Implement foundation → auth → identity → search → appointments → telemedicine → **subset** of payments (one gateway) → prescriptions → health records → notifications → minimal admin verification before expanding to pharmacy, labs, AI, and full dashboards.
+
 ---
 
 ## Tasks
@@ -192,6 +196,7 @@ Property-based tests use **FsCheck** (C# / .NET) and **Hypothesis** (Python). Ea
     - _Requirements: 7.9, 7.6_
 
 - [ ] 12. Payments & Credit Module
+  - _MVP: ship **one** gateway first (see `mvp.md`); add others after pilot._
   - [ ] 12.1 Implement `IPaymentGateway` interface and concrete implementations for Stripe, Flutterwave, Paystack, and M-Pesa
     - Implement webhook endpoints per gateway with idempotency key validation
     - _Requirements: 8.1_
@@ -579,6 +584,7 @@ Property-based tests use **FsCheck** (C# / .NET) and **Hypothesis** (Python). Ea
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP
+- **[mvp.md](./mvp.md)** defines which task **groups** and **subsets** belong to the Zimbabwe-first MVP; defer insurance, credit, instalments, full AI, labs, and full client feature lists until core consult + pay + prescribe works
 - Each task references specific requirements for traceability
 - Property tests use **FsCheck** for C# (.NET) and **Hypothesis** for Python (FastAPI)
 - Each property test must run a minimum of 100 iterations and include the tag comment: `// Feature: online-healthcare-platform, Property {N}: {property_title}`

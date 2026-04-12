@@ -1,0 +1,94 @@
+---
+description: Testing standards, data stores, and notification module rules
+alwaysApply: true
+---
+
+# Testing rules
+
+## General
+
+- Every new handler MUST have unit tests
+- Every new validator MUST have unit tests
+- Every new API endpoint MUST have an integration test
+- Every correctness property (P1–P41) MUST have a property-based test
+- Do not duplicate unit-test coverage with property tests for the same narrow examples
+- Prefer **test data builders** or shared factories over copy-pasted object graphs; keep tests readable.
+- **Time:** inject **`TimeProvider`** / clock abstractions for logic tied to “now”; avoid flaky tests that depend on real wall-clock unless testing integration with the system clock.
+- **Flaky tests:** fix root cause; if temporarily quarantined, track owner and deadline — do not normalize red CI.
+
+## FsCheck (C#)
+
+- Library: FsCheck.Xunit
+- Minimum: `[Property(MaxTest = 100)]` for all properties
+- Security/access-control (P10, P24, P31, P37, P38, P39): `[Property(MaxTest = 500)]`
+- Tag format (required): `// Feature: online-healthcare-platform, Property {N}: {property_title}`
+- Custom generators: `tests/HealthPlatform.Tests.Properties/Arbitraries/`
+
+## Hypothesis (Python)
+
+- Library: Hypothesis with pytest
+- Minimum: `@settings(max_examples=100)`
+- Tag: `# Feature: online-healthcare-platform, Property {N}: {property_title}`
+- P14: same input → same output across multiple calls in one test run
+
+## Unit tests (C#)
+
+- Framework: xUnit + Moq
+- Naming: `{HandlerName}Tests`, `{ValidatorName}Tests`, `{DomainClass}Tests`
+- Arrange / Act / Assert with blank-line separation; no shared mutable state between methods
+- Mock all Application interfaces — never real Infrastructure in unit tests
+
+## Integration tests
+
+- Framework: xUnit + `WebApplicationFactory<Program>` + Testcontainers (PostgreSQL, Redis, Elasticsearch, MongoDB)
+- Flows: patient registration → appointment → telemedicine → prescription → order → adherence
+- Payment gateways: sandbox only
+- Health record access matrix: all role combinations (allowed and denied)
+- Audit log completeness verified
+
+## Performance targets (document in test project README)
+
+- Appointment booking: 1,000 concurrent bookings without slot collision
+- Telemedicine RTC token: < 3 seconds
+- Notifications: 10,000/minute
+- Doctor search with geo-filter: < 500ms
+
+---
+
+# Data layer rules
+
+## PostgreSQL — system of record
+
+- ACID for: payments, appointment booking, slot holds, prescription dispensing
+- `AuditLog`: append-only; never UPDATE/DELETE paths
+- Soft deletes: `IsDeleted` + `DeletedAt`; global EF filter excludes soft-deleted
+- Never hard-delete patients — GDPR via anonymization
+
+## MongoDB — unstructured / flexible
+
+Collections: HealthRecordEntry, MoodLog, TherapySession summaries, AntenatalRecord entries, LabResult annotations. Typed models only — never `BsonDocument` in application logic.
+
+## Redis — cache + coordination
+
+- Slot hold: `slot:{slotId}:hold`, TTL 600s, SET NX for exclusivity
+- Never primary data store — cache and ephemeral coordination only
+
+## Elasticsearch — search only
+
+Geo-distance for proximity. Read-only, eventually consistent — not for transactional queries. Index sync via domain events or Hangfire only.
+
+## Cross-database consistency
+
+PostgreSQL is system of record; MongoDB, Elasticsearch, Redis are derived. Never update MongoDB or Elasticsearch directly from a request handler — domain events + outbox.
+
+---
+
+# Notification module
+
+- Triggered exclusively by domain events via MediatR + outbox
+- Channels: FCM/APNs (push), Twilio/Africa's Talking (SMS), SendGrid/SES (email)
+- Per-user preferences in PostgreSQL; hot preferences in Redis (TTL 5min)
+- Retry: up to 3 at 5-minute intervals via Hangfire; log final failed status
+- Critical (emergency, medication reminders): SMS fallback if push fails (P30)
+- Every sent notification → `NotificationLog` (P29)
+- Next-of-kin: max 3 retries; never exceed 3 (P23)
