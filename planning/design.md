@@ -36,7 +36,7 @@ The full design describes the **long-term** system. For the **first working rele
 
 The platform uses **Clean Architecture** across two projects within the Online Healthcare monorepo:
 
-1. **HealthPlatform.API** — .NET 8 / ASP.NET Core application (the main backend)
+1. **HealthPlatform.API** — .NET 10 / ASP.NET Core application (the main backend)
 2. **HealthPlatform.AI** — Python FastAPI project (AI/ML services: symptom checker, credit scoring, analytics, NLP)
 
 The two projects communicate over HTTP (REST). The .NET backend calls the Python AI project's internal endpoints; no external traffic reaches the Python project directly.
@@ -51,7 +51,7 @@ graph TB
         NA[Next.js Admin Panel]
     end
 
-    subgraph API["HealthPlatform.API (.NET 8 / ASP.NET Core)"]
+    subgraph API["HealthPlatform.API (.NET 10 / ASP.NET Core)"]
         CTRL[Controllers / Minimal API Endpoints]
         APP[Application Layer - Use Cases & Domain Events]
         DOM[Domain Layer - Entities, Value Objects, Domain Services]
