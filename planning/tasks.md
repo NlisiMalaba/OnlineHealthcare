@@ -2,7 +2,7 @@
 
 ## Overview
 
-Incremental implementation of the Online Healthcare Platform using **Clean Architecture** in a single .NET 8 / ASP.NET Core application (`HealthPlatform.API`) and a separate Python FastAPI project (`HealthPlatform.AI`) within the same monorepo. Flutter mobile/web clients and Next.js dashboards are also part of the monorepo. Tasks are ordered: infrastructure → auth/identity → core domain modules → AI services → real-time layer → client applications → cross-cutting concerns.
+Incremental implementation of the Online Healthcare Platform using **Clean Architecture** in a single **.NET 10** / ASP.NET Core application (`HealthPlatform.API`) and a separate Python FastAPI project (`HealthPlatform.AI`) within the same monorepo. Flutter mobile/web clients and Next.js dashboards are also part of the monorepo — scaffold each on **current stable** releases (supported Python for FastAPI, Flutter stable channel, current Next.js). Tasks are ordered: infrastructure → auth/identity → core domain modules → AI services → real-time layer → client applications → cross-cutting concerns.
 
 Property-based tests use **FsCheck** (C# / .NET) and **Hypothesis** (Python). Each property test references its property number from the design document.
 
@@ -14,8 +14,8 @@ The full task list below is the **complete platform** backlog. For a **working M
 
 ## Tasks
 
-- [ ] 1. Infrastructure and Project Scaffolding
-  - Initialise the monorepo structure: `src/HealthPlatform.Domain`, `src/HealthPlatform.Application`, `src/HealthPlatform.Infrastructure`, `src/HealthPlatform.API` (.NET 8 solution), `services/ai/` (Python FastAPI project), Flutter apps, and Next.js dashboards
+- [x] 1. Infrastructure and Project Scaffolding
+  - Initialise the monorepo structure: `src/HealthPlatform.Domain`, `src/HealthPlatform.Application`, `src/HealthPlatform.Infrastructure`, `src/HealthPlatform.API` (.NET 10 solution, `net10.0` TFM), `services/ai/` (Python + FastAPI on a supported runtime), Flutter (stable), and Next.js dashboards (current stable); pin versions in repo tooling (e.g. `global.json`, `pyproject.toml` / lockfiles, `pubspec.yaml`, `package.json`) so the stack stays current and reproducible
   - Configure Docker Compose for local development (PostgreSQL, MongoDB, Redis, Elasticsearch)
   - Configure Hangfire for background job processing (outbox processor, scheduled reminders)
   - Configure Serilog structured logging and OpenTelemetry SDK in the .NET project and Python AI project

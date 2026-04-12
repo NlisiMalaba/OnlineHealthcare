@@ -7,12 +7,12 @@ alwaysApply: true
 
 Comprehensive digital health ecosystem: telemedicine, appointments, e-prescriptions, labs, mental health, maternal care.
 
-**Stack:** .NET 8 / ASP.NET Core · Clean Architecture · EF Core · PostgreSQL · MongoDB · Redis · Elasticsearch · SignalR · WebRTC (Agora/Twilio) · Hangfire · MediatR · Outbox Pattern  
+**Stack:** .NET 10 / ASP.NET Core · Clean Architecture · EF Core · PostgreSQL · MongoDB · Redis · Elasticsearch · SignalR · WebRTC (Agora/Twilio) · Hangfire · MediatR · Outbox Pattern  
 **AI/ML:** Python FastAPI (HealthPlatform.AI) · FsCheck (C#) · Hypothesis (Python)
 
 ## Two deployable projects in one monorepo
 
-- **HealthPlatform.API** → .NET 8 / ASP.NET Core (main backend — all client traffic)
+- **HealthPlatform.API** → .NET 10 / ASP.NET Core (main backend — all client traffic)
 - **HealthPlatform.AI** → Python FastAPI (AI/ML services — internal only, no external traffic)
 
 ## .NET project layout
