@@ -3,7 +3,8 @@ namespace HealthPlatform.Application.Auth;
 public enum LoginApiResult
 {
     Authenticated,
-    TwoFactorRequired
+    TwoFactorRequired,
+    DeviceVerificationRequired
 }
 
 public sealed record LoginResponseDto(
@@ -11,4 +12,6 @@ public sealed record LoginResponseDto(
     string? AccessToken,
     long? ExpiresInSeconds,
     string? MfaChallengeToken,
-    long? MfaChallengeExpiresInSeconds);
+    long? MfaChallengeExpiresInSeconds,
+    string? DeviceChallengeToken,
+    long? DeviceChallengeExpiresInSeconds);

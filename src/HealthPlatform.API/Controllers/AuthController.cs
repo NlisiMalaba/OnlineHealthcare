@@ -21,4 +21,10 @@ public sealed class AuthController(ISender sender) : ControllerBase
         [FromBody] CompleteMfaLoginCommand command,
         CancellationToken ct) =>
         Ok(await sender.Send(command, ct));
+
+    [HttpPost("login/device")]
+    public async Task<ActionResult<LoginResponseDto>> CompleteDeviceLoginAsync(
+        [FromBody] CompleteDeviceLoginCommand command,
+        CancellationToken ct) =>
+        Ok(await sender.Send(command, ct));
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -9,8 +10,12 @@ namespace HealthPlatform.Infrastructure.Auth;
 
 public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenService
 {
-    private const string MfaChallengeClaim = "token_usage";
+    private const string TokenUsageClaim = "token_usage";
     private const string MfaChallengeValue = "mfa_challenge";
+    private const string DeviceLoginChallengeValue = "device_login";
+    private const string DeviceVerificationIdClaim = "dev_ver";
+
+    private const string TwoFactorSatisfiedClaim = "tf_sat";
 
     public string CreateAccessToken(
         Guid userId,
@@ -64,7 +69,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(MfaChallengeClaim, MfaChallengeValue),
+            new Claim(TokenUsageClaim, MfaChallengeValue),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString())
         };
 
@@ -106,7 +111,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
                 return false;
             }
 
-            var usage = principal.FindFirst(MfaChallengeClaim)?.Value;
+            var usage = principal.FindFirst(TokenUsageClaim)?.Value;
             if (!string.Equals(usage, MfaChallengeValue, StringComparison.Ordinal))
             {
                 return false;
@@ -135,5 +140,104 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
         }
 
         return new SymmetricSecurityKey(bytes);
+    }
+
+    public string CreateDeviceLoginChallengeToken(
+        Guid userId,
+        Guid verificationId,
+        int ttlMinutes,
+        bool twoFactorAlreadySatisfied,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (ttlMinutes < 1 || ttlMinutes > 120)
+        {
+            throw new ArgumentOutOfRangeException(nameof(ttlMinutes));
+        }
+
+        var jwt = options.Value;
+        var signingKey = CreateSigningKey(jwt.SigningKey);
+        var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+        var now = DateTime.UtcNow;
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new(TokenUsageClaim, DeviceLoginChallengeValue),
+            new(DeviceVerificationIdClaim, verificationId.ToString("D")),
+            new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
+            new(TwoFactorSatisfiedClaim, twoFactorAlreadySatisfied ? "1" : "0")
+        };
+
+        var token = new JwtSecurityToken(
+            jwt.Issuer,
+            jwt.Audience,
+            claims,
+            now,
+            now.AddMinutes(ttlMinutes),
+            credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public bool TryValidateDeviceLoginChallengeToken(
+        string token,
+        CancellationToken ct,
+        out Guid userId,
+        out Guid verificationId,
+        out bool twoFactorAlreadySatisfied)
+    {
+        userId = default;
+        verificationId = default;
+        twoFactorAlreadySatisfied = false;
+        ct.ThrowIfCancellationRequested();
+        var jwt = options.Value;
+        var signingKey = CreateSigningKey(jwt.SigningKey);
+        var parameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+
+        try
+        {
+            var principal = new JwtSecurityTokenHandler().ValidateToken(token, parameters, out var securityToken);
+            if (securityToken is not JwtSecurityToken jwtToken
+                || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var usage = principal.FindFirst(TokenUsageClaim)?.Value;
+            if (!string.Equals(usage, DeviceLoginChallengeValue, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var sub = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var devVer = principal.FindFirst(DeviceVerificationIdClaim)?.Value;
+            if (sub is null || devVer is null)
+            {
+                return false;
+            }
+
+            if (!Guid.TryParse(sub, out userId) || !Guid.TryParse(devVer, out verificationId))
+            {
+                return false;
+            }
+
+            var tf = principal.FindFirst(TwoFactorSatisfiedClaim)?.Value;
+            twoFactorAlreadySatisfied = string.Equals(tf, "1", StringComparison.Ordinal);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
