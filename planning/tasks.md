@@ -22,7 +22,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - Set up ASP.NET Core rate limiting middleware and health check endpoints
   - _Requirements: 17.1, 17.2_
 
-- [ ] 2. Shared Libraries and Cross-Cutting Concerns
+- [x] 2. Shared Libraries and Cross-Cutting Concerns
   - Create `HealthPlatform.Domain` base types: base entity (UUID PK, timestamps), domain event base class, value objects
   - Create `HealthPlatform.Application` shared types: error response envelope (`code`, `message`, `details`, `trace_id`), `IPaymentGateway` interface, MediatR command/query base classes, outbox domain event dispatcher
   - Implement AES-256 at-rest encryption helpers and TLS enforcement middleware
