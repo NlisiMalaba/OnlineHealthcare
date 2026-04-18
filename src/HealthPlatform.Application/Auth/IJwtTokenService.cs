@@ -10,4 +10,18 @@ public interface IJwtTokenService
     string CreateMfaChallengeToken(Guid userId, CancellationToken ct);
 
     bool TryValidateMfaChallengeToken(string token, CancellationToken ct, out Guid userId);
+
+    string CreateDeviceLoginChallengeToken(
+        Guid userId,
+        Guid verificationId,
+        int ttlMinutes,
+        bool twoFactorAlreadySatisfied,
+        CancellationToken ct);
+
+    bool TryValidateDeviceLoginChallengeToken(
+        string token,
+        CancellationToken ct,
+        out Guid userId,
+        out Guid verificationId,
+        out bool twoFactorAlreadySatisfied);
 }

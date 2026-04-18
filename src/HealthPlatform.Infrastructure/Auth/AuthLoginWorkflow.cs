@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Security.Cryptography;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Security;
@@ -13,8 +15,15 @@ public sealed class AuthLoginWorkflow(
     SignInManager<ApplicationUser> signInManager,
     IJwtTokenService jwt,
     IOptions<JwtOptions> jwtOptions,
+    IOptions<DeviceLoginOptions> deviceLoginOptions,
+    IUserDeviceFingerprintRepository fingerprintRepository,
+    IDeviceLoginVerificationRepository verificationRepository,
+    IDeviceLoginOtpNotifier deviceLoginOtpNotifier,
     ILogger<AuthLoginWorkflow> logger) : IAuthLoginWorkflow
 {
+    private static readonly object OtpMarker = new();
+    private readonly PasswordHasher<object> _otpHasher = new();
+
     public async Task<LoginResponseDto> LoginAsync(LoginCommand command, CancellationToken ct)
     {
         var user = await userManager.FindByEmailAsync(command.Email.Trim());
@@ -42,7 +51,9 @@ public sealed class AuthLoginWorkflow(
                 null,
                 null,
                 mfaToken,
-                jwtOptions.Value.MfaChallengeMinutes * 60L);
+                jwtOptions.Value.MfaChallengeMinutes * 60L,
+                null,
+                null);
         }
 
         if (!result.Succeeded)
@@ -59,6 +70,19 @@ public sealed class AuthLoginWorkflow(
                 "MFA (authenticator app or SMS) must be enabled before signing in.");
         }
 
+        var fingerprintHash = DeviceFingerprintHasher.Hash(command.DeviceFingerprint);
+        if (!await fingerprintRepository.ExistsAsync(user.Id, fingerprintHash, ct))
+        {
+            return await StartDeviceStepUpAsync(
+                user,
+                command.Email.Trim(),
+                fingerprintHash,
+                twoFactorAlreadySatisfied: false,
+                ct);
+        }
+
+        await fingerprintRepository.UpsertTouchAsync(user.Id, fingerprintHash, ct);
+
         var access = jwt.CreateAccessToken(
             user.Id,
             user.Email ?? command.Email.Trim(),
@@ -70,6 +94,8 @@ public sealed class AuthLoginWorkflow(
             LoginApiResult.Authenticated,
             access,
             jwtOptions.Value.AccessTokenMinutes * 60L,
+            null,
+            null,
             null,
             null);
     }
@@ -112,6 +138,19 @@ public sealed class AuthLoginWorkflow(
 
         await userManager.ResetAccessFailedCountAsync(user);
 
+        var fingerprintHash = DeviceFingerprintHasher.Hash(command.DeviceFingerprint);
+        if (!await fingerprintRepository.ExistsAsync(user.Id, fingerprintHash, ct))
+        {
+            return await StartDeviceStepUpAsync(
+                user,
+                user.Email ?? string.Empty,
+                fingerprintHash,
+                twoFactorAlreadySatisfied: true,
+                ct);
+        }
+
+        await fingerprintRepository.UpsertTouchAsync(user.Id, fingerprintHash, ct);
+
         var access = jwt.CreateAccessToken(
             user.Id,
             user.Email ?? string.Empty,
@@ -124,7 +163,118 @@ public sealed class AuthLoginWorkflow(
             access,
             jwtOptions.Value.AccessTokenMinutes * 60L,
             null,
+            null,
+            null,
             null);
+    }
+
+    public async Task<LoginResponseDto> CompleteDeviceLoginAsync(CompleteDeviceLoginCommand command, CancellationToken ct)
+    {
+        if (!jwt.TryValidateDeviceLoginChallengeToken(
+                command.DeviceChallengeToken,
+                ct,
+                out var userId,
+                out var verificationId,
+                out var twoFactorAlreadySatisfied))
+        {
+            throw new AppHttpException(
+                401,
+                "INVALID_DEVICE_CHALLENGE",
+                "The device verification challenge is invalid or expired.");
+        }
+
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            throw new AppHttpException(
+                401,
+                "INVALID_DEVICE_CHALLENGE",
+                "The device verification challenge is invalid or expired.");
+        }
+
+        if (await userManager.IsLockedOutAsync(user))
+        {
+            throw new AppHttpException(423, "ACCOUNT_LOCKED", "Account is locked. Try again later.");
+        }
+
+        var fingerprintHash = DeviceFingerprintHasher.Hash(command.DeviceFingerprint);
+        var snapshot = await verificationRepository.FindConsumableAsync(verificationId, userId, fingerprintHash, ct);
+        if (snapshot is null)
+        {
+            throw new AppHttpException(
+                401,
+                "INVALID_DEVICE_VERIFICATION",
+                "Device verification is no longer valid.");
+        }
+
+        var otpCheck = _otpHasher.VerifyHashedPassword(OtpMarker, snapshot.OtpPasswordHash, command.VerificationCode.Trim());
+        if (otpCheck == PasswordVerificationResult.Failed)
+        {
+            throw new AppHttpException(
+                401,
+                "INVALID_DEVICE_VERIFICATION_CODE",
+                "The verification code was not valid.");
+        }
+
+        await verificationRepository.MarkConsumedAsync(snapshot.Id, ct);
+        await fingerprintRepository.UpsertTouchAsync(userId, fingerprintHash, ct);
+
+        var roles = (await userManager.GetRolesAsync(user)).ToList();
+        if (RequiresMfaEnrollment(roles, user))
+        {
+            throw new AppHttpException(
+                403,
+                "MFA_ENROLLMENT_REQUIRED",
+                "MFA (authenticator app or SMS) must be enabled before signing in.");
+        }
+
+        var access = jwt.CreateAccessToken(
+            user.Id,
+            user.Email ?? string.Empty,
+            roles,
+            twoFactorAlreadySatisfied,
+            ct);
+
+        return new LoginResponseDto(
+            LoginApiResult.Authenticated,
+            access,
+            jwtOptions.Value.AccessTokenMinutes * 60L,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    private async Task<LoginResponseDto> StartDeviceStepUpAsync(
+        ApplicationUser user,
+        string emailForDelivery,
+        string fingerprintHash,
+        bool twoFactorAlreadySatisfied,
+        CancellationToken ct)
+    {
+        var ttl = deviceLoginOptions.Value.ChallengeTtlMinutes;
+        var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6", CultureInfo.InvariantCulture);
+        var otpHash = _otpHasher.HashPassword(OtpMarker, code);
+        var expires = DateTimeOffset.UtcNow.AddMinutes(ttl);
+        var verificationId = await verificationRepository.CreateAsync(user.Id, fingerprintHash, otpHash, expires, ct);
+
+        await deviceLoginOtpNotifier.NotifyDeviceLoginCodeAsync(user.Email ?? emailForDelivery, code, ct);
+
+        var deviceToken = jwt.CreateDeviceLoginChallengeToken(
+            user.Id,
+            verificationId,
+            ttl,
+            twoFactorAlreadySatisfied,
+            ct);
+
+        return new LoginResponseDto(
+            LoginApiResult.DeviceVerificationRequired,
+            null,
+            null,
+            null,
+            null,
+            deviceToken,
+            ttl * 60L);
     }
 
     private static bool RequiresMfaEnrollment(IReadOnlyList<string> roles, ApplicationUser user)

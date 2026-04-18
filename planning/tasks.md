@@ -34,7 +34,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [ ] 3. Auth Module (ASP.NET Core Identity)
   - [x] 3.1 Configure ASP.NET Core Identity with JWT bearer token issuance; define roles: `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`; configure MFA (TOTP + SMS OTP) as required for `doctor`, `pharmacy`, `admin` roles
     - _Requirements: 17.3_
-  - [ ] 3.2 Implement new-device detection: persist device fingerprints per user; compare on each login; trigger step-up authentication on unrecognized device
+  - [x] 3.2 Implement new-device detection: persist device fingerprints per user; compare on each login; trigger step-up authentication on unrecognized device
     - _Requirements: 17.4_
   - [ ] 3.3 Implement account lockout logic: 5 consecutive failed logins → lock account + emit domain event for notification
     - _Requirements: 17.8_

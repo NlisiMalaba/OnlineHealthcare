@@ -41,7 +41,11 @@ public static class DependencyInjection
             options.UseNpgsql(postgres));
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<DeviceLoginOptions>(configuration.GetSection(DeviceLoginOptions.SectionName));
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IUserDeviceFingerprintRepository, UserDeviceFingerprintRepository>();
+        services.AddScoped<IDeviceLoginVerificationRepository, DeviceLoginVerificationRepository>();
+        services.AddSingleton<IDeviceLoginOtpNotifier, LoggingDeviceLoginOtpNotifier>();
         services.AddScoped<IAuthLoginWorkflow, AuthLoginWorkflow>();
         services.AddSingleton<IMfaSmsSender, LoggingMfaSmsSender>();
 
