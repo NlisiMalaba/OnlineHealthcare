@@ -1,10 +1,13 @@
 using System.Threading.RateLimiting;
 using Hangfire;
 using Hangfire.PostgreSql;
+using HealthPlatform.API.Authorization;
+using HealthPlatform.API.Diagnostics;
+using HealthPlatform.API.Middleware;
 using HealthPlatform.Application;
 using HealthPlatform.Infrastructure;
 using HealthPlatform.Infrastructure.Jobs;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MongoDB.Driver;
 using OpenTelemetry.Instrumentation.Http;
@@ -21,7 +24,17 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddHealthPlatformAuthorizationPolicies();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.Configure<RequireTlsMiddlewareOptions>(
+    builder.Configuration.GetSection("Security:Tls"));
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 var hangfireConnection = builder.Configuration.GetConnectionString("Hangfire")
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
@@ -78,6 +91,8 @@ if (builder.Configuration.GetValue("OpenTelemetry:Enabled", true))
             .AddOtlpExporter());
 }
 
+builder.Services.AddControllers();
+
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -98,28 +113,19 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+app.UseExceptionHandler();
+app.UseMiddleware<RequireTlsMiddleware>();
+if (!string.IsNullOrWhiteSpace(redis))
+{
+    app.UseMiddleware<IdempotencyMiddleware>();
+}
+
 app.UseSerilogRequestLogging();
 
 app.UseRateLimiter();
 
-app.MapGet("/", () => Results.Redirect("/health"));
-
-app.MapHealthChecks("/health", new HealthCheckOptions
-{
-    ResponseWriter = HealthChecksResponseWriter.WriteMinimalJsonAsync
-});
-
-app.MapHealthChecks("/health/live", new HealthCheckOptions
-{
-    Predicate = r => r.Tags.Contains("live"),
-    ResponseWriter = HealthChecksResponseWriter.WriteMinimalJsonAsync
-});
-
-app.MapHealthChecks("/health/ready", new HealthCheckOptions
-{
-    Predicate = r => r.Tags.Contains("ready"),
-    ResponseWriter = HealthChecksResponseWriter.WriteMinimalJsonAsync
-});
+app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
@@ -149,25 +155,3 @@ app.Lifetime.ApplicationStarted.Register(() =>
 });
 
 app.Run();
-
-internal static class HealthChecksResponseWriter
-{
-    public static Task WriteMinimalJsonAsync(HttpContext context, HealthReport report)
-    {
-        context.Response.ContentType = "application/json; charset=utf-8";
-        var payload = new
-        {
-            status = report.Status.ToString(),
-            duration = report.TotalDuration,
-            checks = report.Entries.Select(e => new
-            {
-                name = e.Key,
-                status = e.Value.Status.ToString(),
-                description = e.Value.Description,
-                duration = e.Value.Duration,
-                exception = e.Value.Exception?.Message
-            })
-        };
-        return context.Response.WriteAsJsonAsync(payload);
-    }
-}
