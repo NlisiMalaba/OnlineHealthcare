@@ -21,6 +21,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<HealthRecord> HealthRecords => Set<HealthRecord>();
 
+    public DbSet<HealthRecordProfileChange> HealthRecordProfileChanges => Set<HealthRecordProfileChange>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

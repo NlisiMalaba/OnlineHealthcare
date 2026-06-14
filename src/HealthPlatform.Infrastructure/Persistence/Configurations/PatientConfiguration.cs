@@ -27,6 +27,16 @@ public sealed class PatientConfiguration : IEntityTypeConfiguration<Patient>
         builder.Property(p => p.Email)
             .HasMaxLength(256);
 
+        builder.Property(p => p.ProfilePhotoStorageKey)
+            .HasMaxLength(512);
+
+        builder.Property(p => p.BloodType)
+            .HasConversion<string>()
+            .HasMaxLength(16);
+
+        builder.PrimitiveCollection(p => p.KnownAllergies);
+        builder.PrimitiveCollection(p => p.ChronicConditions);
+
         builder.HasIndex(p => p.PhoneNumber)
             .IsUnique()
             .HasFilter("\"PhoneNumber\" IS NOT NULL AND \"IsDeleted\" = false");
