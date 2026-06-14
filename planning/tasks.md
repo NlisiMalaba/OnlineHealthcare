@@ -50,7 +50,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Identity Module — User & Profile
-  - [ ] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
+  - [x] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
     - On successful registration, publish `PatientRegistered` domain event handled in-process to create linked HealthRecord
     - Return `IDENTITY_CONFLICT` (409) for duplicate phone/email
     - _Requirements: 1.1, 1.2, 1.6_

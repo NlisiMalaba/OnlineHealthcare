@@ -8,6 +8,7 @@ using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
+using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -36,22 +37,39 @@ public static class DependencyInjection
         }
 
         var postgres = configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(postgres))
+        var useInMemoryDatabase = configuration.GetValue("Testing:UseInMemoryDatabase", false);
+        if (!useInMemoryDatabase && string.IsNullOrWhiteSpace(postgres))
         {
             throw new InvalidOperationException("Connection string 'DefaultConnection' is required for Identity.");
         }
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(postgres));
+        {
+            if (useInMemoryDatabase)
+            {
+                options.UseInMemoryDatabase(
+                    configuration["Testing:InMemoryDatabaseName"] ?? "HealthPlatform.Tests");
+            }
+            else
+            {
+                options.UseNpgsql(postgres!);
+            }
+        });
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<DeviceLoginOptions>(configuration.GetSection(DeviceLoginOptions.SectionName));
+        services.Configure<SocialIdentityVerifierOptions>(
+            configuration.GetSection(SocialIdentityVerifierOptions.SectionName));
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IUserDeviceFingerprintRepository, UserDeviceFingerprintRepository>();
         services.AddScoped<IDeviceLoginVerificationRepository, DeviceLoginVerificationRepository>();
         services.AddSingleton<IDeviceLoginOtpNotifier, LoggingDeviceLoginOtpNotifier>();
         services.AddScoped<IAuthLoginWorkflow, AuthLoginWorkflow>();
         services.AddSingleton<IMfaSmsSender, LoggingMfaSmsSender>();
+        services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
+        services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
+        services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
 
         services
             .AddIdentity<ApplicationUser, IdentityRole<Guid>>(ConfigureIdentity)
