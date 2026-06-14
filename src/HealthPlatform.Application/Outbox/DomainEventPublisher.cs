@@ -13,6 +13,9 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
             AccountLockedDomainEvent e => mediator.Publish(
                 new AccountLockedNotification(e.UserId, e.LockoutEndUtc, e.FailedAttemptCount),
                 ct),
+            PatientRegisteredDomainEvent e => mediator.Publish(
+                new PatientRegisteredNotification(e.PatientId, e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

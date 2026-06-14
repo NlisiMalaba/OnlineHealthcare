@@ -64,6 +64,7 @@ builder.Services.PostConfigure<Microsoft.AspNetCore.Authentication.Authenticatio
 });
 
 builder.Services.AddHealthPlatformAuthorizationPolicies();
+builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.Configure<RequireTlsMiddlewareOptions>(
     builder.Configuration.GetSection("Security:Tls"));
@@ -197,3 +198,5 @@ app.Lifetime.ApplicationStarted.Register(() =>
 });
 
 app.Run();
+
+public partial class Program;
