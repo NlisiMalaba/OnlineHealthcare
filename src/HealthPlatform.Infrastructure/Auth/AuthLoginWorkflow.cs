@@ -19,6 +19,7 @@ public sealed class AuthLoginWorkflow(
     IUserDeviceFingerprintRepository fingerprintRepository,
     IDeviceLoginVerificationRepository verificationRepository,
     IDeviceLoginOtpNotifier deviceLoginOtpNotifier,
+    IAccountLockoutService accountLockoutService,
     ILogger<AuthLoginWorkflow> logger) : IAuthLoginWorkflow
 {
     private static readonly object OtpMarker = new();
@@ -32,9 +33,11 @@ public sealed class AuthLoginWorkflow(
             throw new AppHttpException(401, "INVALID_CREDENTIALS", "Invalid email or password.");
         }
 
+        var wasLockedBefore = await userManager.IsLockedOutAsync(user);
         var result = await signInManager.CheckPasswordSignInAsync(user, command.Password, lockoutOnFailure: true);
         if (result.IsLockedOut)
         {
+            await accountLockoutService.RecordNewLockoutIfNeededAsync(user.Id, wasLockedBefore, ct);
             throw new AppHttpException(423, "ACCOUNT_LOCKED", "Account is locked. Try again later.");
         }
 
@@ -119,10 +122,17 @@ public sealed class AuthLoginWorkflow(
         }
 
         var provider = MapProvider(command.TwoFactorProvider);
+        var wasLockedBeforeMfaAttempt = await userManager.IsLockedOutAsync(user);
         var valid = await userManager.VerifyTwoFactorTokenAsync(user, provider, command.TwoFactorCode);
         if (!valid)
         {
             await userManager.AccessFailedAsync(user);
+            await accountLockoutService.RecordNewLockoutIfNeededAsync(user.Id, wasLockedBeforeMfaAttempt, ct);
+            if (await userManager.IsLockedOutAsync(user))
+            {
+                throw new AppHttpException(423, "ACCOUNT_LOCKED", "Account is locked. Try again later.");
+            }
+
             throw new AppHttpException(401, "INVALID_TWO_FACTOR_CODE", "The verification code was not valid.");
         }
 

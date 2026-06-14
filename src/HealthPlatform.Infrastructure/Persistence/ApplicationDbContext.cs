@@ -13,6 +13,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<DeviceLoginVerification> DeviceLoginVerifications => Set<DeviceLoginVerification>();
 
+    public DbSet<DomainEventOutboxEntry> DomainEventOutbox => Set<DomainEventOutboxEntry>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

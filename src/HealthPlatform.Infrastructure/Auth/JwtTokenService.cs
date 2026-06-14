@@ -10,6 +10,11 @@ namespace HealthPlatform.Infrastructure.Auth;
 
 public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenService
 {
+    static JwtTokenService()
+    {
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+    }
+
     private const string TokenUsageClaim = "token_usage";
     private const string MfaChallengeValue = "mfa_challenge";
     private const string DeviceLoginChallengeValue = "device_login";
@@ -90,17 +95,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
         ct.ThrowIfCancellationRequested();
         var jwt = options.Value;
         var signingKey = CreateSigningKey(jwt.SigningKey);
-        var parameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwt.Issuer,
-            ValidateAudience = true,
-            ValidAudience = jwt.Audience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = signingKey,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromSeconds(30)
-        };
+        var parameters = CreateValidationParameters(jwt, signingKey);
 
         try
         {
@@ -117,13 +112,33 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
                 return false;
             }
 
-            var sub = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            return sub is not null && Guid.TryParse(sub, out userId);
+            return TryGetSubjectId(principal, out userId);
         }
         catch
         {
             return false;
         }
+    }
+
+    private static TokenValidationParameters CreateValidationParameters(JwtOptions jwt, SymmetricSecurityKey signingKey) =>
+        new()
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+
+    private static bool TryGetSubjectId(ClaimsPrincipal principal, out Guid userId)
+    {
+        userId = default;
+        var sub = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+            ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return sub is not null && Guid.TryParse(sub, out userId);
     }
 
     private static SymmetricSecurityKey CreateSigningKey(string signingKeyUtf8)
@@ -192,17 +207,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
         ct.ThrowIfCancellationRequested();
         var jwt = options.Value;
         var signingKey = CreateSigningKey(jwt.SigningKey);
-        var parameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwt.Issuer,
-            ValidateAudience = true,
-            ValidAudience = jwt.Audience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = signingKey,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromSeconds(30)
-        };
+        var parameters = CreateValidationParameters(jwt, signingKey);
 
         try
         {
@@ -219,14 +224,8 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
                 return false;
             }
 
-            var sub = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             var devVer = principal.FindFirst(DeviceVerificationIdClaim)?.Value;
-            if (sub is null || devVer is null)
-            {
-                return false;
-            }
-
-            if (!Guid.TryParse(sub, out userId) || !Guid.TryParse(devVer, out verificationId))
+            if (devVer is null || !TryGetSubjectId(principal, out userId) || !Guid.TryParse(devVer, out verificationId))
             {
                 return false;
             }
