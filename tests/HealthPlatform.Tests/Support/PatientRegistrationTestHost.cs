@@ -5,14 +5,17 @@ using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Identity.RegisterPatient;
+using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Security;
+using HealthPlatform.Application.Storage;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
+using HealthPlatform.Infrastructure.Storage;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -35,7 +38,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     private readonly ServiceProvider _serviceProvider;
 
+    private readonly TestCurrentUserAccessor _currentUser = new();
+
     private readonly string _databaseName = Guid.NewGuid().ToString("N");
+
+    public TestCurrentUserAccessor CurrentUser => _currentUser;
 
     public PatientRegistrationTestHost()
     {
@@ -66,12 +73,20 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         {
             options.AllowUnverifiedTokensInDevelopment = true;
         });
+        services.Configure<StorageOptions>(options =>
+        {
+            options.LocalRootPath = Path.Combine(Path.GetTempPath(), "healthplatform-tests", Guid.NewGuid().ToString("N"));
+        });
 
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
+        services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
+        services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
+        services.AddSingleton<ICurrentUserAccessor>(_currentUser);
+        services.AddSingleton<IStorageService, LocalFileStorageService>();
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();

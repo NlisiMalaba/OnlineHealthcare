@@ -54,13 +54,13 @@ The full task list below is the **complete platform** backlog. For a **working M
     - On successful registration, publish `PatientRegistered` domain event handled in-process to create linked HealthRecord
     - Return `IDENTITY_CONFLICT` (409) for duplicate phone/email
     - _Requirements: 1.1, 1.2, 1.6_
-  - [ ]* 5.2 Write property test for patient registration creates linked health record (Property 1)
+  - [x]* 5.2 Write property test for patient registration creates linked health record (Property 1)
     - **Property 1: Patient Registration Creates Linked Health Record**
     - **Validates: Requirements 1.2**
-  - [ ]* 5.3 Write property test for duplicate registration rejection (Property 3)
+  - [x]* 5.3 Write property test for duplicate registration rejection (Property 3)
     - **Property 3: Duplicate Registration Rejection**
     - **Validates: Requirements 1.6**
-  - [ ] 5.4 Implement Patient profile update endpoint (name, DOB, blood type, allergies, chronic conditions, photo upload to S3)
+  - [x] 5.4 Implement Patient profile update endpoint (name, DOB, blood type, allergies, chronic conditions, photo upload to S3)
     - Timestamp and persist every change to the linked HealthRecord
     - _Requirements: 1.3, 1.4, 1.5_
   - [ ]* 5.5 Write property test for profile update round trip (Property 2)

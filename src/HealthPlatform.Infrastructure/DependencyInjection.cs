@@ -1,5 +1,7 @@
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.Storage;
+using HealthPlatform.Infrastructure.Storage;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Infrastructure.Auth;
@@ -60,6 +62,7 @@ public static class DependencyInjection
         services.Configure<DeviceLoginOptions>(configuration.GetSection(DeviceLoginOptions.SectionName));
         services.Configure<SocialIdentityVerifierOptions>(
             configuration.GetSection(SocialIdentityVerifierOptions.SectionName));
+        services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IUserDeviceFingerprintRepository, UserDeviceFingerprintRepository>();
         services.AddScoped<IDeviceLoginVerificationRepository, DeviceLoginVerificationRepository>();
@@ -69,7 +72,12 @@ public static class DependencyInjection
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
+        services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
+        services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
+        services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();
+        services.AddSingleton<IStorageService, LocalFileStorageService>();
+        services.AddHttpContextAccessor();
 
         services
             .AddIdentity<ApplicationUser, IdentityRole<Guid>>(ConfigureIdentity)
