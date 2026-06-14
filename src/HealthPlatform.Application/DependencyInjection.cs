@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using HealthPlatform.Application.Behaviors;
+using HealthPlatform.Application.Outbox;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +14,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
         return services;
     }
 }

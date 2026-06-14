@@ -1,4 +1,5 @@
 using HealthPlatform.Application.Auth;
+using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Infrastructure.Auth;
@@ -23,7 +24,10 @@ public static class DependencyInjection
         services.Configure<Aes256AtRestEncryptionOptions>(
             configuration.GetSection(Aes256AtRestEncryptionOptions.SectionName));
         services.AddSingleton<IAtRestEncryption, Aes256AtRestEncryption>();
-        services.AddSingleton<IOutboxDomainEventDispatcher, NoOpOutboxDomainEventDispatcher>();
+        services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IAccountLockoutService, AccountLockoutService>();
+        services.AddSingleton<IAccountLockoutNotifier, LoggingAccountLockoutNotifier>();
 
         var redis = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrWhiteSpace(redis))
