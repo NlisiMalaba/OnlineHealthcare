@@ -1,6 +1,7 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Identity.UpdatePharmacyProfile;
+using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Domain.ValueObjects;
@@ -12,6 +13,8 @@ public sealed class PharmacyProfileUpdateWorkflow(
     ICurrentUserAccessor currentUser,
     IPharmacyRepository pharmacyRepository,
     IStorageService storageService,
+    IOutboxRepository outboxRepository,
+    IDomainEventPublisher domainEventPublisher,
     ILogger<PharmacyProfileUpdateWorkflow> logger) : IPharmacyProfileUpdateWorkflow
 {
     public async Task<PharmacyProfileDto> UpdateAsync(UpdatePharmacyProfileCommand command, CancellationToken ct)
@@ -61,9 +64,21 @@ public sealed class PharmacyProfileUpdateWorkflow(
             command.PhoneNumber?.Trim(),
             logoKey);
 
+        var pendingEvents = pharmacy.DomainEvents.ToList();
         await pharmacyRepository.UpdateAsync(pharmacy, ct);
 
-        logger.LogInformation("Updated pharmacy {PharmacyId} profile.", pharmacy.Id);
+        foreach (var domainEvent in pendingEvents)
+        {
+            await outboxRepository.EnqueueAsync(domainEvent, ct);
+            await domainEventPublisher.PublishAsync(domainEvent, ct);
+        }
+
+        pharmacy.ClearDomainEvents();
+
+        logger.LogInformation(
+            "Updated pharmacy {PharmacyId} profile with {DomainEventCount} domain events.",
+            pharmacy.Id,
+            pendingEvents.Count);
 
         return await MapProfileAsync(pharmacy, ct);
     }

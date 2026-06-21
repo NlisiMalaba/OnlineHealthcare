@@ -87,9 +87,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 1.6, 2.2, 2.7_
 
 - [ ] 6. Search Module (Elasticsearch)
-  - [ ] 6.1 Define and create Elasticsearch indices: Doctor (name, specialty, rating, geo_point, fee range, availability), Pharmacy (name, location, stock summary), Lab Partner (name, location, test types, pricing)
+  - [x] 6.1 Define and create Elasticsearch indices: Doctor (name, specialty, rating, geo_point, fee range, availability), Pharmacy (name, location, stock summary), Lab Partner (name, location, test types, pricing)
     - _Requirements: 3.1, 3.3, 21.3_
-  - [ ] 6.2 Implement domain event handlers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
+  - [x] 6.2 Implement domain event handlers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
     - _Requirements: 3.5_
   - [ ] 6.3 Implement doctor search endpoint with filters (specialty, rating, fee range, availability) and geo-distance proximity sorting
     - Return empty-state response with suggestion message when no results match

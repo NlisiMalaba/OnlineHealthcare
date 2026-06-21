@@ -1,19 +1,20 @@
-using HealthPlatform.Domain.Identity;
-
 namespace HealthPlatform.Application.Search;
 
-public sealed record DoctorAvailabilityIndexEntry(
-    DayOfWeek DayOfWeek,
-    TimeOnly StartTime,
-    TimeOnly EndTime,
-    int SlotDurationMinutes,
-    DoctorAppointmentType AppointmentType,
-    bool IsActive);
+public sealed record PharmacyStockIndexEntry(
+    string MedicationName,
+    string MedicationSku,
+    int QuantityOnHand);
 
 public interface ISearchService
 {
-    Task UpdateDoctorAvailabilityIndexAsync(
-        Guid doctorId,
-        IReadOnlyList<DoctorAvailabilityIndexEntry> availabilitySlots,
+    Task UpsertDoctorAsync(Guid doctorId, CancellationToken ct);
+
+    Task RemoveDoctorAsync(Guid doctorId, CancellationToken ct);
+
+    Task UpsertPharmacyAsync(Guid pharmacyId, CancellationToken ct);
+
+    Task UpdatePharmacyStockAsync(
+        Guid pharmacyId,
+        IReadOnlyList<PharmacyStockIndexEntry> stockSummary,
         CancellationToken ct);
 }

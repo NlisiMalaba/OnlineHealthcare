@@ -94,9 +94,12 @@ public static class DependencyInjection
             services.AddSingleton(new ElasticsearchClient(elasticsearchSettings));
             services.AddSingleton<IElasticsearchIndexManager, ElasticsearchIndexManager>();
             services.AddHostedService<ElasticsearchIndexInitializerHostedService>();
+            services.AddScoped<ISearchService, ElasticsearchSearchService>();
         }
-
-        services.AddSingleton<ISearchService, LoggingSearchService>();
+        else
+        {
+            services.AddSingleton<ISearchService, LoggingSearchService>();
+        }
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
         services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();

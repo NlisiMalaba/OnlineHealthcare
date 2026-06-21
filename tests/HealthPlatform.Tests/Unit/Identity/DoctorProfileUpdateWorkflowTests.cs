@@ -43,7 +43,7 @@ public sealed class DoctorProfileUpdateWorkflowTests : IAsyncLifetime
         Assert.Equal("Updated professional bio.", profile.Bio);
         Assert.Equal(55m, doctor.VirtualFee);
         Assert.Equal(75m, doctor.PhysicalFee);
-        Assert.Empty(_host.SearchService.AvailabilityUpdates);
+        Assert.Empty(_host.SearchService.DoctorUpserts);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public sealed class DoctorProfileUpdateWorkflowTests : IAsyncLifetime
         var doctor = await _host.DbContext.Doctors.SingleAsync(d => d.UserId == doctorUserId);
 
         await _host.Sender.Send(new VerifyDoctorLicenseCommand(doctor.Id), CancellationToken.None);
-        _host.SearchService.AvailabilityUpdates.Clear();
+        _host.SearchService.DoctorUpserts.Clear();
 
         var replacementSlots = new List<DoctorAvailabilitySlotInput>
         {
@@ -85,16 +85,15 @@ public sealed class DoctorProfileUpdateWorkflowTests : IAsyncLifetime
 
         Assert.NotNull(outboxEvent);
 
-        Assert.Single(_host.SearchService.AvailabilityUpdates);
-        Assert.Equal(doctor.Id, _host.SearchService.AvailabilityUpdates[0].DoctorId);
-        Assert.Single(_host.SearchService.AvailabilityUpdates[0].Slots);
+        Assert.Single(_host.SearchService.DoctorUpserts);
+        Assert.Equal(doctor.Id, _host.SearchService.DoctorUpserts[0]);
     }
 
     [Fact]
     public async Task UpdateProfile_DoesNotUpdateSearchIndexWhenDoctorIsPending()
     {
         var doctorUserId = await RegisterDoctorAndSetCurrentUserAsync();
-        _host.SearchService.AvailabilityUpdates.Clear();
+        _host.SearchService.DoctorUpserts.Clear();
 
         await _host.Sender.Send(
             new UpdateDoctorProfileCommand(
@@ -113,7 +112,7 @@ public sealed class DoctorProfileUpdateWorkflowTests : IAsyncLifetime
                 null),
             CancellationToken.None);
 
-        Assert.Empty(_host.SearchService.AvailabilityUpdates);
+        Assert.Empty(_host.SearchService.DoctorUpserts);
     }
 
     private async Task<Guid> RegisterDoctorAndSetCurrentUserAsync()
