@@ -96,6 +96,8 @@ public static class DependencyInjection
             services.AddHostedService<ElasticsearchIndexInitializerHostedService>();
             services.AddScoped<ISearchService, ElasticsearchSearchService>();
             services.AddScoped<DoctorElasticsearchSearcher>();
+            services.AddScoped<PharmacyElasticsearchSearcher>();
+            services.AddScoped<LabPartnerElasticsearchSearcher>();
         }
         else
         {

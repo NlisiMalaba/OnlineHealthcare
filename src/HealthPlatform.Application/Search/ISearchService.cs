@@ -19,4 +19,8 @@ public interface ISearchService
         CancellationToken ct);
 
     Task<DoctorSearchPageDto> SearchDoctorsAsync(DoctorSearchCriteria criteria, CancellationToken ct);
+
+    Task<PharmacySearchPageDto> SearchPharmaciesAsync(PharmacySearchCriteria criteria, CancellationToken ct);
+
+    Task<LabPartnerSearchPageDto> SearchLabPartnersAsync(LabPartnerSearchCriteria criteria, CancellationToken ct);
 }

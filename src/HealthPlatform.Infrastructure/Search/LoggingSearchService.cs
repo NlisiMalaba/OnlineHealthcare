@@ -49,4 +49,26 @@ public sealed class LoggingSearchService(ILogger<LoggingSearchService> logger) :
             criteria.PageSize);
         return Task.FromResult(new DoctorSearchPageDto([], 0));
     }
+
+    public Task<PharmacySearchPageDto> SearchPharmaciesAsync(PharmacySearchCriteria criteria, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        logger.LogInformation(
+            "Pharmacy search requested with medicationSku {MedicationSku}, page {Page}, pageSize {PageSize}.",
+            criteria.MedicationSku,
+            criteria.Page,
+            criteria.PageSize);
+        return Task.FromResult(new PharmacySearchPageDto([], 0));
+    }
+
+    public Task<LabPartnerSearchPageDto> SearchLabPartnersAsync(LabPartnerSearchCriteria criteria, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        logger.LogInformation(
+            "Lab partner search requested with testType {TestType}, page {Page}, pageSize {PageSize}.",
+            criteria.TestType,
+            criteria.Page,
+            criteria.PageSize);
+        return Task.FromResult(new LabPartnerSearchPageDto([], 0));
+    }
 }
