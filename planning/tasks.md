@@ -63,14 +63,14 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 5.4 Implement Patient profile update endpoint (name, DOB, blood type, allergies, chronic conditions, photo upload to S3)
     - Timestamp and persist every change to the linked HealthRecord
     - _Requirements: 1.3, 1.4, 1.5_
-  - [ ]* 5.5 Write property test for profile update round trip (Property 2)
+  - [x]* 5.5 Write property test for profile update round trip (Property 2)
     - **Property 2: Profile Update Round Trip**
     - **Validates: Requirements 1.3**
-  - [ ] 5.6 Implement Doctor registration endpoint (name, license number, specialty, experience, clinic address, fees, availability, photo, credentials)
+  - [x] 5.6 Implement Doctor registration endpoint (name, license number, specialty, experience, clinic address, fees, availability, photo, credentials)
     - Set account to `pending` state on submission; queue license verification task for Admin module
     - Return `LICENSE_INVALID` (422) on admin rejection with reason
     - _Requirements: 2.1, 2.2, 2.7_
-  - [ ]* 5.7 Write property test for doctor registration starts in pending state (Property 4)
+  - [x]* 5.7 Write property test for doctor registration starts in pending state (Property 4)
     - **Property 4: Doctor Registration Starts in Pending State**
     - **Validates: Requirements 2.2**
   - [ ] 5.8 Implement license verification state transition: `pending` → `verified` (activate + notify) or `rejected` (notify with reason)

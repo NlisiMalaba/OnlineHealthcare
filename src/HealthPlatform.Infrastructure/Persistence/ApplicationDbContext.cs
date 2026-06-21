@@ -23,6 +23,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<HealthRecordProfileChange> HealthRecordProfileChanges => Set<HealthRecordProfileChange>();
 
+    public DbSet<Doctor> Doctors => Set<Doctor>();
+
+    public DbSet<DoctorAvailabilitySlot> DoctorAvailabilitySlots => Set<DoctorAvailabilitySlot>();
+
+    public DbSet<LicenseVerificationQueueItem> LicenseVerificationQueue => Set<LicenseVerificationQueueItem>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -85,6 +85,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
+        services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
+        services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
 
