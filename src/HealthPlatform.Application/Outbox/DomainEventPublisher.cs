@@ -13,6 +13,35 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
             AccountLockedDomainEvent e => mediator.Publish(
                 new AccountLockedNotification(e.UserId, e.LockoutEndUtc, e.FailedAttemptCount),
                 ct),
+            PatientRegisteredDomainEvent e => mediator.Publish(
+                new PatientRegisteredNotification(e.PatientId, e.OccurredAtUtc),
+                ct),
+            DoctorRegisteredDomainEvent e => mediator.Publish(
+                new DoctorRegisteredNotification(
+                    e.DoctorId,
+                    e.LicenseNumber,
+                    e.FullName,
+                    e.OccurredAtUtc),
+                ct),
+            DoctorLicenseVerifiedDomainEvent e => mediator.Publish(
+                new DoctorLicenseVerifiedNotification(
+                    e.DoctorId,
+                    e.UserId,
+                    e.FullName,
+                    e.OccurredAtUtc),
+                ct),
+            DoctorLicenseRejectedDomainEvent e => mediator.Publish(
+                new DoctorLicenseRejectedNotification(
+                    e.DoctorId,
+                    e.UserId,
+                    e.FullName,
+                    e.Reason,
+                    e.OccurredAtUtc),
+                ct),
+            DoctorAvailabilityChangedDomainEvent e => mediator.Publish(
+                new DoctorAvailabilityChangedNotification(e.DoctorId, e.OccurredAtUtc),
+                ct),
+            PharmacyRegisteredDomainEvent => Task.CompletedTask,
             _ => Task.CompletedTask
         };
 }

@@ -1,3 +1,5 @@
+using HealthPlatform.Domain.HealthRecords;
+using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +16,20 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<DeviceLoginVerification> DeviceLoginVerifications => Set<DeviceLoginVerification>();
 
     public DbSet<DomainEventOutboxEntry> DomainEventOutbox => Set<DomainEventOutboxEntry>();
+
+    public DbSet<Patient> Patients => Set<Patient>();
+
+    public DbSet<HealthRecord> HealthRecords => Set<HealthRecord>();
+
+    public DbSet<HealthRecordProfileChange> HealthRecordProfileChanges => Set<HealthRecordProfileChange>();
+
+    public DbSet<Doctor> Doctors => Set<Doctor>();
+
+    public DbSet<DoctorAvailabilitySlot> DoctorAvailabilitySlots => Set<DoctorAvailabilitySlot>();
+
+    public DbSet<LicenseVerificationQueueItem> LicenseVerificationQueue => Set<LicenseVerificationQueueItem>();
+
+    public DbSet<Pharmacy> Pharmacies => Set<Pharmacy>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
