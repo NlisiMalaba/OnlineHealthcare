@@ -29,6 +29,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<LicenseVerificationQueueItem> LicenseVerificationQueue => Set<LicenseVerificationQueueItem>();
 
+    public DbSet<Pharmacy> Pharmacies => Set<Pharmacy>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

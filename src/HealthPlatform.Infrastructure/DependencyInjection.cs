@@ -79,7 +79,11 @@ public static class DependencyInjection
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
+        services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
+        services.AddScoped<IPharmacyRepository, PharmacyRepository>();
+        services.AddScoped<IPharmacyRegistrationWorkflow, PharmacyRegistrationWorkflow>();
+        services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
         services.AddSingleton<ISearchService, LoggingSearchService>();
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();

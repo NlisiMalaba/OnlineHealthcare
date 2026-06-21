@@ -81,9 +81,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials
     - Trigger Elasticsearch index update on availability change
     - _Requirements: 2.4, 2.5, 2.6_
-  - [ ] 5.11 Implement Pharmacy registration and profile management endpoints
+  - [x] 5.11 Implement Pharmacy registration and profile management endpoints
     - _Requirements: 13.1_
-  - [ ]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
+  - [x]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
     - _Requirements: 1.6, 2.2, 2.7_
 
 - [ ] 6. Search Module (Elasticsearch)
