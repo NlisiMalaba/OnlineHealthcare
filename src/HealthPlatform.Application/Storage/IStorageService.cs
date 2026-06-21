@@ -25,5 +25,12 @@ public interface IStorageService
         string fileName,
         CancellationToken ct);
 
+    Task<StorageUploadResult> UploadPharmacyLogoAsync(
+        Guid pharmacyId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct);
+
     Task<string> GetSignedReadUrlAsync(string storageKey, CancellationToken ct);
 }

@@ -87,6 +87,28 @@ public sealed class LocalFileStorageService(
         return await StoreAsync(storageKey, content, contentType, ct);
     }
 
+    public async Task<StorageUploadResult> UploadPharmacyLogoAsync(
+        Guid pharmacyId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct)
+    {
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            extension = contentType switch
+            {
+                "image/png" => ".png",
+                "image/webp" => ".webp",
+                _ => ".jpg"
+            };
+        }
+
+        var storageKey = $"pharmacies/{pharmacyId}/logo/{Guid.CreateVersion7():N}{extension}";
+        return await StoreAsync(storageKey, content, contentType, ct);
+    }
+
     public Task<string> GetSignedReadUrlAsync(string storageKey, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
