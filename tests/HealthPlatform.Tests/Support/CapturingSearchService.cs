@@ -42,4 +42,10 @@ public sealed class CapturingSearchService : ISearchService
         PharmacyStockUpdates.Add((pharmacyId, stockSummary.ToList()));
         return Task.CompletedTask;
     }
+
+    public Task<DoctorSearchPageDto> SearchDoctorsAsync(DoctorSearchCriteria criteria, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        return Task.FromResult(new DoctorSearchPageDto([], 0));
+    }
 }

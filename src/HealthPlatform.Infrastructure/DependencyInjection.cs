@@ -95,6 +95,7 @@ public static class DependencyInjection
             services.AddSingleton<IElasticsearchIndexManager, ElasticsearchIndexManager>();
             services.AddHostedService<ElasticsearchIndexInitializerHostedService>();
             services.AddScoped<ISearchService, ElasticsearchSearchService>();
+            services.AddScoped<DoctorElasticsearchSearcher>();
         }
         else
         {

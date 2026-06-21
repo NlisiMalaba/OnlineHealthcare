@@ -12,6 +12,7 @@ public sealed class ElasticsearchSearchService(
     ElasticsearchClient client,
     IDoctorRepository doctorRepository,
     IPharmacyRepository pharmacyRepository,
+    DoctorElasticsearchSearcher doctorSearcher,
     IOptions<ElasticsearchOptions> options,
     ILogger<ElasticsearchSearchService> logger) : ISearchService
 {
@@ -162,4 +163,7 @@ public sealed class ElasticsearchSearchService(
                 entry.QuantityOnHand))
             .ToList();
     }
+
+    public Task<DoctorSearchPageDto> SearchDoctorsAsync(DoctorSearchCriteria criteria, CancellationToken ct) =>
+        doctorSearcher.SearchAsync(criteria, ct);
 }
