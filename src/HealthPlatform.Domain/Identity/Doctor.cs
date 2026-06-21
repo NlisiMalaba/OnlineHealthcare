@@ -170,6 +170,8 @@ public sealed class Doctor : Entity
         string? profilePhotoStorageKey,
         string? credentialsStorageKey)
     {
+        var profileChanged = false;
+
         if (virtualFee.HasValue)
         {
             if (virtualFee.Value < 0)
@@ -177,7 +179,11 @@ public sealed class Doctor : Entity
                 throw new ArgumentOutOfRangeException(nameof(virtualFee));
             }
 
-            VirtualFee = virtualFee.Value;
+            if (VirtualFee != virtualFee.Value)
+            {
+                VirtualFee = virtualFee.Value;
+                profileChanged = true;
+            }
         }
 
         if (physicalFee.HasValue)
@@ -187,25 +193,42 @@ public sealed class Doctor : Entity
                 throw new ArgumentOutOfRangeException(nameof(physicalFee));
             }
 
-            PhysicalFee = physicalFee.Value;
+            if (PhysicalFee != physicalFee.Value)
+            {
+                PhysicalFee = physicalFee.Value;
+                profileChanged = true;
+            }
         }
 
         if (bio is not null)
         {
-            Bio = string.IsNullOrWhiteSpace(bio) ? null : bio.Trim();
+            var normalizedBio = string.IsNullOrWhiteSpace(bio) ? null : bio.Trim();
+            if (Bio != normalizedBio)
+            {
+                Bio = normalizedBio;
+                profileChanged = true;
+            }
         }
 
-        if (profilePhotoStorageKey is not null)
+        if (profilePhotoStorageKey is not null && ProfilePhotoStorageKey != profilePhotoStorageKey)
         {
             ProfilePhotoStorageKey = profilePhotoStorageKey;
+            profileChanged = true;
         }
 
-        if (credentialsStorageKey is not null)
+        if (credentialsStorageKey is not null && CredentialsStorageKey != credentialsStorageKey)
         {
             CredentialsStorageKey = credentialsStorageKey;
+            profileChanged = true;
+        }
+
+        if (!profileChanged)
+        {
+            return;
         }
 
         Touch();
+        RaiseDomainEvent(new DoctorProfileUpdatedDomainEvent(Id));
     }
 
     public bool ApplyAvailabilityReplacement(IReadOnlyList<DoctorAvailabilitySlot> replacementSlots)

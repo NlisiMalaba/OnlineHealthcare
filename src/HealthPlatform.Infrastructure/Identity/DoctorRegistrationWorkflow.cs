@@ -112,6 +112,7 @@ public sealed class DoctorRegistrationWorkflow(
         var domainEvent = doctor.DomainEvents.OfType<DoctorRegisteredDomainEvent>().Single();
         await outboxRepository.EnqueueAsync(domainEvent, ct);
         await domainEventPublisher.PublishAsync(domainEvent, ct);
+        doctor.ClearDomainEvents();
 
         logger.LogInformation(
             "Registered doctor {DoctorId} with user {UserId} in pending verification state.",

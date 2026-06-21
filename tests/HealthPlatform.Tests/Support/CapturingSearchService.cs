@@ -1,19 +1,45 @@
 using HealthPlatform.Application.Search;
-using HealthPlatform.Domain.Identity;
 
 namespace HealthPlatform.Tests.Support;
 
 public sealed class CapturingSearchService : ISearchService
 {
-    public List<(Guid DoctorId, IReadOnlyList<DoctorAvailabilityIndexEntry> Slots)> AvailabilityUpdates { get; } = [];
+    public List<Guid> DoctorUpserts { get; } = [];
 
-    public Task UpdateDoctorAvailabilityIndexAsync(
-        Guid doctorId,
-        IReadOnlyList<DoctorAvailabilityIndexEntry> availabilitySlots,
+    public List<Guid> DoctorRemovals { get; } = [];
+
+    public List<Guid> PharmacyUpserts { get; } = [];
+
+    public List<(Guid PharmacyId, IReadOnlyList<PharmacyStockIndexEntry> Stock)> PharmacyStockUpdates { get; } = [];
+
+    public Task UpsertDoctorAsync(Guid doctorId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        DoctorUpserts.Add(doctorId);
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveDoctorAsync(Guid doctorId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        DoctorRemovals.Add(doctorId);
+        return Task.CompletedTask;
+    }
+
+    public Task UpsertPharmacyAsync(Guid pharmacyId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        PharmacyUpserts.Add(pharmacyId);
+        return Task.CompletedTask;
+    }
+
+    public Task UpdatePharmacyStockAsync(
+        Guid pharmacyId,
+        IReadOnlyList<PharmacyStockIndexEntry> stockSummary,
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        AvailabilityUpdates.Add((doctorId, availabilitySlots.ToList()));
+        PharmacyStockUpdates.Add((pharmacyId, stockSummary.ToList()));
         return Task.CompletedTask;
     }
 }
