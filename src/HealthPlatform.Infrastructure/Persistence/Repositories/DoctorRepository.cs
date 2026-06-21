@@ -27,9 +27,34 @@ public sealed class DoctorRepository(ApplicationDbContext db) : IDoctorRepositor
     public Task<Doctor?> GetByIdAsync(Guid doctorId, CancellationToken ct) =>
         db.Doctors.SingleOrDefaultAsync(d => d.Id == doctorId, ct);
 
-    public async Task UpdateAsync(Doctor doctor, CancellationToken ct)
+    public Task<Doctor?> GetByIdWithSlotsAsync(Guid doctorId, CancellationToken ct) =>
+        db.Doctors
+            .Include(d => d.AvailabilitySlots)
+            .SingleOrDefaultAsync(d => d.Id == doctorId, ct);
+
+    public Task<Doctor?> GetByUserIdWithSlotsAsync(Guid userId, CancellationToken ct) =>
+        db.Doctors
+            .Include(d => d.AvailabilitySlots)
+            .SingleOrDefaultAsync(d => d.UserId == userId, ct);
+
+    public Task UpdateAsync(Doctor doctor, CancellationToken ct) =>
+        db.SaveChangesAsync(ct);
+
+    public async Task ReplaceAvailabilitySlotsAsync(
+        Guid doctorId,
+        IReadOnlyList<DoctorAvailabilitySlot> slots,
+        CancellationToken ct)
     {
-        db.Doctors.Update(doctor);
+        var existing = await db.DoctorAvailabilitySlots
+            .Where(s => s.DoctorId == doctorId)
+            .ToListAsync(ct);
+
+        if (existing.Count > 0)
+        {
+            db.DoctorAvailabilitySlots.RemoveRange(existing);
+        }
+
+        await db.DoctorAvailabilitySlots.AddRangeAsync(slots, ct);
         await db.SaveChangesAsync(ct);
     }
 }

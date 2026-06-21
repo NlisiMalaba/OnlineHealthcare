@@ -14,5 +14,14 @@ public interface IDoctorRepository
 
     Task<Doctor?> GetByIdAsync(Guid doctorId, CancellationToken ct);
 
+    Task<Doctor?> GetByIdWithSlotsAsync(Guid doctorId, CancellationToken ct);
+
+    Task<Doctor?> GetByUserIdWithSlotsAsync(Guid userId, CancellationToken ct);
+
     Task UpdateAsync(Doctor doctor, CancellationToken ct);
+
+    Task ReplaceAvailabilitySlotsAsync(
+        Guid doctorId,
+        IReadOnlyList<DoctorAvailabilitySlot> slots,
+        CancellationToken ct);
 }
