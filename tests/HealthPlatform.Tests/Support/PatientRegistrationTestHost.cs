@@ -6,7 +6,9 @@ using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
+using HealthPlatform.Application.Identity.UpdateDoctorProfile;
 using HealthPlatform.Application.Outbox;
+using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Domain.Identity;
@@ -43,6 +45,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly string _databaseName = Guid.NewGuid().ToString("N");
 
     public TestCurrentUserAccessor CurrentUser => _currentUser;
+
+    private readonly CapturingSearchService _searchService = new();
+
+    public CapturingSearchService SearchService => _searchService;
 
     public PatientRegistrationTestHost()
     {
@@ -90,6 +96,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
         services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
+        services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
+        services.AddSingleton<ISearchService>(_searchService);
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
 

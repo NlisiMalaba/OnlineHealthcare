@@ -78,7 +78,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 5.9 Write property test for license verification state transition (Property 5)
     - **Property 5: License Verification State Transition**
     - **Validates: Requirements 2.3, 2.7**
-  - [ ] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials
+  - [x] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials
     - Trigger Elasticsearch index update on availability change
     - _Requirements: 2.4, 2.5, 2.6_
   - [ ] 5.11 Implement Pharmacy registration and profile management endpoints

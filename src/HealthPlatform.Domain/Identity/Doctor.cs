@@ -163,11 +163,123 @@ public sealed class Doctor : Entity
         RaiseDomainEvent(new DoctorLicenseRejectedDomainEvent(Id, UserId, FullName, RejectionReason));
     }
 
+    public void UpdateProfile(
+        decimal? virtualFee,
+        decimal? physicalFee,
+        string? bio,
+        string? profilePhotoStorageKey,
+        string? credentialsStorageKey)
+    {
+        if (virtualFee.HasValue)
+        {
+            if (virtualFee.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(virtualFee));
+            }
+
+            VirtualFee = virtualFee.Value;
+        }
+
+        if (physicalFee.HasValue)
+        {
+            if (physicalFee.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(physicalFee));
+            }
+
+            PhysicalFee = physicalFee.Value;
+        }
+
+        if (bio is not null)
+        {
+            Bio = string.IsNullOrWhiteSpace(bio) ? null : bio.Trim();
+        }
+
+        if (profilePhotoStorageKey is not null)
+        {
+            ProfilePhotoStorageKey = profilePhotoStorageKey;
+        }
+
+        if (credentialsStorageKey is not null)
+        {
+            CredentialsStorageKey = credentialsStorageKey;
+        }
+
+        Touch();
+    }
+
+    public bool ApplyAvailabilityReplacement(IReadOnlyList<DoctorAvailabilitySlot> replacementSlots)
+    {
+        ArgumentNullException.ThrowIfNull(replacementSlots);
+
+        if (replacementSlots.Count == 0)
+        {
+            throw new ArgumentException("At least one availability slot is required.", nameof(replacementSlots));
+        }
+
+        if (AvailabilitySlotsMatch(_availabilitySlots, replacementSlots))
+        {
+            return false;
+        }
+
+        Touch();
+        RaiseDomainEvent(new DoctorAvailabilityChangedDomainEvent(Id));
+        return true;
+    }
+
+    public void SetAvailabilitySlots(IReadOnlyList<DoctorAvailabilitySlot> replacementSlots)
+    {
+        _availabilitySlots.Clear();
+        _availabilitySlots.AddRange(replacementSlots);
+    }
+
     private void EnsurePendingForVerificationTransition()
     {
         if (VerificationStatus != DoctorVerificationStatus.Pending)
         {
             throw new InvalidDoctorVerificationStatusException(VerificationStatus);
         }
+    }
+
+    private static bool AvailabilitySlotsMatch(
+        IReadOnlyCollection<DoctorAvailabilitySlot> current,
+        IReadOnlyList<DoctorAvailabilitySlot> replacement)
+    {
+        if (current.Count != replacement.Count)
+        {
+            return false;
+        }
+
+        var currentSnapshot = current
+            .Select(SlotSnapshot.From)
+            .OrderBy(s => s.DayOfWeek)
+            .ThenBy(s => s.StartTime)
+            .ToList();
+
+        var replacementSnapshot = replacement
+            .Select(SlotSnapshot.From)
+            .OrderBy(s => s.DayOfWeek)
+            .ThenBy(s => s.StartTime)
+            .ToList();
+
+        return currentSnapshot.SequenceEqual(replacementSnapshot);
+    }
+
+    private readonly record struct SlotSnapshot(
+        DayOfWeek DayOfWeek,
+        TimeOnly StartTime,
+        TimeOnly EndTime,
+        int SlotDurationMinutes,
+        DoctorAppointmentType AppointmentType,
+        bool IsActive)
+    {
+        public static SlotSnapshot From(DoctorAvailabilitySlot slot) =>
+            new(
+                slot.DayOfWeek,
+                slot.StartTime,
+                slot.EndTime,
+                slot.SlotDurationMinutes,
+                slot.AppointmentType,
+                slot.IsActive);
     }
 }

@@ -38,6 +38,9 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.Reason,
                     e.OccurredAtUtc),
                 ct),
+            DoctorAvailabilityChangedDomainEvent e => mediator.Publish(
+                new DoctorAvailabilityChangedNotification(e.DoctorId, e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }
