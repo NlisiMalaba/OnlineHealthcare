@@ -1,4 +1,5 @@
 using HealthPlatform.API.Controllers;
+using HealthPlatform.API.Requests.Identity;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Domain.Identity;
@@ -39,7 +40,7 @@ public sealed class PatientProfileControllerTests : IAsyncLifetime
 
         var controller = new PatientProfileController(_host.Sender);
         var result = await controller.UpdateProfileAsync(
-            new PatientProfileController.UpdatePatientProfileRequest
+            new UpdatePatientProfileRequest
             {
                 FullName = "Controller Updated",
                 DateOfBirth = new DateOnly(1988, 12, 1),

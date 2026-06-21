@@ -11,5 +11,19 @@ public interface IStorageService
         string fileName,
         CancellationToken ct);
 
+    Task<StorageUploadResult> UploadDoctorProfilePhotoAsync(
+        Guid doctorId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct);
+
+    Task<StorageUploadResult> UploadDoctorCredentialsAsync(
+        Guid doctorId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct);
+
     Task<string> GetSignedReadUrlAsync(string storageKey, CancellationToken ct);
 }

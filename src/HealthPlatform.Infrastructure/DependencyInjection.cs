@@ -73,6 +73,9 @@ public static class DependencyInjection
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
+        services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
+        services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
         services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();

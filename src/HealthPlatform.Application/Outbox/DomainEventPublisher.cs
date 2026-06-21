@@ -16,6 +16,13 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
             PatientRegisteredDomainEvent e => mediator.Publish(
                 new PatientRegisteredNotification(e.PatientId, e.OccurredAtUtc),
                 ct),
+            DoctorRegisteredDomainEvent e => mediator.Publish(
+                new DoctorRegisteredNotification(
+                    e.DoctorId,
+                    e.LicenseNumber,
+                    e.FullName,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

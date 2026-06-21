@@ -40,6 +40,66 @@ public sealed class LocalFileStorageService(
         }
 
         var storageKey = $"patients/{patientId}/profile-photo/{Guid.CreateVersion7():N}{extension}";
+        return await StoreAsync(storageKey, content, contentType, ct);
+    }
+
+    public async Task<StorageUploadResult> UploadDoctorProfilePhotoAsync(
+        Guid doctorId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct)
+    {
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            extension = contentType switch
+            {
+                "image/png" => ".png",
+                "image/webp" => ".webp",
+                _ => ".jpg"
+            };
+        }
+
+        var storageKey = $"doctors/{doctorId}/profile-photo/{Guid.CreateVersion7():N}{extension}";
+        return await StoreAsync(storageKey, content, contentType, ct);
+    }
+
+    public async Task<StorageUploadResult> UploadDoctorCredentialsAsync(
+        Guid doctorId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct)
+    {
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            extension = contentType switch
+            {
+                "application/pdf" => ".pdf",
+                "image/png" => ".png",
+                _ => ".jpg"
+            };
+        }
+
+        var storageKey = $"doctors/{doctorId}/credentials/{Guid.CreateVersion7():N}{extension}";
+        return await StoreAsync(storageKey, content, contentType, ct);
+    }
+
+    public Task<string> GetSignedReadUrlAsync(string storageKey, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var absolutePath = GetAbsolutePath(storageKey);
+        return Task.FromResult($"file:///{absolutePath.Replace('\\', '/')}");
+    }
+
+    private async Task<StorageUploadResult> StoreAsync(
+        string storageKey,
+        Stream content,
+        string contentType,
+        CancellationToken ct)
+    {
         var absolutePath = GetAbsolutePath(storageKey);
         var directory = Path.GetDirectoryName(absolutePath)
             ?? throw new InvalidOperationException("Invalid storage path.");
@@ -49,15 +109,8 @@ public sealed class LocalFileStorageService(
         await using var fileStream = File.Create(absolutePath);
         await content.CopyToAsync(fileStream, ct);
 
-        logger.LogInformation("Stored patient profile photo at key {StorageKey}.", storageKey);
+        logger.LogInformation("Stored file at key {StorageKey}.", storageKey);
         return new StorageUploadResult(storageKey, contentType);
-    }
-
-    public Task<string> GetSignedReadUrlAsync(string storageKey, CancellationToken ct)
-    {
-        ct.ThrowIfCancellationRequested();
-        var absolutePath = GetAbsolutePath(storageKey);
-        return Task.FromResult($"file:///{absolutePath.Replace('\\', '/')}");
     }
 
     private string GetAbsolutePath(string storageKey)

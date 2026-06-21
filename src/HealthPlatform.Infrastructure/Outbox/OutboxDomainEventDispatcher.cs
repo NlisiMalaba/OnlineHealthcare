@@ -58,6 +58,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<AccountLockedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Identity.Events.PatientRegisteredDomainEvent" =>
                 JsonSerializer.Deserialize<PatientRegisteredDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Identity.Events.DoctorRegisteredDomainEvent" =>
+                JsonSerializer.Deserialize<DoctorRegisteredDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }
