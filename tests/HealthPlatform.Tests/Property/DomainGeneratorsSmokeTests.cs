@@ -3,7 +3,7 @@ using HealthPlatform.Domain.ValueObjects;
 using HealthPlatform.Tests.Generators;
 using Xunit;
 
-namespace HealthPlatform.Tests.Property;
+namespace HealthPlatform.Tests.Properties;
 
 /// <summary>
 /// Smoke tests ensuring shared generators are well-formed (real properties will reference these).

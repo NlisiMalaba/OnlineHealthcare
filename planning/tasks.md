@@ -31,22 +31,22 @@ The full task list below is the **complete platform** backlog. For a **working M
   - Create shared FsCheck generators for domain types (UUID, timestamps, enums, geo-points) to be reused across all property tests
   - _Requirements: 17.1, 17.2, 17.5, 17.6_
 
-- [ ] 3. Auth Module (ASP.NET Core Identity)
-  - [ ] 3.1 Configure ASP.NET Core Identity with JWT bearer token issuance; define roles: `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`; configure MFA (TOTP + SMS OTP) as required for `doctor`, `pharmacy`, `admin` roles
+- [x] 3. Auth Module (ASP.NET Core Identity)
+  - [x] 3.1 Configure ASP.NET Core Identity with JWT bearer token issuance; define roles: `patient`, `doctor`, `pharmacy`, `lab_partner`, `insurer`, `admin`; configure MFA (TOTP + SMS OTP) as required for `doctor`, `pharmacy`, `admin` roles
     - _Requirements: 17.3_
-  - [ ] 3.2 Implement new-device detection: persist device fingerprints per user; compare on each login; trigger step-up authentication on unrecognized device
+  - [x] 3.2 Implement new-device detection: persist device fingerprints per user; compare on each login; trigger step-up authentication on unrecognized device
     - _Requirements: 17.4_
-  - [ ] 3.3 Implement account lockout logic: 5 consecutive failed logins → lock account + emit domain event for notification
+  - [x] 3.3 Implement account lockout logic: 5 consecutive failed logins → lock account + emit domain event for notification
     - _Requirements: 17.8_
-  - [ ]* 3.4 Write property test for account lockout (Property 31)
+  - [x]* 3.4 Write property test for account lockout (Property 31)
     - **Property 31: Account Lockout After Failed Logins**
     - **Validates: Requirements 17.8**
-  - [ ]* 3.5 Write unit tests for new-device detection and MFA enforcement
+  - [x]* 3.5 Write unit tests for new-device detection and MFA enforcement
     - Test step-up auth trigger on unrecognized device
     - Test MFA bypass attempt rejection
     - _Requirements: 17.3, 17.4_
 
-- [ ] 4. Checkpoint — Auth layer complete
+- [x] 4. Checkpoint — Auth layer complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Identity Module — User & Profile

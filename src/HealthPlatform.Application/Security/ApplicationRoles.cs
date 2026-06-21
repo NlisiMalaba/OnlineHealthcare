@@ -21,4 +21,12 @@ public static class ApplicationRoles
         Insurer,
         Admin
     ];
+
+    /// <summary>
+    /// Roles that must enroll and use MFA (TOTP and/or SMS OTP) per Requirements 17.3.
+    /// </summary>
+    public static IReadOnlyList<string> MandatoryTwoFactorRoles { get; } = [Doctor, Pharmacy, Admin];
+
+    public static bool IsMandatoryTwoFactorRole(string roleName) =>
+        MandatoryTwoFactorRoles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
 }
