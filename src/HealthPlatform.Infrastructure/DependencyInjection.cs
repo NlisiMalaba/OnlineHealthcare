@@ -14,6 +14,7 @@ using HealthPlatform.Infrastructure.Persistence;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Search;
 using HealthPlatform.Infrastructure.Security;
+using Elastic.Clients.Elasticsearch;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,17 @@ public static class DependencyInjection
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IPharmacyRegistrationWorkflow, PharmacyRegistrationWorkflow>();
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
+        services.Configure<ElasticsearchOptions>(configuration.GetSection(ElasticsearchOptions.SectionName));
+
+        var elasticsearchUri = configuration["Elasticsearch:Uri"];
+        if (!string.IsNullOrWhiteSpace(elasticsearchUri))
+        {
+            var elasticsearchSettings = new ElasticsearchClientSettings(new Uri(elasticsearchUri));
+            services.AddSingleton(new ElasticsearchClient(elasticsearchSettings));
+            services.AddSingleton<IElasticsearchIndexManager, ElasticsearchIndexManager>();
+            services.AddHostedService<ElasticsearchIndexInitializerHostedService>();
+        }
+
         services.AddSingleton<ISearchService, LoggingSearchService>();
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
