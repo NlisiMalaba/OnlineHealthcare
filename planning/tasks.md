@@ -50,40 +50,40 @@ The full task list below is the **complete platform** backlog. For a **working M
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Identity Module — User & Profile
-  - [ ] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
+  - [x] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
     - On successful registration, publish `PatientRegistered` domain event handled in-process to create linked HealthRecord
     - Return `IDENTITY_CONFLICT` (409) for duplicate phone/email
     - _Requirements: 1.1, 1.2, 1.6_
-  - [ ]* 5.2 Write property test for patient registration creates linked health record (Property 1)
+  - [x]* 5.2 Write property test for patient registration creates linked health record (Property 1)
     - **Property 1: Patient Registration Creates Linked Health Record**
     - **Validates: Requirements 1.2**
-  - [ ]* 5.3 Write property test for duplicate registration rejection (Property 3)
+  - [x]* 5.3 Write property test for duplicate registration rejection (Property 3)
     - **Property 3: Duplicate Registration Rejection**
     - **Validates: Requirements 1.6**
-  - [ ] 5.4 Implement Patient profile update endpoint (name, DOB, blood type, allergies, chronic conditions, photo upload to S3)
+  - [x] 5.4 Implement Patient profile update endpoint (name, DOB, blood type, allergies, chronic conditions, photo upload to S3)
     - Timestamp and persist every change to the linked HealthRecord
     - _Requirements: 1.3, 1.4, 1.5_
-  - [ ]* 5.5 Write property test for profile update round trip (Property 2)
+  - [x]* 5.5 Write property test for profile update round trip (Property 2)
     - **Property 2: Profile Update Round Trip**
     - **Validates: Requirements 1.3**
-  - [ ] 5.6 Implement Doctor registration endpoint (name, license number, specialty, experience, clinic address, fees, availability, photo, credentials)
+  - [x] 5.6 Implement Doctor registration endpoint (name, license number, specialty, experience, clinic address, fees, availability, photo, credentials)
     - Set account to `pending` state on submission; queue license verification task for Admin module
     - Return `LICENSE_INVALID` (422) on admin rejection with reason
     - _Requirements: 2.1, 2.2, 2.7_
-  - [ ]* 5.7 Write property test for doctor registration starts in pending state (Property 4)
+  - [x]* 5.7 Write property test for doctor registration starts in pending state (Property 4)
     - **Property 4: Doctor Registration Starts in Pending State**
     - **Validates: Requirements 2.2**
-  - [ ] 5.8 Implement license verification state transition: `pending` → `verified` (activate + notify) or `rejected` (notify with reason)
+  - [x] 5.8 Implement license verification state transition: `pending` → `verified` (activate + notify) or `rejected` (notify with reason)
     - _Requirements: 2.3, 2.7_
-  - [ ]* 5.9 Write property test for license verification state transition (Property 5)
+  - [x]* 5.9 Write property test for license verification state transition (Property 5)
     - **Property 5: License Verification State Transition**
     - **Validates: Requirements 2.3, 2.7**
-  - [ ] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials
+  - [x] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials
     - Trigger Elasticsearch index update on availability change
     - _Requirements: 2.4, 2.5, 2.6_
-  - [ ] 5.11 Implement Pharmacy registration and profile management endpoints
+  - [x] 5.11 Implement Pharmacy registration and profile management endpoints
     - _Requirements: 13.1_
-  - [ ]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
+  - [x]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
     - _Requirements: 1.6, 2.2, 2.7_
 
 - [ ] 6. Search Module (Elasticsearch)

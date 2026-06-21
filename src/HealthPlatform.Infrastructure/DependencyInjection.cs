@@ -1,6 +1,9 @@
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.Storage;
+using HealthPlatform.Infrastructure.Storage;
 using HealthPlatform.Application.Outbox;
+using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Hosting;
@@ -8,6 +11,8 @@ using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
+using HealthPlatform.Infrastructure.Persistence.Repositories;
+using HealthPlatform.Infrastructure.Search;
 using HealthPlatform.Infrastructure.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -36,22 +41,55 @@ public static class DependencyInjection
         }
 
         var postgres = configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(postgres))
+        var useInMemoryDatabase = configuration.GetValue("Testing:UseInMemoryDatabase", false);
+        if (!useInMemoryDatabase && string.IsNullOrWhiteSpace(postgres))
         {
             throw new InvalidOperationException("Connection string 'DefaultConnection' is required for Identity.");
         }
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(postgres));
+        {
+            if (useInMemoryDatabase)
+            {
+                options.UseInMemoryDatabase(
+                    configuration["Testing:InMemoryDatabaseName"] ?? "HealthPlatform.Tests");
+            }
+            else
+            {
+                options.UseNpgsql(postgres!);
+            }
+        });
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<DeviceLoginOptions>(configuration.GetSection(DeviceLoginOptions.SectionName));
+        services.Configure<SocialIdentityVerifierOptions>(
+            configuration.GetSection(SocialIdentityVerifierOptions.SectionName));
+        services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IUserDeviceFingerprintRepository, UserDeviceFingerprintRepository>();
         services.AddScoped<IDeviceLoginVerificationRepository, DeviceLoginVerificationRepository>();
         services.AddSingleton<IDeviceLoginOtpNotifier, LoggingDeviceLoginOtpNotifier>();
         services.AddScoped<IAuthLoginWorkflow, AuthLoginWorkflow>();
         services.AddSingleton<IMfaSmsSender, LoggingMfaSmsSender>();
+        services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
+        services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
+        services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
+        services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
+        services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
+        services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
+        services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
+        services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
+        services.AddScoped<IPharmacyRepository, PharmacyRepository>();
+        services.AddScoped<IPharmacyRegistrationWorkflow, PharmacyRegistrationWorkflow>();
+        services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
+        services.AddSingleton<ISearchService, LoggingSearchService>();
+        services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
+        services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
+        services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();
+        services.AddSingleton<IStorageService, LocalFileStorageService>();
+        services.AddHttpContextAccessor();
 
         services
             .AddIdentity<ApplicationUser, IdentityRole<Guid>>(ConfigureIdentity)
