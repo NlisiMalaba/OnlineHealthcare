@@ -18,4 +18,15 @@ public sealed class LicenseVerificationQueueRepository(ApplicationDbContext db)
         db.LicenseVerificationQueue.AnyAsync(
             q => q.DoctorId == doctorId && !q.IsCompleted,
             ct);
+
+    public Task<LicenseVerificationQueueItem?> GetPendingByDoctorIdAsync(Guid doctorId, CancellationToken ct) =>
+        db.LicenseVerificationQueue.SingleOrDefaultAsync(
+            q => q.DoctorId == doctorId && !q.IsCompleted,
+            ct);
+
+    public async Task UpdateAsync(LicenseVerificationQueueItem item, CancellationToken ct)
+    {
+        db.LicenseVerificationQueue.Update(item);
+        await db.SaveChangesAsync(ct);
+    }
 }

@@ -23,4 +23,13 @@ public sealed class DoctorRepository(ApplicationDbContext db) : IDoctorRepositor
         await db.Doctors.AddAsync(doctor, ct);
         await db.SaveChangesAsync(ct);
     }
+
+    public Task<Doctor?> GetByIdAsync(Guid doctorId, CancellationToken ct) =>
+        db.Doctors.SingleOrDefaultAsync(d => d.Id == doctorId, ct);
+
+    public async Task UpdateAsync(Doctor doctor, CancellationToken ct)
+    {
+        db.Doctors.Update(doctor);
+        await db.SaveChangesAsync(ct);
+    }
 }
