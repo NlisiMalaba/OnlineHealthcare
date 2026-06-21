@@ -23,6 +23,21 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.FullName,
                     e.OccurredAtUtc),
                 ct),
+            DoctorLicenseVerifiedDomainEvent e => mediator.Publish(
+                new DoctorLicenseVerifiedNotification(
+                    e.DoctorId,
+                    e.UserId,
+                    e.FullName,
+                    e.OccurredAtUtc),
+                ct),
+            DoctorLicenseRejectedDomainEvent e => mediator.Publish(
+                new DoctorLicenseRejectedNotification(
+                    e.DoctorId,
+                    e.UserId,
+                    e.FullName,
+                    e.Reason,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

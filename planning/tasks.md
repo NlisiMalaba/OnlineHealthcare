@@ -73,9 +73,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 5.7 Write property test for doctor registration starts in pending state (Property 4)
     - **Property 4: Doctor Registration Starts in Pending State**
     - **Validates: Requirements 2.2**
-  - [ ] 5.8 Implement license verification state transition: `pending` → `verified` (activate + notify) or `rejected` (notify with reason)
+  - [x] 5.8 Implement license verification state transition: `pending` → `verified` (activate + notify) or `rejected` (notify with reason)
     - _Requirements: 2.3, 2.7_
-  - [ ]* 5.9 Write property test for license verification state transition (Property 5)
+  - [x]* 5.9 Write property test for license verification state transition (Property 5)
     - **Property 5: License Verification State Transition**
     - **Validates: Requirements 2.3, 2.7**
   - [ ] 5.10 Implement Doctor profile management: update fees, availability slots, bio, photo, credentials

@@ -141,4 +141,33 @@ public sealed class Doctor : Entity
 
         return doctor;
     }
+
+    public void VerifyLicense()
+    {
+        EnsurePendingForVerificationTransition();
+
+        VerificationStatus = DoctorVerificationStatus.Verified;
+        RejectionReason = null;
+        Touch();
+        RaiseDomainEvent(new DoctorLicenseVerifiedDomainEvent(Id, UserId, FullName));
+    }
+
+    public void RejectLicense(string reason)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        EnsurePendingForVerificationTransition();
+
+        RejectionReason = reason.Trim();
+        VerificationStatus = DoctorVerificationStatus.Rejected;
+        Touch();
+        RaiseDomainEvent(new DoctorLicenseRejectedDomainEvent(Id, UserId, FullName, RejectionReason));
+    }
+
+    private void EnsurePendingForVerificationTransition()
+    {
+        if (VerificationStatus != DoctorVerificationStatus.Pending)
+        {
+            throw new InvalidDoctorVerificationStatusException(VerificationStatus);
+        }
+    }
 }
