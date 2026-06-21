@@ -17,4 +17,6 @@ public interface ISearchService
         Guid pharmacyId,
         IReadOnlyList<PharmacyStockIndexEntry> stockSummary,
         CancellationToken ct);
+
+    Task<DoctorSearchPageDto> SearchDoctorsAsync(DoctorSearchCriteria criteria, CancellationToken ct);
 }

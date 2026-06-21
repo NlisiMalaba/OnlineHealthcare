@@ -38,4 +38,15 @@ public sealed class LoggingSearchService(ILogger<LoggingSearchService> logger) :
             stockSummary.Count);
         return Task.CompletedTask;
     }
+
+    public Task<DoctorSearchPageDto> SearchDoctorsAsync(DoctorSearchCriteria criteria, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        logger.LogInformation(
+            "Doctor search requested with specialty {Specialty}, page {Page}, pageSize {PageSize}.",
+            criteria.Specialty,
+            criteria.Page,
+            criteria.PageSize);
+        return Task.FromResult(new DoctorSearchPageDto([], 0));
+    }
 }

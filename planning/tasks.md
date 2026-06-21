@@ -91,10 +91,10 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 3.1, 3.3, 21.3_
   - [x] 6.2 Implement domain event handlers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
     - _Requirements: 3.5_
-  - [ ] 6.3 Implement doctor search endpoint with filters (specialty, rating, fee range, availability) and geo-distance proximity sorting
+  - [x] 6.3 Implement doctor search endpoint with filters (specialty, rating, fee range, availability) and geo-distance proximity sorting
     - Return empty-state response with suggestion message when no results match
     - _Requirements: 3.1, 3.2, 3.4, 3.6_
-  - [ ]* 6.4 Write property test for doctor search proximity ordering (Property 6)
+  - [x]* 6.4 Write property test for doctor search proximity ordering (Property 6)
     - **Property 6: Doctor Search Proximity Ordering**
     - **Validates: Requirements 3.2**
   - [ ] 6.5 Implement pharmacy and lab partner search endpoints with geo-distance sorting
