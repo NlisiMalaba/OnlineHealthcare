@@ -49,7 +49,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [x] 4. Checkpoint — Auth layer complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Identity Module — User & Profile
+- [x] 5. Identity Module — User & Profile
   - [x] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
     - On successful registration, publish `PatientRegistered` domain event handled in-process to create linked HealthRecord
     - Return `IDENTITY_CONFLICT` (409) for duplicate phone/email
@@ -86,7 +86,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
     - _Requirements: 1.6, 2.2, 2.7_
 
-- [ ] 6. Search Module (Elasticsearch)
+- [x] 6. Search Module (Elasticsearch)
   - [x] 6.1 Define and create Elasticsearch indices: Doctor (name, specialty, rating, geo_point, fee range, availability), Pharmacy (name, location, stock summary), Lab Partner (name, location, test types, pricing)
     - _Requirements: 3.1, 3.3, 21.3_
   - [x] 6.2 Implement domain event handlers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
