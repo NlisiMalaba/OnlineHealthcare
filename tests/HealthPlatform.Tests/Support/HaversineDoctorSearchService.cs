@@ -109,4 +109,10 @@ public sealed class HaversineDoctorSearchService : ISearchService
         Guid pharmacyId,
         IReadOnlyList<PharmacyStockIndexEntry> stockSummary,
         CancellationToken ct) => Task.CompletedTask;
+
+    public Task<PharmacySearchPageDto> SearchPharmaciesAsync(PharmacySearchCriteria criteria, CancellationToken ct) =>
+        Task.FromResult(new PharmacySearchPageDto([], 0));
+
+    public Task<LabPartnerSearchPageDto> SearchLabPartnersAsync(LabPartnerSearchCriteria criteria, CancellationToken ct) =>
+        Task.FromResult(new LabPartnerSearchPageDto([], 0));
 }

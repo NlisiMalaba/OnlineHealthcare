@@ -97,9 +97,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 6.4 Write property test for doctor search proximity ordering (Property 6)
     - **Property 6: Doctor Search Proximity Ordering**
     - **Validates: Requirements 3.2**
-  - [ ] 6.5 Implement pharmacy and lab partner search endpoints with geo-distance sorting
+  - [x] 6.5 Implement pharmacy and lab partner search endpoints with geo-distance sorting
     - _Requirements: 7.1, 21.3_
-  - [ ]* 6.6 Write unit tests for empty-state response, filter combinations, and index sync
+  - [x]* 6.6 Write unit tests for empty-state response, filter combinations, and index sync
     - _Requirements: 3.6_
 
 - [ ] 7. Appointment Service

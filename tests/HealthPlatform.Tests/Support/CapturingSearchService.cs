@@ -12,6 +12,10 @@ public sealed class CapturingSearchService : ISearchService
 
     public List<(Guid PharmacyId, IReadOnlyList<PharmacyStockIndexEntry> Stock)> PharmacyStockUpdates { get; } = [];
 
+    public PharmacySearchCriteria? LastPharmacySearchCriteria { get; private set; }
+
+    public LabPartnerSearchCriteria? LastLabPartnerSearchCriteria { get; private set; }
+
     public Task UpsertDoctorAsync(Guid doctorId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -47,5 +51,19 @@ public sealed class CapturingSearchService : ISearchService
     {
         ct.ThrowIfCancellationRequested();
         return Task.FromResult(new DoctorSearchPageDto([], 0));
+    }
+
+    public Task<PharmacySearchPageDto> SearchPharmaciesAsync(PharmacySearchCriteria criteria, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        LastPharmacySearchCriteria = criteria;
+        return Task.FromResult(new PharmacySearchPageDto([], 0));
+    }
+
+    public Task<LabPartnerSearchPageDto> SearchLabPartnersAsync(LabPartnerSearchCriteria criteria, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        LastLabPartnerSearchCriteria = criteria;
+        return Task.FromResult(new LabPartnerSearchPageDto([], 0));
     }
 }
