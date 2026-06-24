@@ -69,4 +69,54 @@ public sealed class PrescriptionsControllerTests : IAsyncLifetime
             prescription.IssuedAtUtc.AddDays(PrescriptionPolicies.DefaultExpiryDays),
             prescription.ExpiresAtUtc);
     }
+
+    [Fact]
+    public async Task Cancel_endpoint_cancels_active_prescription_with_reason()
+    {
+        var doctorRegistration = await _host.Sender.Send(
+            DoctorRegistrationTestData.CreateValidCommand(),
+            CancellationToken.None);
+        await _host.Sender.Send(
+            new VerifyDoctorLicenseCommand(doctorRegistration.DoctorId),
+            CancellationToken.None);
+
+        var doctor = await _host.DbContext.Doctors.SingleAsync(d => d.Id == doctorRegistration.DoctorId);
+        _host.CurrentUser.UserId = doctor.UserId;
+
+        await _host.Sender.Send(
+            new RegisterPatientCommand(
+                PatientAuthProvider.Email,
+                "Patient Cancel",
+                null,
+                $"patient-cancel-{Guid.NewGuid():N}@example.com",
+                PatientRegistrationTestHost.ValidPassword,
+                null),
+            CancellationToken.None);
+
+        var patient = await _host.DbContext.Patients.OrderByDescending(p => p.CreatedAtUtc).FirstAsync();
+        var controller = new PrescriptionsController(_host.Sender);
+
+        var created = await controller.CreateAsync(
+            new CreatePrescriptionRequest
+            {
+                PatientId = patient.Id,
+                MedicationName = "Ibuprofen",
+                Dosage = "400mg",
+                Frequency = "Daily",
+                DurationDays = 3
+            },
+            CancellationToken.None);
+
+        var prescription = Assert.IsType<PrescriptionDto>(
+            Assert.IsType<CreatedResult>(created.Result).Value);
+
+        var cancelled = await controller.CancelAsync(
+            prescription.Id,
+            new CancelPrescriptionRequest { Reason = "Duplicate prescription issued" },
+            CancellationToken.None);
+
+        var dto = Assert.IsType<PrescriptionDto>(Assert.IsType<OkObjectResult>(cancelled.Result).Value);
+        Assert.Equal("cancelled", dto.Status);
+        Assert.Equal("Duplicate prescription issued", dto.CancellationReason);
+    }
 }

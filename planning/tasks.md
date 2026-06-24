@@ -164,7 +164,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 10.4 Write property test for prescription guard for medication orders (Property 11)
     - **Property 11: Prescription Guard for Medication Orders**
     - **Validates: Requirements 6.4, 6.5**
-  - [ ] 10.5 Implement prescription cancellation by doctor (before dispensed) with mandatory reason
+  - [x] 10.5 Implement prescription cancellation by doctor (before dispensed) with mandatory reason
     - _Requirements: 6.8_
   - [ ] 10.6 Implement drug interaction check: before finalizing prescription, compare against patient's active medication schedule; emit alert event to prescribing doctor if interaction detected
     - _Requirements: 9.8_

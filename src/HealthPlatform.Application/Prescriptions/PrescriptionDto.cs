@@ -13,4 +13,5 @@ public sealed record PrescriptionDto(
     string? SpecialInstructions,
     string Status,
     DateTime IssuedAtUtc,
-    DateTime ExpiresAtUtc);
+    DateTime ExpiresAtUtc,
+    string? CancellationReason);

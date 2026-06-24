@@ -11,4 +11,5 @@ public static class PrescriptionErrorCodes
     public const string PrescriptionRequired = "PRESCRIPTION_REQUIRED";
     public const string PrescriptionDispensed = "PRESCRIPTION_DISPENSED";
     public const string PrescriptionExpired = "PRESCRIPTION_EXPIRED";
+    public const string PrescriptionNotCancellable = "PRESCRIPTION_NOT_CANCELLABLE";
 }
