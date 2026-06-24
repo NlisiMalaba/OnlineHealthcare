@@ -103,7 +103,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 3.6_
 
 - [ ] 7. Appointment Service
-  - [ ] 7.1 Implement availability slot management CRUD for doctors (day of week, start/end time, slot duration, appointment type)
+  - [x] 7.1 Implement availability slot management CRUD for doctors (day of week, start/end time, slot duration, appointment type)
     - _Requirements: 2.5_
   - [ ] 7.2 Implement appointment booking: select slot → create `pending_payment` appointment → hold slot for 10 minutes via Redis TTL
     - Reject concurrent booking of the same slot within the hold window with `SLOT_UNAVAILABLE` (409)

@@ -57,4 +57,38 @@ public sealed class DoctorAvailabilitySlot
             IsActive = true
         };
     }
+
+    public bool Update(
+        DayOfWeek dayOfWeek,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        int slotDurationMinutes,
+        DoctorAppointmentType appointmentType)
+    {
+        if (startTime >= endTime)
+        {
+            throw new ArgumentException("Start time must be before end time.");
+        }
+
+        if (slotDurationMinutes <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(slotDurationMinutes));
+        }
+
+        if (DayOfWeek == dayOfWeek
+            && StartTime == startTime
+            && EndTime == endTime
+            && SlotDurationMinutes == slotDurationMinutes
+            && AppointmentType == appointmentType)
+        {
+            return false;
+        }
+
+        DayOfWeek = dayOfWeek;
+        StartTime = startTime;
+        EndTime = endTime;
+        SlotDurationMinutes = slotDurationMinutes;
+        AppointmentType = appointmentType;
+        return true;
+    }
 }

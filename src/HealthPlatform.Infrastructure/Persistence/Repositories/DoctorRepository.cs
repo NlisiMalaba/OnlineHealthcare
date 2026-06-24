@@ -57,4 +57,10 @@ public sealed class DoctorRepository(ApplicationDbContext db) : IDoctorRepositor
         await db.DoctorAvailabilitySlots.AddRangeAsync(slots, ct);
         await db.SaveChangesAsync(ct);
     }
+
+    public async Task AddAvailabilitySlotAsync(DoctorAvailabilitySlot slot, CancellationToken ct)
+    {
+        await db.DoctorAvailabilitySlots.AddAsync(slot, ct);
+        await db.SaveChangesAsync(ct);
+    }
 }
