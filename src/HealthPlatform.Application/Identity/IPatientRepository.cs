@@ -11,6 +11,8 @@ public interface IPatientRepository
 
     Task<Patient?> GetByUserIdAsync(Guid userId, CancellationToken ct);
 
+    Task<Patient?> GetByIdAsync(Guid patientId, CancellationToken ct);
+
     Task AddAsync(Patient patient, CancellationToken ct);
 
     Task UpdateAsync(Patient patient, CancellationToken ct);

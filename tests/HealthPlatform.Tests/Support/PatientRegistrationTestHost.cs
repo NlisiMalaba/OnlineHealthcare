@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
+using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
@@ -13,6 +14,7 @@ using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
+using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
@@ -50,7 +52,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingSearchService SearchService => _searchService;
 
-    public PatientRegistrationTestHost()
+    public PatientRegistrationTestHost(
+        IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
+        IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
+        FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
         services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Warning));
@@ -92,6 +97,24 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        if (appointmentConfirmationNotifier is not null)
+        {
+            services.AddSingleton(appointmentConfirmationNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IAppointmentConfirmationNotifier, LoggingAppointmentConfirmationNotifier>();
+        }
+
+        if (appointmentRescheduleNotifier is not null)
+        {
+            services.AddSingleton(appointmentRescheduleNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IAppointmentRescheduleNotifier, LoggingAppointmentRescheduleNotifier>();
+        }
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
@@ -101,6 +124,17 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
         services.AddSingleton<ISearchService>(_searchService);
+        if (timeProvider is not null)
+        {
+            services.AddSingleton<TimeProvider>(timeProvider);
+            services.AddSingleton(timeProvider);
+        }
+        else
+        {
+            services.AddSingleton(TimeProvider.System);
+        }
+
+        services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
 
@@ -111,6 +145,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public ISender Sender => _serviceProvider.GetRequiredService<ISender>();
 
     public ApplicationDbContext DbContext => _serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+    public T GetRequiredService<T>() where T : notnull =>
+        _serviceProvider.GetRequiredService<T>();
 
     public static string CreateSocialIdToken(string subject, string? email = null, string? name = null)
     {

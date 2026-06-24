@@ -1,6 +1,8 @@
+using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Identity.Notifications;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Search.Notifications;
+using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using MediatR;
@@ -43,6 +45,30 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
             DoctorAvailabilityChangedDomainEvent e => mediator.Publish(
                 new DoctorAvailabilityChangedNotification(e.DoctorId, e.OccurredAtUtc),
                 ct),
+            PaymentCompletedDomainEvent e => mediator.Publish(
+                new PaymentCompletedNotification(e.AppointmentId, e.PaymentId, e.OccurredAtUtc),
+                ct),
+            AppointmentConfirmedDomainEvent e => mediator.Publish(
+                new AppointmentConfirmedNotification(
+                    e.AppointmentId,
+                    e.PatientId,
+                    e.DoctorId,
+                    e.ScheduledAtUtc,
+                    e.ConfirmedAtUtc,
+                    e.OccurredAtUtc),
+                ct),
+            AppointmentRescheduledDomainEvent e => mediator.Publish(
+                new AppointmentRescheduledNotification(
+                    e.AppointmentId,
+                    e.PatientId,
+                    e.DoctorId,
+                    e.PreviousScheduledAtUtc,
+                    e.NewScheduledAtUtc,
+                    e.OccurredAtUtc),
+                ct),
+            AppointmentRefundRequestedDomainEvent => Task.CompletedTask,
+            AppointmentLateCancellationPolicyAppliedDomainEvent => Task.CompletedTask,
+            AppointmentCancelledDomainEvent => Task.CompletedTask,
             DoctorProfileUpdatedDomainEvent e => mediator.Publish(
                 new DoctorProfileUpdatedNotification(e.DoctorId, e.OccurredAtUtc),
                 ct),

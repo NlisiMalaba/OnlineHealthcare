@@ -1,4 +1,5 @@
 using HealthPlatform.Application.Auth;
+using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Infrastructure.Storage;
@@ -6,6 +7,7 @@ using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Infrastructure.Auth;
+using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Jobs;
@@ -20,6 +22,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace HealthPlatform.Infrastructure;
 
@@ -34,11 +37,18 @@ public static class DependencyInjection
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IAccountLockoutService, AccountLockoutService>();
         services.AddSingleton<IAccountLockoutNotifier, LoggingAccountLockoutNotifier>();
+        services.AddSingleton(TimeProvider.System);
 
         var redis = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrWhiteSpace(redis))
         {
             services.AddStackExchangeRedisCache(options => options.Configuration = redis);
+            services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
+            services.AddSingleton<ISlotHoldService, RedisSlotHoldService>();
+        }
+        else
+        {
+            services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         }
 
         var postgres = configuration.GetConnectionString("DefaultConnection");
@@ -77,6 +87,11 @@ public static class DependencyInjection
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddSingleton<IAppointmentConfirmationNotifier, LoggingAppointmentConfirmationNotifier>();
+        services.AddSingleton<IAppointmentRescheduleNotifier, LoggingAppointmentRescheduleNotifier>();
+        services.AddSingleton<IAppointmentReminderNotifier, LoggingAppointmentReminderNotifier>();
+        services.AddScoped<IAppointmentReminderDispatcher, AppointmentReminderDispatcher>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
