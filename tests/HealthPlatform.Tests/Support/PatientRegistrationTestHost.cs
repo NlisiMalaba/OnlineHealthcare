@@ -6,6 +6,8 @@ using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Prescriptions;
+using HealthPlatform.Application.Prescriptions.DrugInteractions;
+using HealthPlatform.Application.Wellness;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Application.Identity.UpdateDoctorProfile;
@@ -59,6 +61,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
         IPrescriptionIssuedNotifier? prescriptionIssuedNotifier = null,
         IPrescriptionCancelledNotifier? prescriptionCancelledNotifier = null,
+        IDrugInteractionAlertNotifier? drugInteractionAlertNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -103,6 +106,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+        services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
+        services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
         if (prescriptionIssuedNotifier is not null)
         {
             services.AddSingleton(prescriptionIssuedNotifier);
@@ -119,6 +124,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         else
         {
             services.AddSingleton<IPrescriptionCancelledNotifier, LoggingPrescriptionCancelledNotifier>();
+        }
+
+        if (drugInteractionAlertNotifier is not null)
+        {
+            services.AddSingleton(drugInteractionAlertNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IDrugInteractionAlertNotifier, LoggingDrugInteractionAlertNotifier>();
         }
 
         if (appointmentConfirmationNotifier is not null)

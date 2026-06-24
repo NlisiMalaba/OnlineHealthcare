@@ -166,12 +166,12 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 6.4, 6.5**
   - [x] 10.5 Implement prescription cancellation by doctor (before dispensed) with mandatory reason
     - _Requirements: 6.8_
-  - [ ] 10.6 Implement drug interaction check: before finalizing prescription, compare against patient's active medication schedule; emit alert event to prescribing doctor if interaction detected
+  - [x] 10.6 Implement drug interaction check: before finalizing prescription, compare against patient's active medication schedule; emit alert event to prescribing doctor if interaction detected
     - _Requirements: 9.8_
-  - [ ]* 10.7 Write property test for drug interaction alert before finalization (Property 21)
+  - [x]* 10.7 Write property test for drug interaction alert before finalization (Property 21)
     - **Property 21: Drug Interaction Alert Before Finalization**
     - **Validates: Requirements 9.8**
-  - [ ]* 10.8 Write unit tests for expiry edge cases, cancellation, and interaction check with empty schedule
+  - [x]* 10.8 Write unit tests for expiry edge cases, cancellation, and interaction check with empty schedule
     - _Requirements: 6.6, 6.7, 6.8, 9.8_
 
 - [ ] 11. Pharmacy & Inventory Module

@@ -101,6 +101,15 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.CancelledAtUtc,
                     e.OccurredAtUtc),
                 ct),
+            DrugInteractionAlertDetectedDomainEvent e => mediator.Publish(
+                new DrugInteractionAlertDetectedNotification(
+                    e.DoctorId,
+                    e.PatientId,
+                    e.ProposedMedicationName,
+                    e.InteractingMedicationName,
+                    e.InteractionDescription,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

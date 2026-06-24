@@ -17,6 +17,17 @@ public sealed record PrescriptionDispensingCase(
     int DaysSinceIssue,
     int DurationDays);
 
+public enum DrugInteractionFinalizationScenario
+{
+    InteractingSchedule = 0,
+    NonInteractingSchedule = 1,
+    EmptySchedule = 2
+}
+
+public sealed record DrugInteractionFinalizationCase(
+    DrugInteractionFinalizationScenario Scenario,
+    int DurationDays);
+
 public static class PrescriptionArbitraries
 {
     public static Arbitrary<PrescriptionDefaultExpiryCase> PrescriptionDefaultExpiryCase() =>
@@ -52,5 +63,27 @@ public static class PrescriptionArbitraries
         select new PrescriptionDispensingCase(
             PrescriptionDispensingScenarioKind.WrongPatient,
             daysSinceIssue,
+            durationDays);
+
+    public static Arbitrary<DrugInteractionFinalizationCase> DrugInteractionFinalizationCase() =>
+        Gen.OneOf(InteractingScheduleCase(), NonInteractingScheduleCase(), EmptyScheduleCase())
+            .ToArbitrary();
+
+    private static Gen<DrugInteractionFinalizationCase> InteractingScheduleCase() =>
+        from durationDays in Gen.Choose(1, 365)
+        select new DrugInteractionFinalizationCase(
+            DrugInteractionFinalizationScenario.InteractingSchedule,
+            durationDays);
+
+    private static Gen<DrugInteractionFinalizationCase> NonInteractingScheduleCase() =>
+        from durationDays in Gen.Choose(1, 365)
+        select new DrugInteractionFinalizationCase(
+            DrugInteractionFinalizationScenario.NonInteractingSchedule,
+            durationDays);
+
+    private static Gen<DrugInteractionFinalizationCase> EmptyScheduleCase() =>
+        from durationDays in Gen.Choose(1, 365)
+        select new DrugInteractionFinalizationCase(
+            DrugInteractionFinalizationScenario.EmptySchedule,
             durationDays);
 }
