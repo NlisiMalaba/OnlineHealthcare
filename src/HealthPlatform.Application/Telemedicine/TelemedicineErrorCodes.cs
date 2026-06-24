@@ -12,4 +12,8 @@ public static class TelemedicineErrorCodes
     public const string AvailabilitySlotNotFound = "AVAILABILITY_SLOT_NOT_FOUND";
     public const string RecordingConsentRequired = "RECORDING_CONSENT_REQUIRED";
     public const string RecordingConsentNotAllowed = "RECORDING_CONSENT_NOT_ALLOWED";
+    public const string SessionNotActive = "TELEMEDICINE_SESSION_NOT_ACTIVE";
+    public const string ChatMessageEmpty = "TELEMEDICINE_CHAT_MESSAGE_EMPTY";
+    public const string FileShareNotAllowed = "TELEMEDICINE_FILE_SHARE_NOT_ALLOWED";
+    public const string UnsupportedFileType = "TELEMEDICINE_UNSUPPORTED_FILE_TYPE";
 }
