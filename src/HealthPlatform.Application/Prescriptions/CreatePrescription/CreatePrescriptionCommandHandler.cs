@@ -2,8 +2,11 @@ using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Outbox;
+using HealthPlatform.Application.Prescriptions.DrugInteractions;
+using HealthPlatform.Application.Wellness;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Domain.Prescriptions;
+using HealthPlatform.Domain.Prescriptions.Events;
 using MediatR;
 
 namespace HealthPlatform.Application.Prescriptions.CreatePrescription;
@@ -14,6 +17,8 @@ public sealed class CreatePrescriptionCommandHandler(
     IPatientRepository patientRepository,
     IHealthRecordRepository healthRecordRepository,
     IAppointmentRepository appointmentRepository,
+    IMedicationScheduleRepository medicationScheduleRepository,
+    IDrugInteractionChecker drugInteractionChecker,
     IPrescriptionRepository prescriptionRepository,
     IOutboxRepository outboxRepository,
     IDomainEventPublisher domainEventPublisher,
@@ -34,6 +39,11 @@ public sealed class CreatePrescriptionCommandHandler(
                 "Patient health record was not found.");
 
         await EnsureAppointmentLinkIsValidAsync(request.AppointmentId, doctor.Id, patient.Id, ct);
+        await EmitDrugInteractionAlertsIfNeededAsync(
+            doctor.Id,
+            patient.Id,
+            request.MedicationName,
+            ct);
 
         var issuedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
         var prescription = Prescription.Issue(
@@ -53,6 +63,37 @@ public sealed class CreatePrescriptionCommandHandler(
         await PublishPendingEventsAsync(prescription, ct);
 
         return prescription.ToDto();
+    }
+
+    private async Task EmitDrugInteractionAlertsIfNeededAsync(
+        Guid doctorId,
+        Guid patientId,
+        string proposedMedicationName,
+        CancellationToken ct)
+    {
+        var activeSchedules = await medicationScheduleRepository.ListActiveByPatientIdAsync(patientId, ct);
+        if (activeSchedules.Count == 0)
+        {
+            return;
+        }
+
+        var activeMedicationNames = activeSchedules
+            .Select(schedule => schedule.MedicationName)
+            .ToList();
+
+        var interactions = drugInteractionChecker.Check(proposedMedicationName, activeMedicationNames);
+        foreach (var interaction in interactions)
+        {
+            var alertEvent = new DrugInteractionAlertDetectedDomainEvent(
+                doctorId,
+                patientId,
+                proposedMedicationName.Trim(),
+                interaction.InteractingMedicationName,
+                interaction.Description);
+
+            await outboxRepository.EnqueueAsync(alertEvent, ct);
+            await domainEventPublisher.PublishAsync(alertEvent, ct);
+        }
     }
 
     private async Task<Doctor> ResolveVerifiedDoctorAsync(CancellationToken ct)
