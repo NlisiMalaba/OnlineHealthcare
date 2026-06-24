@@ -108,10 +108,10 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 7.2 Implement appointment booking: select slot → create `pending_payment` appointment → hold slot for 10 minutes via Redis TTL
     - Reject concurrent booking of the same slot within the hold window with `SLOT_UNAVAILABLE` (409)
     - _Requirements: 4.1, 4.2_
-  - [ ]* 7.3 Write property test for slot hold exclusivity (Property 7)
+  - [x]* 7.3 Write property test for slot hold exclusivity (Property 7)
     - **Property 7: Slot Hold Exclusivity**
     - **Validates: Requirements 4.1**
-  - [ ] 7.4 Implement appointment confirmation on `PaymentCompleted` domain event; publish `AppointmentConfirmed` domain event
+  - [x] 7.4 Implement appointment confirmation on `PaymentCompleted` domain event; publish `AppointmentConfirmed` domain event
     - Send confirmation notifications to patient and doctor via Notification module
     - _Requirements: 4.4_
   - [ ]* 7.5 Write property test for appointment confirmation notifies both parties (Property 8)

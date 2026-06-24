@@ -5,4 +5,8 @@ namespace HealthPlatform.Application.Appointments;
 public interface IAppointmentRepository
 {
     Task AddAsync(Appointment appointment, CancellationToken ct);
+
+    Task<Appointment?> GetByIdAsync(Guid appointmentId, CancellationToken ct);
+
+    Task UpdateAsync(Appointment appointment, CancellationToken ct);
 }

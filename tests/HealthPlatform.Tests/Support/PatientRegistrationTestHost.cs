@@ -95,6 +95,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddSingleton<IAppointmentConfirmationNotifier, LoggingAppointmentConfirmationNotifier>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
@@ -115,6 +116,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public ISender Sender => _serviceProvider.GetRequiredService<ISender>();
 
     public ApplicationDbContext DbContext => _serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+    public T GetRequiredService<T>() where T : notnull =>
+        _serviceProvider.GetRequiredService<T>();
 
     public static string CreateSocialIdToken(string subject, string? email = null, string? name = null)
     {

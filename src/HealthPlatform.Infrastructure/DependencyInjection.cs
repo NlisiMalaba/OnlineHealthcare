@@ -87,6 +87,7 @@ public static class DependencyInjection
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddSingleton<IAppointmentConfirmationNotifier, LoggingAppointmentConfirmationNotifier>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();

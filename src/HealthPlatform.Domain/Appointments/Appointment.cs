@@ -1,4 +1,5 @@
 using HealthPlatform.Domain.Common;
+using HealthPlatform.Domain.Appointments.Events;
 
 namespace HealthPlatform.Domain.Appointments;
 
@@ -67,5 +68,27 @@ public sealed class Appointment : Entity
             Status = AppointmentStatus.PendingPayment,
             SlotHoldExpiresAtUtc = slotHoldExpiresAtUtc
         };
+    }
+
+    public void ConfirmOnPayment(DateTime confirmedAtUtc)
+    {
+        if (Status == AppointmentStatus.Confirmed)
+        {
+            return;
+        }
+
+        if (Status == AppointmentStatus.Cancelled)
+        {
+            throw new InvalidOperationException("Cannot confirm a cancelled appointment.");
+        }
+
+        Status = AppointmentStatus.Confirmed;
+        Touch();
+        RaiseDomainEvent(new AppointmentConfirmedDomainEvent(
+            Id,
+            PatientId,
+            DoctorId,
+            ScheduledAtUtc,
+            confirmedAtUtc));
     }
 }
