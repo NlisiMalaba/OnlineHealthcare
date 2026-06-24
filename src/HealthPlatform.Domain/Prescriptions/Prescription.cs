@@ -136,6 +136,42 @@ public sealed class Prescription : Entity
         return prescription;
     }
 
+    public void MarkDispensed(DateTime dispensedAtUtc)
+    {
+        EnsureEligibleForDispensing(dispensedAtUtc);
+
+        Status = PrescriptionStatus.Dispensed;
+        Touch();
+    }
+
+    public void EnsureEligibleForDispensing(DateTime asOfUtc)
+    {
+        if (asOfUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Evaluation time must be UTC.", nameof(asOfUtc));
+        }
+
+        if (Status == PrescriptionStatus.Dispensed)
+        {
+            throw new PrescriptionDispensedException(Id);
+        }
+
+        if (Status == PrescriptionStatus.Cancelled || Status == PrescriptionStatus.Expired)
+        {
+            throw new PrescriptionNotEligibleException(Id, Status);
+        }
+
+        if (Status != PrescriptionStatus.Active)
+        {
+            throw new PrescriptionNotEligibleException(Id, Status);
+        }
+
+        if (asOfUtc >= ExpiresAtUtc)
+        {
+            throw new PrescriptionExpiredException(Id);
+        }
+    }
+
     public void ApplyDefaultExpiryIfUnset()
     {
         if (ExpiresAtUtc != default)
