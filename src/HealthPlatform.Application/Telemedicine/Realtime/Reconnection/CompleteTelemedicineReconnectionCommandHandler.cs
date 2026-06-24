@@ -18,7 +18,8 @@ public sealed class CompleteTelemedicineReconnectionCommandHandler(
         var participant = await participantService.ResolveParticipantAsync(
             request.AppointmentId,
             requireActiveSession: false,
-            ct);
+            ct,
+            allowWaitingSession: true);
 
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var session = participant.Session;

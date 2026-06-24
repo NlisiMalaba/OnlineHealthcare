@@ -1,10 +1,11 @@
 using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Identity.Notifications;
-using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Search.Notifications;
+using HealthPlatform.Application.Telemedicine.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
+using HealthPlatform.Domain.Telemedicine.Events;
 using MediatR;
 
 namespace HealthPlatform.Application.Outbox;
@@ -80,6 +81,19 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                 ct),
             PharmacyStockChangedDomainEvent e => mediator.Publish(
                 new PharmacyStockChangedNotification(e.PharmacyId, e.StockSummary, e.OccurredAtUtc),
+                ct),
+            TelemedicineSessionEndedDomainEvent e => mediator.Publish(
+                new TelemedicineSessionEndedNotification(
+                    e.SessionId,
+                    e.AppointmentId,
+                    e.PatientId,
+                    e.DoctorId,
+                    e.Mode,
+                    e.DurationSeconds,
+                    e.StartedAtUtc,
+                    e.EndedAtUtc,
+                    e.RecordingEnabled,
+                    e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask
         };

@@ -12,7 +12,11 @@ public sealed class ConnectTelemedicineSessionCommandHandler(
         ConnectTelemedicineSessionCommand request,
         CancellationToken ct)
     {
-        await participantService.ResolveParticipantAsync(request.AppointmentId, requireActiveSession: false, ct);
+        await participantService.ResolveParticipantAsync(
+            request.AppointmentId,
+            requireActiveSession: false,
+            ct,
+            allowWaitingSession: true);
         await sender.Send(new CompleteTelemedicineReconnectionCommand(request.AppointmentId), ct);
 
         return new ConnectTelemedicineSessionDto(

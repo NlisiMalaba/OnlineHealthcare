@@ -131,7 +131,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 7.11 Write unit tests for slot expiry, cancellation policy edge cases, and reschedule flow
     - _Requirements: 4.1, 4.6, 4.7, 4.8_
 
-- [ ] 8. Telemedicine Module
+- [x] 8. Telemedicine Module
   - [x] 8.1 Implement session lifecycle: on `AppointmentConfirmed` domain event for virtual appointments, create TelemedicineSession record; on join request, generate Agora/Twilio RTC token and channel
     - _Requirements: 5.1, 5.2_
   - [x] 8.2 Implement recording consent workflow: persist `recording_consent` flag; only set `recording_enabled = true` when consent is `true`
@@ -143,10 +143,10 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 5.3, 5.7_
   - [x] 8.5 Implement auto-reconnect logic: on network interruption, attempt reconnect for up to 60 seconds before surfacing reconnection prompt
     - _Requirements: 5.6_
-  - [ ] 8.6 On session end, generate session summary document (stored in MongoDB) and attach reference to patient's HealthRecord via Health Records module
+  - [x] 8.6 On session end, generate session summary document (stored in MongoDB) and attach reference to patient's HealthRecord via Health Records module
     - Publish `TelemedicineSessionEnded` domain event
     - _Requirements: 5.5_
-  - [ ]* 8.7 Write unit tests for reconnect timeout, session summary attachment, and mode switching
+  - [x]* 8.7 Write unit tests for reconnect timeout, session summary attachment, and mode switching
     - _Requirements: 5.2, 5.5, 5.6_
 
 - [ ] 9. Checkpoint — Appointment and Telemedicine flows complete

@@ -1,6 +1,7 @@
 using HealthPlatform.API.Requests.Telemedicine;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.JoinSession;
+using HealthPlatform.Application.Telemedicine.EndSession;
 using HealthPlatform.Application.Telemedicine.RecordingConsent;
 using HealthPlatform.Application.Telemedicine.Realtime;
 using HealthPlatform.Application.Telemedicine.Realtime.Files;
@@ -57,4 +58,11 @@ public sealed class TelemedicineSessionsController(ISender sender) : ControllerB
                 file.Length),
             ct));
     }
+
+    [HttpPost("{appointmentId:guid}/telemedicine/end")]
+    [ProducesResponseType(typeof(EndTelemedicineSessionDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<EndTelemedicineSessionDto>> EndAsync(
+        Guid appointmentId,
+        CancellationToken ct) =>
+        Ok(await sender.Send(new EndTelemedicineSessionCommand(appointmentId), ct));
 }

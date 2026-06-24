@@ -18,9 +18,11 @@ using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
+using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.Realtime;
 using HealthPlatform.Infrastructure.Telemedicine;
+using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Storage;
 using MediatR;
@@ -111,6 +113,12 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ITelemedicineSessionRepository, TelemedicineSessionRepository>();
         services.AddScoped<ITelemedicineSessionParticipantService, TelemedicineSessionParticipantService>();
         services.AddSingleton<ITelemedicineRealtimeNotifier>(_telemedicineRealtimeNotifier);
+        services.AddSingleton<InMemoryTelemedicineSessionSummaryRepository>();
+        services.AddSingleton<InMemoryHealthRecordEntryRepository>();
+        services.AddSingleton<ITelemedicineSessionSummaryRepository>(sp =>
+            sp.GetRequiredService<InMemoryTelemedicineSessionSummaryRepository>());
+        services.AddSingleton<IHealthRecordEntryRepository>(sp =>
+            sp.GetRequiredService<InMemoryHealthRecordEntryRepository>());
         if (appointmentConfirmationNotifier is not null)
         {
             services.AddSingleton(appointmentConfirmationNotifier);

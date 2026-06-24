@@ -5,5 +5,6 @@ public interface ITelemedicineSessionParticipantService
     Task<TelemedicineSessionParticipantContext> ResolveParticipantAsync(
         Guid appointmentId,
         bool requireActiveSession,
-        CancellationToken ct);
+        CancellationToken ct,
+        bool allowWaitingSession = false);
 }

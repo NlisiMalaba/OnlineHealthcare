@@ -17,7 +17,8 @@ public sealed class TelemedicineSessionParticipantService(
     public async Task<TelemedicineSessionParticipantContext> ResolveParticipantAsync(
         Guid appointmentId,
         bool requireActiveSession,
-        CancellationToken ct)
+        CancellationToken ct,
+        bool allowWaitingSession = false)
     {
         var userId = currentUser.UserId
             ?? throw new AccessDeniedException("ACCESS_DENIED", "Authenticated user id is required.");
@@ -41,18 +42,27 @@ public sealed class TelemedicineSessionParticipantService(
                 TelemedicineErrorCodes.SessionNotFound,
                 "Telemedicine session was not found.");
 
-        if (session.Status is TelemedicineSessionStatus.Ended or TelemedicineSessionStatus.Interrupted)
+        if (session.Status is TelemedicineSessionStatus.Ended)
         {
             throw new DomainException(
                 TelemedicineErrorCodes.SessionNotJoinable,
                 "Telemedicine session is no longer available.");
         }
 
-        if (requireActiveSession && session.Status != TelemedicineSessionStatus.Active)
+        if (requireActiveSession)
+        {
+            if (session.Status != TelemedicineSessionStatus.Active)
+            {
+                throw new DomainException(
+                    TelemedicineErrorCodes.SessionNotActive,
+                    "Telemedicine session is not active.");
+            }
+        }
+        else if (session.Status == TelemedicineSessionStatus.Waiting && !allowWaitingSession)
         {
             throw new DomainException(
-                TelemedicineErrorCodes.SessionNotActive,
-                "Telemedicine session is not active.");
+                TelemedicineErrorCodes.SessionNotEndable,
+                "Telemedicine session has not started.");
         }
 
         return new TelemedicineSessionParticipantContext(
