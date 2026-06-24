@@ -1,4 +1,5 @@
 using HealthPlatform.Domain.Common;
+using HealthPlatform.Domain.Telemedicine.Events;
 
 namespace HealthPlatform.Domain.Telemedicine;
 
@@ -202,6 +203,60 @@ public sealed class TelemedicineSession : Entity
 
     public DateTime? GetReconnectionDeadlineUtc(TimeSpan gracePeriod) =>
         InterruptedAtUtc?.Add(gracePeriod);
+
+    public void End(
+        Guid patientId,
+        Guid doctorId,
+        DateTime endedAtUtc)
+    {
+        if (endedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("End time must be UTC.", nameof(endedAtUtc));
+        }
+
+        if (Status == TelemedicineSessionStatus.Ended)
+        {
+            return;
+        }
+
+        if (Status is TelemedicineSessionStatus.Waiting)
+        {
+            throw new TelemedicineSessionNotEndableException(Status);
+        }
+
+        if (!StartedAtUtc.HasValue)
+        {
+            throw new TelemedicineSessionNotEndableException(Status);
+        }
+
+        EndedAtUtc = endedAtUtc;
+        DurationSeconds = Math.Max(0, (int)(endedAtUtc - StartedAtUtc.Value).TotalSeconds);
+        Status = TelemedicineSessionStatus.Ended;
+        InterruptedAtUtc = null;
+        Touch();
+
+        RaiseDomainEvent(new TelemedicineSessionEndedDomainEvent(
+            Id,
+            AppointmentId,
+            patientId,
+            doctorId,
+            Mode,
+            DurationSeconds,
+            StartedAtUtc.Value,
+            endedAtUtc,
+            RecordingEnabled));
+    }
+
+    public void AttachSessionSummary(string summaryDocumentId)
+    {
+        if (string.IsNullOrWhiteSpace(summaryDocumentId))
+        {
+            throw new ArgumentException("Summary document id is required.", nameof(summaryDocumentId));
+        }
+
+        SessionSummaryRef = summaryDocumentId.Trim();
+        Touch();
+    }
 
     private static string BuildChannelName(Guid appointmentId) => $"tm-{appointmentId:N}";
 }

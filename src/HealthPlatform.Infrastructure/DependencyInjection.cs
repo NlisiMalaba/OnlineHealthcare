@@ -12,6 +12,7 @@ using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
+using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
@@ -36,6 +37,7 @@ public static class DependencyInjection
             configuration.GetSection(Aes256AtRestEncryptionOptions.SectionName));
         services.AddSingleton<IAtRestEncryption, Aes256AtRestEncryption>();
         services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
+        services.AddHealthPlatformMongoDb(configuration);
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IAccountLockoutService, AccountLockoutService>();
         services.AddSingleton<IAccountLockoutNotifier, LoggingAccountLockoutNotifier>();

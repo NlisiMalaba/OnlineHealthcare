@@ -65,6 +65,43 @@ public sealed class JoinTelemedicineSessionCommandHandlerTests : IAsyncLifetime
         Assert.StartsWith("dev:", response.RtcToken, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task Handle_Switches_mode_when_participant_joins_with_new_mode()
+    {
+        var (appointmentId, patientUserId, doctorUserId) = await SeedConfirmedVirtualAppointmentAsync();
+        _host.CurrentUser.UserId = patientUserId;
+
+        await _host.Sender.Send(
+            new JoinTelemedicineSessionCommand(appointmentId, TelemedicineSessionMode.Video),
+            CancellationToken.None);
+
+        _host.CurrentUser.UserId = doctorUserId;
+
+        var response = await _host.Sender.Send(
+            new JoinTelemedicineSessionCommand(appointmentId, TelemedicineSessionMode.Chat),
+            CancellationToken.None);
+
+        Assert.Equal(TelemedicineSessionMode.Chat, response.Mode);
+
+        var session = await _host.DbContext.TelemedicineSessions.SingleAsync();
+        Assert.Equal(TelemedicineSessionMode.Chat, session.Mode);
+    }
+
+    [Theory]
+    [InlineData(TelemedicineSessionMode.Audio)]
+    [InlineData(TelemedicineSessionMode.Chat)]
+    public async Task Handle_Applies_requested_mode_on_initial_join(TelemedicineSessionMode mode)
+    {
+        var (appointmentId, patientUserId, _) = await SeedConfirmedVirtualAppointmentAsync();
+        _host.CurrentUser.UserId = patientUserId;
+
+        var response = await _host.Sender.Send(
+            new JoinTelemedicineSessionCommand(appointmentId, mode),
+            CancellationToken.None);
+
+        Assert.Equal(mode, response.Mode);
+    }
+
     private async Task<(Guid AppointmentId, Guid PatientUserId, Guid DoctorUserId)> SeedConfirmedVirtualAppointmentAsync()
     {
         var doctorRegistration = await _host.Sender.Send(
