@@ -3,14 +3,14 @@ using HealthPlatform.Application.Appointments;
 
 namespace HealthPlatform.Infrastructure.Appointments;
 
-public sealed class InMemorySlotHoldService : ISlotHoldService
+public sealed class InMemorySlotHoldService(TimeProvider timeProvider) : ISlotHoldService
 {
     private readonly ConcurrentDictionary<string, DateTime> _holds = new();
 
     public Task<bool> TryHoldAsync(Guid slotId, Guid patientId, TimeSpan ttl, CancellationToken ct)
     {
         var key = $"slot:{slotId}:hold";
-        var now = DateTime.UtcNow;
+        var now = timeProvider.GetUtcNow().UtcDateTime;
         var expiresAt = now.Add(ttl);
 
         while (true)
@@ -47,7 +47,7 @@ public sealed class InMemorySlotHoldService : ISlotHoldService
             return Task.FromResult(false);
         }
 
-        if (existingExpiry <= DateTime.UtcNow)
+        if (existingExpiry <= timeProvider.GetUtcNow().UtcDateTime)
         {
             _holds.TryRemove(key, out _);
             return Task.FromResult(false);

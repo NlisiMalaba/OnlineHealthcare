@@ -1,3 +1,5 @@
+using HealthPlatform.Domain.Identity;
+
 namespace HealthPlatform.Application.Appointments.BookAppointment;
 
 public sealed record BookAppointmentDto(
@@ -6,4 +8,6 @@ public sealed record BookAppointmentDto(
     Guid SlotId,
     DateTime ScheduledAtUtc,
     string Status,
-    DateTime SlotHoldExpiresAtUtc);
+    DateTime SlotHoldExpiresAtUtc,
+    DoctorAppointmentType AppointmentType,
+    AppointmentClinicDto? Clinic);

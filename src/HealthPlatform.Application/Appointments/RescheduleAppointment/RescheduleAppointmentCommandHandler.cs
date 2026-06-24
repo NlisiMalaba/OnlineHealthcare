@@ -102,11 +102,15 @@ public sealed class RescheduleAppointmentCommandHandler(
         var wasRescheduled = previousScheduledAtUtc != appointment.ScheduledAtUtc
             || previousSlotId != appointment.SlotId;
 
+        var slot = doctor.AvailabilitySlots.Single(s => s.Id == appointment.SlotId);
+
         return new RescheduleAppointmentDto(
             appointment.Id,
             appointment.SlotId,
             appointment.ScheduledAtUtc,
             wasRescheduled ? previousScheduledAtUtc : null,
-            "confirmed");
+            "confirmed",
+            slot.AppointmentType,
+            AppointmentClinicMappings.ToClinicDto(doctor, slot.AppointmentType));
     }
 }

@@ -1,4 +1,5 @@
 using HealthPlatform.Application.Appointments;
+using HealthPlatform.Application.Appointments.AvailabilitySlots;
 using HealthPlatform.Application.Appointments.BookAppointment;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity.RegisterPatient;
@@ -58,6 +59,51 @@ public sealed class BookAppointmentCommandHandlerTests : IAsyncLifetime
             CancellationToken.None));
 
         Assert.Equal(AppointmentErrorCodes.SlotUnavailable, ex.Code);
+    }
+
+    [Fact]
+    public async Task Booking_physical_slot_includes_clinic_address_and_navigation_link()
+    {
+        var (doctor, slotId) = await SeedDoctorWithSlotAsync();
+        var patient = await SeedPatientAsync();
+        _host.CurrentUser.UserId = patient.UserId;
+
+        var result = await _host.Sender.Send(
+            new BookAppointmentCommand(doctor.Id, slotId, DateTime.UtcNow.AddDays(2)),
+            CancellationToken.None);
+
+        Assert.Equal(DoctorAppointmentType.Both, result.AppointmentType);
+        Assert.NotNull(result.Clinic);
+        Assert.Equal(doctor.ClinicAddress, result.Clinic.Address);
+        Assert.Equal(doctor.ClinicLocation!.Latitude, result.Clinic.Latitude);
+        Assert.Equal(doctor.ClinicLocation.Longitude, result.Clinic.Longitude);
+        Assert.Contains("google.com/maps/dir", result.Clinic.GpsNavigationUrl);
+    }
+
+    [Fact]
+    public async Task Booking_virtual_slot_omits_clinic_details()
+    {
+        var (doctor, _) = await SeedDoctorWithSlotAsync();
+        _host.CurrentUser.UserId = doctor.UserId;
+
+        var virtualSlot = await _host.Sender.Send(
+            new CreateDoctorAvailabilitySlotCommand(
+                DayOfWeek.Friday,
+                new TimeOnly(14, 0),
+                new TimeOnly(16, 0),
+                30,
+                DoctorAppointmentType.Virtual),
+            CancellationToken.None);
+
+        var patient = await SeedPatientAsync("virtual");
+        _host.CurrentUser.UserId = patient.UserId;
+
+        var result = await _host.Sender.Send(
+            new BookAppointmentCommand(doctor.Id, virtualSlot.Id, DateTime.UtcNow.AddDays(3)),
+            CancellationToken.None);
+
+        Assert.Equal(DoctorAppointmentType.Virtual, result.AppointmentType);
+        Assert.Null(result.Clinic);
     }
 
     private async Task<(Domain.Identity.Doctor Doctor, Guid SlotId)> SeedDoctorWithSlotAsync()

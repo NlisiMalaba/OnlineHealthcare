@@ -54,7 +54,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
-        IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null)
+        IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
+        FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
         services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Warning));
@@ -123,8 +124,17 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
         services.AddSingleton<ISearchService>(_searchService);
+        if (timeProvider is not null)
+        {
+            services.AddSingleton<TimeProvider>(timeProvider);
+            services.AddSingleton(timeProvider);
+        }
+        else
+        {
+            services.AddSingleton(TimeProvider.System);
+        }
+
         services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
-        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
 

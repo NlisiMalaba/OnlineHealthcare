@@ -13,7 +13,7 @@ public sealed class SlotHoldExclusivityPropertyTests
         var attemptCount = Math.Clamp(rawAttemptCount.Get, 2, 64);
         var slotId = Guid.CreateVersion7();
         var ttl = TimeSpan.FromMinutes(10);
-        var holdService = new InMemorySlotHoldService();
+        var holdService = new InMemorySlotHoldService(TimeProvider.System);
 
         using var startGate = new ManualResetEventSlim(false);
         var attempts = Enumerable.Range(0, attemptCount)
