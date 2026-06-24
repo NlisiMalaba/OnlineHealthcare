@@ -9,4 +9,9 @@ public interface IAppointmentRepository
     Task<Appointment?> GetByIdAsync(Guid appointmentId, CancellationToken ct);
 
     Task UpdateAsync(Appointment appointment, CancellationToken ct);
+
+    Task<IReadOnlyList<Appointment>> ListConfirmedDueForReminderAsync(
+        DateTime asOfUtc,
+        TimeSpan reminderLeadTime,
+        CancellationToken ct);
 }

@@ -17,4 +17,21 @@ public sealed class AppointmentRepository(ApplicationDbContext db) : IAppointmen
 
     public Task UpdateAsync(Appointment appointment, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
+
+    public async Task<IReadOnlyList<Appointment>> ListConfirmedDueForReminderAsync(
+        DateTime asOfUtc,
+        TimeSpan reminderLeadTime,
+        CancellationToken ct)
+    {
+        var windowEnd = asOfUtc.Add(reminderLeadTime);
+
+        return await db.Appointments
+            .Where(a =>
+                a.Status == AppointmentStatus.Confirmed
+                && a.ReminderSentAtUtc == null
+                && a.ScheduledAtUtc > asOfUtc
+                && a.ScheduledAtUtc <= windowEnd)
+            .OrderBy(a => a.ScheduledAtUtc)
+            .ToListAsync(ct);
+    }
 }
