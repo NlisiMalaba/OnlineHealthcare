@@ -1,5 +1,6 @@
 using System.Text.Json;
 using HealthPlatform.Application.Outbox;
+using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Infrastructure.Persistence;
@@ -68,6 +69,10 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<DoctorAvailabilityChangedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Identity.Events.DoctorProfileUpdatedDomainEvent" =>
                 JsonSerializer.Deserialize<DoctorProfileUpdatedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Appointments.Events.PaymentCompletedDomainEvent" =>
+                JsonSerializer.Deserialize<PaymentCompletedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Appointments.Events.AppointmentConfirmedDomainEvent" =>
+                JsonSerializer.Deserialize<AppointmentConfirmedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Identity.Events.PharmacyRegisteredDomainEvent" =>
                 JsonSerializer.Deserialize<PharmacyRegisteredDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Identity.Events.PharmacyProfileUpdatedDomainEvent" =>

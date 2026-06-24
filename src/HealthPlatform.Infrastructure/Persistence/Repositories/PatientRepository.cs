@@ -16,6 +16,9 @@ public sealed class PatientRepository(ApplicationDbContext db) : IPatientReposit
     public Task<Patient?> GetByUserIdAsync(Guid userId, CancellationToken ct) =>
         db.Patients.FirstOrDefaultAsync(p => p.UserId == userId, ct);
 
+    public Task<Patient?> GetByIdAsync(Guid patientId, CancellationToken ct) =>
+        db.Patients.FirstOrDefaultAsync(p => p.Id == patientId, ct);
+
     public async Task AddAsync(Patient patient, CancellationToken ct)
     {
         await db.Patients.AddAsync(patient, ct);
