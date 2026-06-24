@@ -153,7 +153,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Prescriptions Module
-  - [ ] 10.1 Implement prescription creation endpoint: record medication name, dosage, frequency, duration, special instructions; link to doctor and patient health record; default expiry to issued_at + 30 days if not specified
+  - [x] 10.1 Implement prescription creation endpoint: record medication name, dosage, frequency, duration, special instructions; link to doctor and patient health record; default expiry to issued_at + 30 days if not specified
     - Publish `PrescriptionIssued` domain event; notify patient
     - _Requirements: 6.1, 6.2, 6.3, 6.6_
   - [ ]* 10.2 Write property test for prescription default expiry (Property 12)

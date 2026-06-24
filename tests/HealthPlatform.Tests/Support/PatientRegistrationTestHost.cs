@@ -5,6 +5,7 @@ using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Application.Identity.UpdateDoctorProfile;
@@ -15,6 +16,7 @@ using HealthPlatform.Application.Storage;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
+using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
@@ -55,6 +57,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
+        IPrescriptionIssuedNotifier? prescriptionIssuedNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -98,6 +101,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+        if (prescriptionIssuedNotifier is not null)
+        {
+            services.AddSingleton(prescriptionIssuedNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IPrescriptionIssuedNotifier, LoggingPrescriptionIssuedNotifier>();
+        }
         if (appointmentConfirmationNotifier is not null)
         {
             services.AddSingleton(appointmentConfirmationNotifier);
