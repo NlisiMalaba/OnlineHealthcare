@@ -15,4 +15,20 @@ public sealed class RedisSlotHoldService(IConnectionMultiplexer redis) : ISlotHo
             expiry: ttl,
             when: When.NotExists);
     }
+
+    public async Task ReleaseHoldAsync(Guid slotId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var key = $"slot:{slotId}:hold";
+        var db = redis.GetDatabase();
+        await db.KeyDeleteAsync(key);
+    }
+
+    public async Task<bool> IsSlotHeldAsync(Guid slotId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var key = $"slot:{slotId}:hold";
+        var db = redis.GetDatabase();
+        return await db.KeyExistsAsync(key);
+    }
 }

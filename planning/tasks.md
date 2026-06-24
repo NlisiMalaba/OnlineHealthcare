@@ -119,9 +119,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 4.4**
   - [x] 7.6 Implement appointment reminder scheduler: send reminder 30 minutes before scheduled time to patient and doctor
     - _Requirements: 4.5_
-  - [ ] 7.7 Implement appointment cancellation: >2 hours before → release slot + refund event; <2 hours → apply doctor cancellation policy
+  - [x] 7.7 Implement appointment cancellation: >2 hours before → release slot + refund event; <2 hours → apply doctor cancellation policy
     - _Requirements: 4.6, 4.7_
-  - [ ]* 7.8 Write property test for early cancellation releases slot (Property 9)
+  - [x]* 7.8 Write property test for early cancellation releases slot (Property 9)
     - **Property 9: Early Cancellation Releases Slot**
     - **Validates: Requirements 4.6**
   - [ ] 7.9 Implement doctor-initiated appointment reschedule with patient notification

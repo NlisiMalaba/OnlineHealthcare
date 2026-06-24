@@ -43,6 +43,10 @@ public sealed class DoctorConfiguration : IEntityTypeConfiguration<Doctor>
         builder.Property(d => d.PhysicalFee)
             .HasPrecision(18, 2);
 
+        builder.Property(d => d.LateCancellationRetentionPercent)
+            .HasPrecision(5, 2)
+            .HasDefaultValue(100m);
+
         builder.Property(d => d.Bio)
             .HasMaxLength(2000);
 

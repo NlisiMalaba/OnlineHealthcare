@@ -73,6 +73,12 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<PaymentCompletedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Appointments.Events.AppointmentConfirmedDomainEvent" =>
                 JsonSerializer.Deserialize<AppointmentConfirmedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Appointments.Events.AppointmentCancelledDomainEvent" =>
+                JsonSerializer.Deserialize<AppointmentCancelledDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Appointments.Events.AppointmentRefundRequestedDomainEvent" =>
+                JsonSerializer.Deserialize<AppointmentRefundRequestedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Appointments.Events.AppointmentLateCancellationPolicyAppliedDomainEvent" =>
+                JsonSerializer.Deserialize<AppointmentLateCancellationPolicyAppliedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Identity.Events.PharmacyRegisteredDomainEvent" =>
                 JsonSerializer.Deserialize<PharmacyRegisteredDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Identity.Events.PharmacyProfileUpdatedDomainEvent" =>

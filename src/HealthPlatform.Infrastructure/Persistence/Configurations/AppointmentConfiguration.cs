@@ -22,5 +22,8 @@ public sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appointm
         builder.HasIndex(a => a.SlotId);
 
         builder.HasIndex(a => new { a.Status, a.ScheduledAtUtc });
+
+        builder.Property(a => a.CancellationReason)
+            .HasMaxLength(500);
     }
 }

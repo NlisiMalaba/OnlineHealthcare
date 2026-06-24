@@ -36,6 +36,8 @@ public sealed class Doctor : Entity
 
     public decimal PhysicalFee { get; private set; }
 
+    public decimal LateCancellationRetentionPercent { get; private set; }
+
     public string? Bio { get; private set; }
 
     public string Email { get; private set; }
@@ -123,6 +125,7 @@ public sealed class Doctor : Entity
             ClinicLocation = clinicLocation,
             VirtualFee = virtualFee,
             PhysicalFee = physicalFee,
+            LateCancellationRetentionPercent = 100m,
             Bio = string.IsNullOrWhiteSpace(bio) ? null : bio.Trim(),
             Email = email.Trim().ToLowerInvariant(),
             PhoneNumber = phoneNumber.Trim(),

@@ -8,6 +8,8 @@ public interface IAppointmentRepository
 
     Task<Appointment?> GetByIdAsync(Guid appointmentId, CancellationToken ct);
 
+    Task<Appointment?> GetByIdForPatientAsync(Guid appointmentId, Guid patientId, CancellationToken ct);
+
     Task UpdateAsync(Appointment appointment, CancellationToken ct);
 
     Task<IReadOnlyList<Appointment>> ListConfirmedDueForReminderAsync(

@@ -113,6 +113,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
         services.AddSingleton<ISearchService>(_searchService);
         services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
 

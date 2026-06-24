@@ -15,6 +15,11 @@ public sealed class AppointmentRepository(ApplicationDbContext db) : IAppointmen
     public Task<Appointment?> GetByIdAsync(Guid appointmentId, CancellationToken ct) =>
         db.Appointments.SingleOrDefaultAsync(a => a.Id == appointmentId, ct);
 
+    public Task<Appointment?> GetByIdForPatientAsync(Guid appointmentId, Guid patientId, CancellationToken ct) =>
+        db.Appointments.SingleOrDefaultAsync(
+            a => a.Id == appointmentId && a.PatientId == patientId,
+            ct);
+
     public Task UpdateAsync(Appointment appointment, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 
