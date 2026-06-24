@@ -27,6 +27,7 @@ public static class TelemedicineRealtimeServiceCollectionExtensions
         services.AddScoped<ITelemedicineSessionParticipantService, TelemedicineSessionParticipantService>();
         services.AddSingleton<ITelemedicineRealtimeNotifier, SignalRTelemedicineRealtimeNotifier>();
         services.AddHostedService<TelemedicineSessionDurationTickerHostedService>();
+        services.AddHostedService<TelemedicineReconnectionGraceHostedService>();
 
         return services;
     }

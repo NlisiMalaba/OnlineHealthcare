@@ -10,5 +10,10 @@ public interface ITelemedicineSessionRepository
 
     Task<IReadOnlyList<TelemedicineSession>> ListActiveSessionsAsync(CancellationToken ct);
 
+    Task<IReadOnlyList<TelemedicineSession>> ListSessionsWithPendingReconnectionGraceAsync(
+        DateTime asOfUtc,
+        TimeSpan gracePeriod,
+        CancellationToken ct);
+
     Task UpdateAsync(TelemedicineSession session, CancellationToken ct);
 }
