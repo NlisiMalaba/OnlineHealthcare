@@ -78,4 +78,16 @@ public static class TelemedicineSessionTestContextFactory
 
         return new TelemedicineSessionTestContext(booking.AppointmentId, patient.UserId, doctor.UserId);
     }
+
+    public static async Task<TelemedicineSessionTestContext> CreateActiveAsync(PatientRegistrationTestHost host)
+    {
+        var context = await CreateAsync(host);
+        host.CurrentUser.UserId = context.PatientUserId;
+
+        await host.Sender.Send(
+            new Application.Telemedicine.JoinSession.JoinTelemedicineSessionCommand(context.AppointmentId, null),
+            CancellationToken.None);
+
+        return context;
+    }
 }

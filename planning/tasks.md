@@ -139,7 +139,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 8.3 Write property test for recording requires consent (Property 10)
     - **Property 10: Recording Requires Consent**
     - **Validates: Requirements 5.8**
-  - [ ] 8.4 Implement SignalR session events: session duration ticks, file/image sharing events, in-session chat messages
+  - [x] 8.4 Implement SignalR session events: session duration ticks, file/image sharing events, in-session chat messages
     - _Requirements: 5.3, 5.7_
   - [ ] 8.5 Implement auto-reconnect logic: on network interruption, attempt reconnect for up to 60 seconds before surfacing reconnection prompt
     - _Requirements: 5.6_

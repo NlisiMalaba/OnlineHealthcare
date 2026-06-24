@@ -8,5 +8,7 @@ public interface ITelemedicineSessionRepository
 
     Task<TelemedicineSession?> GetByAppointmentIdAsync(Guid appointmentId, CancellationToken ct);
 
+    Task<IReadOnlyList<TelemedicineSession>> ListActiveSessionsAsync(CancellationToken ct);
+
     Task UpdateAsync(TelemedicineSession session, CancellationToken ct);
 }

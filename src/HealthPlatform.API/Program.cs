@@ -6,6 +6,7 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using HealthPlatform.API.Authorization;
 using HealthPlatform.API.Diagnostics;
+using HealthPlatform.API.Realtime;
 using HealthPlatform.API.Middleware;
 using HealthPlatform.Application;
 using HealthPlatform.Infrastructure;
@@ -54,6 +55,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.FromSeconds(30),
             RoleClaimType = ClaimTypes.Role,
             NameClaimType = ClaimTypes.NameIdentifier
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken)
+                    && path.StartsWithSegments("/hubs", StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -130,6 +146,8 @@ if (builder.Configuration.GetValue("OpenTelemetry:Enabled", true))
             .AddOtlpExporter());
 }
 
+builder.Services.AddTelemedicineRealtime(builder.Configuration);
+
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -169,6 +187,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<HealthPlatform.API.Hubs.TelemedicineHub>("/hubs/telemedicine");
 
 if (app.Environment.IsDevelopment())
 {

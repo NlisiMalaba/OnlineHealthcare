@@ -15,6 +15,11 @@ public sealed class TelemedicineSessionRepository(ApplicationDbContext db) : ITe
     public Task<TelemedicineSession?> GetByAppointmentIdAsync(Guid appointmentId, CancellationToken ct) =>
         db.TelemedicineSessions.SingleOrDefaultAsync(s => s.AppointmentId == appointmentId, ct);
 
+    public async Task<IReadOnlyList<TelemedicineSession>> ListActiveSessionsAsync(CancellationToken ct) =>
+        await db.TelemedicineSessions
+            .Where(s => s.Status == TelemedicineSessionStatus.Active && s.StartedAtUtc != null)
+            .ToListAsync(ct);
+
     public Task UpdateAsync(TelemedicineSession session, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 }

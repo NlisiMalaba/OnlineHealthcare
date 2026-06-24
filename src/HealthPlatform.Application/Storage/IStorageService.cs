@@ -33,4 +33,11 @@ public interface IStorageService
         CancellationToken ct);
 
     Task<string> GetSignedReadUrlAsync(string storageKey, CancellationToken ct);
+
+    Task<StorageUploadResult> UploadTelemedicineSharedFileAsync(
+        Guid appointmentId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct);
 }

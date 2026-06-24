@@ -2,6 +2,8 @@ using HealthPlatform.API.Requests.Telemedicine;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.JoinSession;
 using HealthPlatform.Application.Telemedicine.RecordingConsent;
+using HealthPlatform.Application.Telemedicine.Realtime;
+using HealthPlatform.Application.Telemedicine.Realtime.Files;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,4 +38,23 @@ public sealed class TelemedicineSessionsController(ISender sender) : ControllerB
         Guid appointmentId,
         CancellationToken ct) =>
         Ok(await sender.Send(new EnableSessionRecordingCommand(appointmentId), ct));
+
+    [HttpPost("{appointmentId:guid}/telemedicine/files")]
+    [ProducesResponseType(typeof(TelemedicineFileSharedDto), StatusCodes.Status200OK)]
+    [RequestSizeLimit(TelemedicinePolicies.MaxSharedFileBytes)]
+    public async Task<ActionResult<TelemedicineFileSharedDto>> ShareFileAsync(
+        Guid appointmentId,
+        IFormFile file,
+        CancellationToken ct)
+    {
+        await using var stream = file.OpenReadStream();
+        return Ok(await sender.Send(
+            new ShareTelemedicineSessionFileCommand(
+                appointmentId,
+                stream,
+                file.ContentType,
+                file.FileName,
+                file.Length),
+            ct));
+    }
 }
