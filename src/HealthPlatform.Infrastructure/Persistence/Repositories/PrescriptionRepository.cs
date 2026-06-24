@@ -20,6 +20,11 @@ public sealed class PrescriptionRepository(ApplicationDbContext db) : IPrescript
             p => p.Id == prescriptionId && p.PatientId == patientId,
             ct);
 
+    public Task<Prescription?> GetByIdForDoctorAsync(Guid prescriptionId, Guid doctorId, CancellationToken ct) =>
+        db.Prescriptions.SingleOrDefaultAsync(
+            p => p.Id == prescriptionId && p.DoctorId == doctorId,
+            ct);
+
     public Task UpdateAsync(Prescription prescription, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 }

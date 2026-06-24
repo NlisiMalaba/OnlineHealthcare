@@ -181,4 +181,43 @@ public sealed class Prescription : Entity
 
         ExpiresAtUtc = IssuedAtUtc.AddDays(PrescriptionPolicies.DefaultExpiryDays);
     }
+
+    public void Cancel(string reason, DateTime cancelledAtUtc)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new ArgumentException("Cancellation reason is required.", nameof(reason));
+        }
+
+        if (cancelledAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Cancellation time must be UTC.", nameof(cancelledAtUtc));
+        }
+
+        if (Status == PrescriptionStatus.Dispensed)
+        {
+            throw new PrescriptionNotCancellableException(Id, Status);
+        }
+
+        if (Status == PrescriptionStatus.Cancelled)
+        {
+            return;
+        }
+
+        if (Status != PrescriptionStatus.Active)
+        {
+            throw new PrescriptionNotCancellableException(Id, Status);
+        }
+
+        Status = PrescriptionStatus.Cancelled;
+        CancellationReason = reason.Trim();
+        Touch();
+
+        RaiseDomainEvent(new PrescriptionCancelledDomainEvent(
+            Id,
+            DoctorId,
+            PatientId,
+            CancellationReason,
+            cancelledAtUtc));
+    }
 }

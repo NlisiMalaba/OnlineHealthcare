@@ -93,6 +93,14 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.ExpiresAtUtc,
                     e.OccurredAtUtc),
                 ct),
+            PrescriptionCancelledDomainEvent e => mediator.Publish(
+                new PrescriptionCancelledNotification(
+                    e.PrescriptionId,
+                    e.DoctorId,
+                    e.PatientId,
+                    e.CancelledAtUtc,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

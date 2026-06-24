@@ -93,4 +93,27 @@ public sealed class PrescriptionTests
             null,
             null,
             issuedAtUtc);
+
+    [Fact]
+    public void Cancel_records_mandatory_reason_and_sets_status()
+    {
+        var issuedAtUtc = new DateTime(2026, 6, 1, 10, 0, 0, DateTimeKind.Utc);
+        var prescription = CreateActivePrescription(issuedAtUtc);
+
+        prescription.Cancel("Treatment plan changed", issuedAtUtc.AddHours(1));
+
+        Assert.Equal(PrescriptionStatus.Cancelled, prescription.Status);
+        Assert.Equal("Treatment plan changed", prescription.CancellationReason);
+    }
+
+    [Fact]
+    public void Cancel_rejects_dispensed_prescription()
+    {
+        var issuedAtUtc = new DateTime(2026, 6, 1, 10, 0, 0, DateTimeKind.Utc);
+        var prescription = CreateActivePrescription(issuedAtUtc);
+        prescription.MarkDispensed(issuedAtUtc.AddDays(1));
+
+        Assert.Throws<PrescriptionNotCancellableException>(() =>
+            prescription.Cancel("Too late", issuedAtUtc.AddDays(2)));
+    }
 }

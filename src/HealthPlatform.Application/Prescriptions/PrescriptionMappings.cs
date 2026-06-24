@@ -18,5 +18,6 @@ public static class PrescriptionMappings
             prescription.SpecialInstructions,
             prescription.Status.ToString().ToLowerInvariant(),
             prescription.IssuedAtUtc,
-            prescription.ExpiresAtUtc);
+            prescription.ExpiresAtUtc,
+            prescription.CancellationReason);
 }

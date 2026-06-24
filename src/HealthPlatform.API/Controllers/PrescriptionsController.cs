@@ -22,4 +22,12 @@ public sealed class PrescriptionsController(ISender sender) : ControllerBase
         var prescription = await sender.Send(PrescriptionCommandMapper.ToCreateCommand(request), ct);
         return Created($"/api/v1/prescriptions/{prescription.Id}", prescription);
     }
+
+    [HttpPost("{prescriptionId:guid}/cancel")]
+    [ProducesResponseType(typeof(PrescriptionDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PrescriptionDto>> CancelAsync(
+        Guid prescriptionId,
+        [FromBody] CancelPrescriptionRequest request,
+        CancellationToken ct) =>
+        Ok(await sender.Send(PrescriptionCommandMapper.ToCancelCommand(prescriptionId, request), ct));
 }

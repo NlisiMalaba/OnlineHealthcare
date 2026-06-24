@@ -58,6 +58,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
         IPrescriptionIssuedNotifier? prescriptionIssuedNotifier = null,
+        IPrescriptionCancelledNotifier? prescriptionCancelledNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -110,6 +111,16 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         {
             services.AddSingleton<IPrescriptionIssuedNotifier, LoggingPrescriptionIssuedNotifier>();
         }
+
+        if (prescriptionCancelledNotifier is not null)
+        {
+            services.AddSingleton(prescriptionCancelledNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IPrescriptionCancelledNotifier, LoggingPrescriptionCancelledNotifier>();
+        }
+
         if (appointmentConfirmationNotifier is not null)
         {
             services.AddSingleton(appointmentConfirmationNotifier);
