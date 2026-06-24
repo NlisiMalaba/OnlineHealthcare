@@ -20,5 +20,7 @@ public sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appointm
         builder.HasIndex(a => a.PatientId);
         builder.HasIndex(a => a.DoctorId);
         builder.HasIndex(a => a.SlotId);
+
+        builder.HasIndex(a => new { a.Status, a.ScheduledAtUtc });
     }
 }

@@ -1,14 +1,30 @@
+using HealthPlatform.Application.Appointments;
 using Microsoft.Extensions.Logging;
 
 namespace HealthPlatform.Infrastructure.Jobs;
 
 /// <summary>
-/// Placeholder for scheduled reminders (instalments, referrals, etc.).
+/// Hangfire recurring job for appointment and other scheduled reminders.
 /// </summary>
-public sealed class ScheduledRemindersJob(ILogger<ScheduledRemindersJob> logger)
+public sealed class ScheduledRemindersJob(
+    IAppointmentReminderDispatcher appointmentReminderDispatcher,
+    ILogger<ScheduledRemindersJob> logger)
 {
+    public async Task RunAsync(CancellationToken ct = default)
+    {
+        var dispatched = await appointmentReminderDispatcher.DispatchDueRemindersAsync(ct);
+        if (dispatched > 0)
+        {
+            logger.LogInformation("Scheduled reminders dispatched {Count} appointment reminder(s).", dispatched);
+        }
+        else
+        {
+            logger.LogDebug("Scheduled reminders tick — no appointment reminders due.");
+        }
+    }
+
     public void Run()
     {
-        logger.LogInformation("Scheduled reminders tick — no reminders due (scaffold).");
+        RunAsync(CancellationToken.None).GetAwaiter().GetResult();
     }
 }

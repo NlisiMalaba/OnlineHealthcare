@@ -21,6 +21,8 @@ public sealed class Appointment : Entity
 
     public DateTime SlotHoldExpiresAtUtc { get; private set; }
 
+    public DateTime? ReminderSentAtUtc { get; private set; }
+
     public static Appointment CreatePendingPayment(
         Guid patientId,
         Guid doctorId,
@@ -90,5 +92,22 @@ public sealed class Appointment : Entity
             DoctorId,
             ScheduledAtUtc,
             confirmedAtUtc));
+    }
+
+    public bool MarkReminderSent(DateTime sentAtUtc)
+    {
+        if (Status != AppointmentStatus.Confirmed)
+        {
+            return false;
+        }
+
+        if (ReminderSentAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        ReminderSentAtUtc = sentAtUtc;
+        Touch();
+        return true;
     }
 }

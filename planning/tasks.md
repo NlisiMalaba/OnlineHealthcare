@@ -114,10 +114,10 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 7.4 Implement appointment confirmation on `PaymentCompleted` domain event; publish `AppointmentConfirmed` domain event
     - Send confirmation notifications to patient and doctor via Notification module
     - _Requirements: 4.4_
-  - [ ]* 7.5 Write property test for appointment confirmation notifies both parties (Property 8)
+  - [x]* 7.5 Write property test for appointment confirmation notifies both parties (Property 8)
     - **Property 8: Appointment Confirmation Notifies Both Parties**
     - **Validates: Requirements 4.4**
-  - [ ] 7.6 Implement appointment reminder scheduler: send reminder 30 minutes before scheduled time to patient and doctor
+  - [x] 7.6 Implement appointment reminder scheduler: send reminder 30 minutes before scheduled time to patient and doctor
     - _Requirements: 4.5_
   - [ ] 7.7 Implement appointment cancellation: >2 hours before → release slot + refund event; <2 hours → apply doctor cancellation policy
     - _Requirements: 4.6, 4.7_
