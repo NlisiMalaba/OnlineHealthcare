@@ -1,6 +1,7 @@
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Infrastructure.Storage;
 using HealthPlatform.Application.Outbox;
@@ -8,6 +9,7 @@ using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
+using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Jobs;
@@ -88,6 +90,8 @@ public static class DependencyInjection
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+        services.AddSingleton<IPrescriptionIssuedNotifier, LoggingPrescriptionIssuedNotifier>();
         services.AddSingleton<IAppointmentConfirmationNotifier, LoggingAppointmentConfirmationNotifier>();
         services.AddSingleton<IAppointmentRescheduleNotifier, LoggingAppointmentRescheduleNotifier>();
         services.AddSingleton<IAppointmentReminderNotifier, LoggingAppointmentReminderNotifier>();
