@@ -1,4 +1,6 @@
 using HealthPlatform.Application.Identity.Notifications;
+using HealthPlatform.Application.Outbox;
+using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using MediatR;
@@ -41,7 +43,18 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
             DoctorAvailabilityChangedDomainEvent e => mediator.Publish(
                 new DoctorAvailabilityChangedNotification(e.DoctorId, e.OccurredAtUtc),
                 ct),
-            PharmacyRegisteredDomainEvent => Task.CompletedTask,
+            DoctorProfileUpdatedDomainEvent e => mediator.Publish(
+                new DoctorProfileUpdatedNotification(e.DoctorId, e.OccurredAtUtc),
+                ct),
+            PharmacyRegisteredDomainEvent e => mediator.Publish(
+                new PharmacyRegisteredSearchNotification(e.PharmacyId, e.OccurredAtUtc),
+                ct),
+            PharmacyProfileUpdatedDomainEvent e => mediator.Publish(
+                new PharmacyProfileUpdatedNotification(e.PharmacyId, e.OccurredAtUtc),
+                ct),
+            PharmacyStockChangedDomainEvent e => mediator.Publish(
+                new PharmacyStockChangedNotification(e.PharmacyId, e.StockSummary, e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

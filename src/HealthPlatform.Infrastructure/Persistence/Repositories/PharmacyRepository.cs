@@ -19,6 +19,9 @@ public sealed class PharmacyRepository(ApplicationDbContext db) : IPharmacyRepos
     public Task<Pharmacy?> GetByUserIdAsync(Guid userId, CancellationToken ct) =>
         db.Pharmacies.SingleOrDefaultAsync(p => p.UserId == userId, ct);
 
+    public Task<Pharmacy?> GetByIdAsync(Guid pharmacyId, CancellationToken ct) =>
+        db.Pharmacies.SingleOrDefaultAsync(p => p.Id == pharmacyId, ct);
+
     public async Task AddAsync(Pharmacy pharmacy, CancellationToken ct)
     {
         await db.Pharmacies.AddAsync(pharmacy, ct);

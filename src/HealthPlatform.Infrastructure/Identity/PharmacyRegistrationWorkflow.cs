@@ -81,6 +81,7 @@ public sealed class PharmacyRegistrationWorkflow(
         var domainEvent = pharmacy.DomainEvents.OfType<PharmacyRegisteredDomainEvent>().Single();
         await outboxRepository.EnqueueAsync(domainEvent, ct);
         await domainEventPublisher.PublishAsync(domainEvent, ct);
+        pharmacy.ClearDomainEvents();
 
         logger.LogInformation(
             "Registered pharmacy {PharmacyId} with user {UserId} in pending verification state.",
