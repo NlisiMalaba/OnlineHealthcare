@@ -1,6 +1,7 @@
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Domain.Identity;
+using HealthPlatform.Domain.Telemedicine;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +34,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Pharmacy> Pharmacies => Set<Pharmacy>();
 
     public DbSet<Appointment> Appointments => Set<Appointment>();
+
+    public DbSet<TelemedicineSession> TelemedicineSessions => Set<TelemedicineSession>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

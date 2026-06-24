@@ -18,6 +18,8 @@ using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
+using HealthPlatform.Application.Telemedicine;
+using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Storage;
 using MediatR;
@@ -98,6 +100,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.Configure<RtcOptions>(options => { });
+        services.AddSingleton<IRtcProviderResolver, ConfigurableRtcProviderResolver>();
+        services.AddSingleton<IRtcTokenService, RtcTokenService>();
+        services.AddScoped<ITelemedicineSessionRepository, TelemedicineSessionRepository>();
         if (appointmentConfirmationNotifier is not null)
         {
             services.AddSingleton(appointmentConfirmationNotifier);
