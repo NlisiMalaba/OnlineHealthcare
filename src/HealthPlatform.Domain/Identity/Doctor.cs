@@ -256,6 +256,65 @@ public sealed class Doctor : Entity
         _availabilitySlots.AddRange(replacementSlots);
     }
 
+    public DoctorAvailabilitySlot AddAvailabilitySlot(
+        DayOfWeek dayOfWeek,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        int slotDurationMinutes,
+        DoctorAppointmentType appointmentType)
+    {
+        var slot = DoctorAvailabilitySlot.Create(
+            Id,
+            dayOfWeek,
+            startTime,
+            endTime,
+            slotDurationMinutes,
+            appointmentType);
+
+        _availabilitySlots.Add(slot);
+        Touch();
+        RaiseDomainEvent(new DoctorAvailabilityChangedDomainEvent(Id));
+        return slot;
+    }
+
+    public DoctorAvailabilitySlot GetAvailabilitySlot(Guid slotId) =>
+        _availabilitySlots.SingleOrDefault(slot => slot.Id == slotId)
+        ?? throw new KeyNotFoundException("Availability slot was not found.");
+
+    public bool UpdateAvailabilitySlot(
+        Guid slotId,
+        DayOfWeek dayOfWeek,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        int slotDurationMinutes,
+        DoctorAppointmentType appointmentType)
+    {
+        var slot = GetAvailabilitySlot(slotId);
+        var changed = slot.Update(dayOfWeek, startTime, endTime, slotDurationMinutes, appointmentType);
+        if (!changed)
+        {
+            return false;
+        }
+
+        Touch();
+        RaiseDomainEvent(new DoctorAvailabilityChangedDomainEvent(Id));
+        return true;
+    }
+
+    public bool RemoveAvailabilitySlot(Guid slotId)
+    {
+        var slot = _availabilitySlots.SingleOrDefault(s => s.Id == slotId);
+        if (slot is null)
+        {
+            return false;
+        }
+
+        _availabilitySlots.Remove(slot);
+        Touch();
+        RaiseDomainEvent(new DoctorAvailabilityChangedDomainEvent(Id));
+        return true;
+    }
+
     private void EnsurePendingForVerificationTransition()
     {
         if (VerificationStatus != DoctorVerificationStatus.Pending)

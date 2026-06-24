@@ -24,4 +24,6 @@ public interface IDoctorRepository
         Guid doctorId,
         IReadOnlyList<DoctorAvailabilitySlot> slots,
         CancellationToken ct);
+
+    Task AddAvailabilitySlotAsync(DoctorAvailabilitySlot slot, CancellationToken ct);
 }
