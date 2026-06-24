@@ -87,6 +87,8 @@ public sealed class DoctorProfileUpdateWorkflow(
             await domainEventPublisher.PublishAsync(domainEvent, ct);
         }
 
+        doctor.ClearDomainEvents();
+
         logger.LogInformation(
             "Updated doctor {DoctorId} profile with {DomainEventCount} domain events.",
             doctor.Id,

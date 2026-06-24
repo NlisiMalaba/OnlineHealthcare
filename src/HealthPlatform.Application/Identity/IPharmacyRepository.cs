@@ -10,6 +10,8 @@ public interface IPharmacyRepository
 
     Task<Pharmacy?> GetByUserIdAsync(Guid userId, CancellationToken ct);
 
+    Task<Pharmacy?> GetByIdAsync(Guid pharmacyId, CancellationToken ct);
+
     Task AddAsync(Pharmacy pharmacy, CancellationToken ct);
 
     Task UpdateAsync(Pharmacy pharmacy, CancellationToken ct);

@@ -37,6 +37,10 @@ Thumbs.db
 .env.local
 *.pem
 
+# ASP.NET Core local config (use appsettings.*.example.json as templates)
+**/appsettings.json
+**/appsettings.Development.json
+
 # Cursor — ignore local IDE state; keep `.cursor/rules/` versioned (do not use `**` on parent — git cannot re-include children)
 .cursor/*
 !.cursor/rules/

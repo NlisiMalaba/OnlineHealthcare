@@ -49,7 +49,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [x] 4. Checkpoint — Auth layer complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Identity Module — User & Profile
+- [x] 5. Identity Module — User & Profile
   - [x] 5.1 Implement Patient registration endpoint supporting phone, email, Google, and Apple social login
     - On successful registration, publish `PatientRegistered` domain event handled in-process to create linked HealthRecord
     - Return `IDENTITY_CONFLICT` (409) for duplicate phone/email
@@ -86,20 +86,20 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 5.12 Write unit tests for registration conflict, pending state, and profile CRUD edge cases
     - _Requirements: 1.6, 2.2, 2.7_
 
-- [ ] 6. Search Module (Elasticsearch)
-  - [ ] 6.1 Define and create Elasticsearch indices: Doctor (name, specialty, rating, geo_point, fee range, availability), Pharmacy (name, location, stock summary), Lab Partner (name, location, test types, pricing)
+- [x] 6. Search Module (Elasticsearch)
+  - [x] 6.1 Define and create Elasticsearch indices: Doctor (name, specialty, rating, geo_point, fee range, availability), Pharmacy (name, location, stock summary), Lab Partner (name, location, test types, pricing)
     - _Requirements: 3.1, 3.3, 21.3_
-  - [ ] 6.2 Implement domain event handlers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
+  - [x] 6.2 Implement domain event handlers to keep indices in sync when doctor profiles, availability, or pharmacy stock change
     - _Requirements: 3.5_
-  - [ ] 6.3 Implement doctor search endpoint with filters (specialty, rating, fee range, availability) and geo-distance proximity sorting
+  - [x] 6.3 Implement doctor search endpoint with filters (specialty, rating, fee range, availability) and geo-distance proximity sorting
     - Return empty-state response with suggestion message when no results match
     - _Requirements: 3.1, 3.2, 3.4, 3.6_
-  - [ ]* 6.4 Write property test for doctor search proximity ordering (Property 6)
+  - [x]* 6.4 Write property test for doctor search proximity ordering (Property 6)
     - **Property 6: Doctor Search Proximity Ordering**
     - **Validates: Requirements 3.2**
-  - [ ] 6.5 Implement pharmacy and lab partner search endpoints with geo-distance sorting
+  - [x] 6.5 Implement pharmacy and lab partner search endpoints with geo-distance sorting
     - _Requirements: 7.1, 21.3_
-  - [ ]* 6.6 Write unit tests for empty-state response, filter combinations, and index sync
+  - [x]* 6.6 Write unit tests for empty-state response, filter combinations, and index sync
     - _Requirements: 3.6_
 
 - [ ] 7. Appointment Service

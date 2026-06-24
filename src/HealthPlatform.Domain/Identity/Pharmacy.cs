@@ -87,34 +87,59 @@ public sealed class Pharmacy : Entity
         string? contactPhone,
         string? logoStorageKey)
     {
+        var profileChanged = false;
+
         if (name is not null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            Name = name.Trim();
+            var normalizedName = name.Trim();
+            if (Name != normalizedName)
+            {
+                Name = normalizedName;
+                profileChanged = true;
+            }
         }
 
         if (address is not null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(address);
-            Address = address.Trim();
+            var normalizedAddress = address.Trim();
+            if (Address != normalizedAddress)
+            {
+                Address = normalizedAddress;
+                profileChanged = true;
+            }
         }
 
-        if (location is not null)
+        if (location is not null && Location != location)
         {
             Location = location;
+            profileChanged = true;
         }
 
         if (contactPhone is not null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(contactPhone);
-            ContactPhone = contactPhone.Trim();
+            var normalizedPhone = contactPhone.Trim();
+            if (ContactPhone != normalizedPhone)
+            {
+                ContactPhone = normalizedPhone;
+                profileChanged = true;
+            }
         }
 
-        if (logoStorageKey is not null)
+        if (logoStorageKey is not null && LogoStorageKey != logoStorageKey)
         {
             LogoStorageKey = logoStorageKey;
+            profileChanged = true;
+        }
+
+        if (!profileChanged)
+        {
+            return;
         }
 
         Touch();
+        RaiseDomainEvent(new PharmacyProfileUpdatedDomainEvent(Id));
     }
 }

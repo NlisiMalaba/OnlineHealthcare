@@ -60,6 +60,7 @@ public sealed class LicenseVerificationWorkflow(
         var domainEvent = doctor.DomainEvents.Last();
         await outboxRepository.EnqueueAsync(domainEvent, ct);
         await domainEventPublisher.PublishAsync(domainEvent, ct);
+        doctor.ClearDomainEvents();
 
         logger.LogInformation(
             "Doctor {DoctorId} license verification transitioned to {VerificationStatus}.",
