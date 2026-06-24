@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
+using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
@@ -13,6 +14,7 @@ using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
+using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
@@ -92,6 +94,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
@@ -101,6 +104,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
         services.AddSingleton<ISearchService>(_searchService);
+        services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
 
