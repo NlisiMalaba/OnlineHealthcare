@@ -1,3 +1,5 @@
+using HealthPlatform.Domain.Identity;
+
 namespace HealthPlatform.Application.Appointments.RescheduleAppointment;
 
 public sealed record RescheduleAppointmentDto(
@@ -5,4 +7,6 @@ public sealed record RescheduleAppointmentDto(
     Guid SlotId,
     DateTime ScheduledAtUtc,
     DateTime? PreviousScheduledAtUtc,
-    string Status);
+    string Status,
+    DoctorAppointmentType AppointmentType,
+    AppointmentClinicDto? Clinic);

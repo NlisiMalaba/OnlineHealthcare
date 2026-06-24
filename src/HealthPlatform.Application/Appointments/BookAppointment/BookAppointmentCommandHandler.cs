@@ -30,8 +30,8 @@ public sealed class BookAppointmentCommandHandler(
                 AppointmentErrorCodes.DoctorNotFound,
                 "Doctor profile was not found.");
 
-        var slotExists = doctor.AvailabilitySlots.Any(slot => slot.Id == request.SlotId && slot.IsActive);
-        if (!slotExists)
+        var slot = doctor.AvailabilitySlots.SingleOrDefault(s => s.Id == request.SlotId && s.IsActive);
+        if (slot is null)
         {
             throw new NotFoundException(
                 AppointmentErrorCodes.AvailabilitySlotNotFound,
@@ -62,6 +62,8 @@ public sealed class BookAppointmentCommandHandler(
             appointment.SlotId,
             appointment.ScheduledAtUtc,
             "pending_payment",
-            appointment.SlotHoldExpiresAtUtc);
+            appointment.SlotHoldExpiresAtUtc,
+            slot.AppointmentType,
+            AppointmentClinicMappings.ToClinicDto(doctor, slot.AppointmentType));
     }
 }

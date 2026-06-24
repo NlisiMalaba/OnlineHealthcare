@@ -59,5 +59,8 @@ public sealed class AppointmentsControllerTests : IAsyncLifetime
         var created = Assert.IsType<CreatedResult>(result.Result);
         var payload = Assert.IsType<BookAppointmentDto>(created.Value);
         Assert.Equal("pending_payment", payload.Status);
+        Assert.NotNull(payload.Clinic);
+        Assert.Equal(doctor.ClinicAddress, payload.Clinic.Address);
+        Assert.NotNull(payload.Clinic.GpsNavigationUrl);
     }
 }

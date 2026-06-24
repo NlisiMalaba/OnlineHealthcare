@@ -126,9 +126,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 4.6**
   - [x] 7.9 Implement doctor-initiated appointment reschedule with patient notification
     - _Requirements: 4.8_
-  - [ ] 7.10 Implement physical appointment response: include clinic address and GPS navigation link
+  - [x] 7.10 Implement physical appointment response: include clinic address and GPS navigation link
     - _Requirements: 4.3_
-  - [ ]* 7.11 Write unit tests for slot expiry, cancellation policy edge cases, and reschedule flow
+  - [x]* 7.11 Write unit tests for slot expiry, cancellation policy edge cases, and reschedule flow
     - _Requirements: 4.1, 4.6, 4.7, 4.8_
 
 - [ ] 8. Telemedicine Module
