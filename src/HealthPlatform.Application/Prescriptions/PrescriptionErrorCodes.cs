@@ -8,4 +8,7 @@ public static class PrescriptionErrorCodes
     public const string HealthRecordNotFound = "HEALTH_RECORD_NOT_FOUND";
     public const string AppointmentNotFound = "APPOINTMENT_NOT_FOUND";
     public const string PrescriptionNotFound = "PRESCRIPTION_NOT_FOUND";
+    public const string PrescriptionRequired = "PRESCRIPTION_REQUIRED";
+    public const string PrescriptionDispensed = "PRESCRIPTION_DISPENSED";
+    public const string PrescriptionExpired = "PRESCRIPTION_EXPIRED";
 }

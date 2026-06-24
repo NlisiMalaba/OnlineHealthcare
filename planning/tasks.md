@@ -156,12 +156,12 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 10.1 Implement prescription creation endpoint: record medication name, dosage, frequency, duration, special instructions; link to doctor and patient health record; default expiry to issued_at + 30 days if not specified
     - Publish `PrescriptionIssued` domain event; notify patient
     - _Requirements: 6.1, 6.2, 6.3, 6.6_
-  - [ ]* 10.2 Write property test for prescription default expiry (Property 12)
+  - [x]* 10.2 Write property test for prescription default expiry (Property 12)
     - **Property 12: Prescription Default Expiry**
     - **Validates: Requirements 6.6**
-  - [ ] 10.3 Implement prescription guard for medication orders: validate prescription is active, non-expired, non-dispensed; mark as `dispensed` on first use; reject duplicates with `PRESCRIPTION_DISPENSED` (422)
+  - [x] 10.3 Implement prescription guard for medication orders: validate prescription is active, non-expired, non-dispensed; mark as `dispensed` on first use; reject duplicates with `PRESCRIPTION_DISPENSED` (422)
     - _Requirements: 6.4, 6.5, 6.7_
-  - [ ]* 10.4 Write property test for prescription guard for medication orders (Property 11)
+  - [x]* 10.4 Write property test for prescription guard for medication orders (Property 11)
     - **Property 11: Prescription Guard for Medication Orders**
     - **Validates: Requirements 6.4, 6.5**
   - [ ] 10.5 Implement prescription cancellation by doctor (before dispensed) with mandatory reason

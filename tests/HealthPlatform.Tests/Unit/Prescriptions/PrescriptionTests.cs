@@ -47,4 +47,50 @@ public sealed class PrescriptionTests
         Assert.Equal(expiresAtUtc, prescription.ExpiresAtUtc);
         Assert.Equal("active", prescription.Status.ToString().ToLowerInvariant());
     }
+
+    [Fact]
+    public void MarkDispensed_transitions_active_prescription_to_dispensed()
+    {
+        var issuedAtUtc = new DateTime(2026, 6, 1, 10, 0, 0, DateTimeKind.Utc);
+        var prescription = CreateActivePrescription(issuedAtUtc);
+
+        prescription.MarkDispensed(issuedAtUtc.AddDays(1));
+
+        Assert.Equal(PrescriptionStatus.Dispensed, prescription.Status);
+    }
+
+    [Fact]
+    public void MarkDispensed_rejects_already_dispensed_prescription()
+    {
+        var issuedAtUtc = new DateTime(2026, 6, 1, 10, 0, 0, DateTimeKind.Utc);
+        var prescription = CreateActivePrescription(issuedAtUtc);
+        prescription.MarkDispensed(issuedAtUtc.AddDays(1));
+
+        Assert.Throws<PrescriptionDispensedException>(() =>
+            prescription.MarkDispensed(issuedAtUtc.AddDays(2)));
+    }
+
+    [Fact]
+    public void MarkDispensed_rejects_expired_prescription()
+    {
+        var issuedAtUtc = new DateTime(2026, 1, 1, 10, 0, 0, DateTimeKind.Utc);
+        var prescription = CreateActivePrescription(issuedAtUtc);
+
+        Assert.Throws<PrescriptionExpiredException>(() =>
+            prescription.MarkDispensed(issuedAtUtc.AddDays(PrescriptionPolicies.DefaultExpiryDays)));
+    }
+
+    private static Prescription CreateActivePrescription(DateTime issuedAtUtc) =>
+        Prescription.Issue(
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            "Amoxicillin",
+            "500mg",
+            "Twice daily",
+            7,
+            null,
+            null,
+            null,
+            issuedAtUtc);
 }
