@@ -141,7 +141,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 5.8**
   - [x] 8.4 Implement SignalR session events: session duration ticks, file/image sharing events, in-session chat messages
     - _Requirements: 5.3, 5.7_
-  - [ ] 8.5 Implement auto-reconnect logic: on network interruption, attempt reconnect for up to 60 seconds before surfacing reconnection prompt
+  - [x] 8.5 Implement auto-reconnect logic: on network interruption, attempt reconnect for up to 60 seconds before surfacing reconnection prompt
     - _Requirements: 5.6_
   - [ ] 8.6 On session end, generate session summary document (stored in MongoDB) and attach reference to patient's HealthRecord via Health Records module
     - Publish `TelemedicineSessionEnded` domain event

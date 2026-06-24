@@ -29,6 +29,8 @@ public sealed class TelemedicineSession : Entity
 
     public DateTime? EndedAtUtc { get; private set; }
 
+    public DateTime? InterruptedAtUtc { get; private set; }
+
     public int DurationSeconds { get; private set; }
 
     public string? SessionSummaryRef { get; private set; }
@@ -131,6 +133,75 @@ public sealed class TelemedicineSession : Entity
         RecordingEnabled = false;
         Touch();
     }
+
+    public bool BeginReconnectionGrace(DateTime interruptedAtUtc)
+    {
+        if (interruptedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Interruption time must be UTC.", nameof(interruptedAtUtc));
+        }
+
+        if (Status != TelemedicineSessionStatus.Active)
+        {
+            return false;
+        }
+
+        if (InterruptedAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        InterruptedAtUtc = interruptedAtUtc;
+        Touch();
+        return true;
+    }
+
+    public bool TryCompleteReconnection(DateTime reconnectedAtUtc, TimeSpan gracePeriod)
+    {
+        if (reconnectedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Reconnection time must be UTC.", nameof(reconnectedAtUtc));
+        }
+
+        if (!InterruptedAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        if (reconnectedAtUtc > InterruptedAtUtc.Value.Add(gracePeriod))
+        {
+            throw new TelemedicineReconnectionGraceExpiredException();
+        }
+
+        InterruptedAtUtc = null;
+        Touch();
+        return true;
+    }
+
+    public bool ExpireReconnectionGraceIfDue(DateTime asOfUtc, TimeSpan gracePeriod)
+    {
+        if (asOfUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Expiration check time must be UTC.", nameof(asOfUtc));
+        }
+
+        if (Status != TelemedicineSessionStatus.Active || !InterruptedAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        if (asOfUtc < InterruptedAtUtc.Value.Add(gracePeriod))
+        {
+            return false;
+        }
+
+        Status = TelemedicineSessionStatus.Interrupted;
+        Touch();
+        return true;
+    }
+
+    public DateTime? GetReconnectionDeadlineUtc(TimeSpan gracePeriod) =>
+        InterruptedAtUtc?.Add(gracePeriod);
 
     private static string BuildChannelName(Guid appointmentId) => $"tm-{appointmentId:N}";
 }

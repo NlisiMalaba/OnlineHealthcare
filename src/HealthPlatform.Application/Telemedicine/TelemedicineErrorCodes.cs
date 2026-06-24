@@ -16,4 +16,5 @@ public static class TelemedicineErrorCodes
     public const string ChatMessageEmpty = "TELEMEDICINE_CHAT_MESSAGE_EMPTY";
     public const string FileShareNotAllowed = "TELEMEDICINE_FILE_SHARE_NOT_ALLOWED";
     public const string UnsupportedFileType = "TELEMEDICINE_UNSUPPORTED_FILE_TYPE";
+    public const string ReconnectionGraceExpired = "TELEMEDICINE_RECONNECTION_GRACE_EXPIRED";
 }

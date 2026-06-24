@@ -10,6 +10,12 @@ public sealed class CapturingTelemedicineRealtimeNotifier : ITelemedicineRealtim
 
     public List<TelemedicineFileSharedDto> SharedFiles { get; } = [];
 
+    public List<TelemedicineReconnectionAttemptingDto> ReconnectionAttempts { get; } = [];
+
+    public List<TelemedicineReconnectionSucceededDto> ReconnectionSuccesses { get; } = [];
+
+    public List<TelemedicineReconnectionPromptRequiredDto> ReconnectionPrompts { get; } = [];
+
     public Task PublishDurationTickAsync(TelemedicineDurationTickDto tick, CancellationToken ct)
     {
         DurationTicks.Add(tick);
@@ -25,6 +31,26 @@ public sealed class CapturingTelemedicineRealtimeNotifier : ITelemedicineRealtim
     public Task PublishFileSharedAsync(TelemedicineFileSharedDto file, CancellationToken ct)
     {
         SharedFiles.Add(file);
+        return Task.CompletedTask;
+    }
+
+    public Task PublishReconnectionAttemptingAsync(TelemedicineReconnectionAttemptingDto attempt, CancellationToken ct)
+    {
+        ReconnectionAttempts.Add(attempt);
+        return Task.CompletedTask;
+    }
+
+    public Task PublishReconnectionSucceededAsync(TelemedicineReconnectionSucceededDto success, CancellationToken ct)
+    {
+        ReconnectionSuccesses.Add(success);
+        return Task.CompletedTask;
+    }
+
+    public Task PublishReconnectionPromptRequiredAsync(
+        TelemedicineReconnectionPromptRequiredDto prompt,
+        CancellationToken ct)
+    {
+        ReconnectionPrompts.Add(prompt);
         return Task.CompletedTask;
     }
 }

@@ -20,6 +20,21 @@ public sealed class TelemedicineSessionRepository(ApplicationDbContext db) : ITe
             .Where(s => s.Status == TelemedicineSessionStatus.Active && s.StartedAtUtc != null)
             .ToListAsync(ct);
 
+    public async Task<IReadOnlyList<TelemedicineSession>> ListSessionsWithPendingReconnectionGraceAsync(
+        DateTime asOfUtc,
+        TimeSpan gracePeriod,
+        CancellationToken ct)
+    {
+        var graceStartedBefore = asOfUtc.Subtract(gracePeriod);
+
+        return await db.TelemedicineSessions
+            .Where(s =>
+                s.Status == TelemedicineSessionStatus.Active
+                && s.InterruptedAtUtc != null
+                && s.InterruptedAtUtc <= graceStartedBefore)
+            .ToListAsync(ct);
+    }
+
     public Task UpdateAsync(TelemedicineSession session, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 }

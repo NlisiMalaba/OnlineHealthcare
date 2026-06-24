@@ -22,4 +22,21 @@ public sealed class SignalRTelemedicineRealtimeNotifier(IHubContext<Telemedicine
         hubContext.Clients
             .Group(TelemedicineSessionGroupNames.ForAppointment(file.AppointmentId))
             .SendAsync(TelemedicineHubEvents.FileShared, file, ct);
+
+    public Task PublishReconnectionAttemptingAsync(TelemedicineReconnectionAttemptingDto attempt, CancellationToken ct) =>
+        hubContext.Clients
+            .Group(TelemedicineSessionGroupNames.ForAppointment(attempt.AppointmentId))
+            .SendAsync(TelemedicineHubEvents.ReconnectionAttempting, attempt, ct);
+
+    public Task PublishReconnectionSucceededAsync(TelemedicineReconnectionSucceededDto success, CancellationToken ct) =>
+        hubContext.Clients
+            .Group(TelemedicineSessionGroupNames.ForAppointment(success.AppointmentId))
+            .SendAsync(TelemedicineHubEvents.ReconnectionSucceeded, success, ct);
+
+    public Task PublishReconnectionPromptRequiredAsync(
+        TelemedicineReconnectionPromptRequiredDto prompt,
+        CancellationToken ct) =>
+        hubContext.Clients
+            .Group(TelemedicineSessionGroupNames.ForAppointment(prompt.AppointmentId))
+            .SendAsync(TelemedicineHubEvents.ReconnectionPromptRequired, prompt, ct);
 }

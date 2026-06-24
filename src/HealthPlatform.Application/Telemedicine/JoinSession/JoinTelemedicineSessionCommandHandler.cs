@@ -3,6 +3,7 @@ using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Domain.Appointments;
+using HealthPlatform.Application.Telemedicine.Realtime.Reconnection;
 using HealthPlatform.Domain.Telemedicine;
 using MediatR;
 
@@ -10,6 +11,7 @@ namespace HealthPlatform.Application.Telemedicine.JoinSession;
 
 public sealed class JoinTelemedicineSessionCommandHandler(
     TimeProvider timeProvider,
+    ISender sender,
     ICurrentUserAccessor currentUser,
     IPatientRepository patientRepository,
     IDoctorRepository doctorRepository,
@@ -74,6 +76,8 @@ public sealed class JoinTelemedicineSessionCommandHandler(
         }
 
         await telemedicineSessionRepository.UpdateAsync(session, ct);
+
+        await sender.Send(new CompleteTelemedicineReconnectionCommand(request.AppointmentId), ct);
 
         var tokenResult = await rtcTokenService.GenerateTokenAsync(
             new RtcTokenRequest(
