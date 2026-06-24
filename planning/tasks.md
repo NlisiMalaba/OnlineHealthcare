@@ -103,32 +103,32 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 3.6_
 
 - [ ] 7. Appointment Service
-  - [ ] 7.1 Implement availability slot management CRUD for doctors (day of week, start/end time, slot duration, appointment type)
+  - [x] 7.1 Implement availability slot management CRUD for doctors (day of week, start/end time, slot duration, appointment type)
     - _Requirements: 2.5_
-  - [ ] 7.2 Implement appointment booking: select slot → create `pending_payment` appointment → hold slot for 10 minutes via Redis TTL
+  - [x] 7.2 Implement appointment booking: select slot → create `pending_payment` appointment → hold slot for 10 minutes via Redis TTL
     - Reject concurrent booking of the same slot within the hold window with `SLOT_UNAVAILABLE` (409)
     - _Requirements: 4.1, 4.2_
-  - [ ]* 7.3 Write property test for slot hold exclusivity (Property 7)
+  - [x]* 7.3 Write property test for slot hold exclusivity (Property 7)
     - **Property 7: Slot Hold Exclusivity**
     - **Validates: Requirements 4.1**
-  - [ ] 7.4 Implement appointment confirmation on `PaymentCompleted` domain event; publish `AppointmentConfirmed` domain event
+  - [x] 7.4 Implement appointment confirmation on `PaymentCompleted` domain event; publish `AppointmentConfirmed` domain event
     - Send confirmation notifications to patient and doctor via Notification module
     - _Requirements: 4.4_
-  - [ ]* 7.5 Write property test for appointment confirmation notifies both parties (Property 8)
+  - [x]* 7.5 Write property test for appointment confirmation notifies both parties (Property 8)
     - **Property 8: Appointment Confirmation Notifies Both Parties**
     - **Validates: Requirements 4.4**
-  - [ ] 7.6 Implement appointment reminder scheduler: send reminder 30 minutes before scheduled time to patient and doctor
+  - [x] 7.6 Implement appointment reminder scheduler: send reminder 30 minutes before scheduled time to patient and doctor
     - _Requirements: 4.5_
-  - [ ] 7.7 Implement appointment cancellation: >2 hours before → release slot + refund event; <2 hours → apply doctor cancellation policy
+  - [x] 7.7 Implement appointment cancellation: >2 hours before → release slot + refund event; <2 hours → apply doctor cancellation policy
     - _Requirements: 4.6, 4.7_
-  - [ ]* 7.8 Write property test for early cancellation releases slot (Property 9)
+  - [x]* 7.8 Write property test for early cancellation releases slot (Property 9)
     - **Property 9: Early Cancellation Releases Slot**
     - **Validates: Requirements 4.6**
-  - [ ] 7.9 Implement doctor-initiated appointment reschedule with patient notification
+  - [x] 7.9 Implement doctor-initiated appointment reschedule with patient notification
     - _Requirements: 4.8_
-  - [ ] 7.10 Implement physical appointment response: include clinic address and GPS navigation link
+  - [x] 7.10 Implement physical appointment response: include clinic address and GPS navigation link
     - _Requirements: 4.3_
-  - [ ]* 7.11 Write unit tests for slot expiry, cancellation policy edge cases, and reschedule flow
+  - [x]* 7.11 Write unit tests for slot expiry, cancellation policy edge cases, and reschedule flow
     - _Requirements: 4.1, 4.6, 4.7, 4.8_
 
 - [ ] 8. Telemedicine Module
