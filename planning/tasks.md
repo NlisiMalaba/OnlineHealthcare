@@ -102,7 +102,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 6.6 Write unit tests for empty-state response, filter combinations, and index sync
     - _Requirements: 3.6_
 
-- [ ] 7. Appointment Service
+- [x] 7. Appointment Service
   - [x] 7.1 Implement availability slot management CRUD for doctors (day of week, start/end time, slot duration, appointment type)
     - _Requirements: 2.5_
   - [x] 7.2 Implement appointment booking: select slot → create `pending_payment` appointment → hold slot for 10 minutes via Redis TTL
@@ -132,11 +132,11 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 4.1, 4.6, 4.7, 4.8_
 
 - [ ] 8. Telemedicine Module
-  - [ ] 8.1 Implement session lifecycle: on `AppointmentConfirmed` domain event for virtual appointments, create TelemedicineSession record; on join request, generate Agora/Twilio RTC token and channel
+  - [x] 8.1 Implement session lifecycle: on `AppointmentConfirmed` domain event for virtual appointments, create TelemedicineSession record; on join request, generate Agora/Twilio RTC token and channel
     - _Requirements: 5.1, 5.2_
-  - [ ] 8.2 Implement recording consent workflow: persist `recording_consent` flag; only set `recording_enabled = true` when consent is `true`
+  - [x] 8.2 Implement recording consent workflow: persist `recording_consent` flag; only set `recording_enabled = true` when consent is `true`
     - _Requirements: 5.8_
-  - [ ]* 8.3 Write property test for recording requires consent (Property 10)
+  - [x]* 8.3 Write property test for recording requires consent (Property 10)
     - **Property 10: Recording Requires Consent**
     - **Validates: Requirements 5.8**
   - [ ] 8.4 Implement SignalR session events: session duration ticks, file/image sharing events, in-session chat messages
