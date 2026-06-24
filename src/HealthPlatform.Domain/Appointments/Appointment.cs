@@ -23,6 +23,10 @@ public sealed class Appointment : Entity
 
     public DateTime? ReminderSentAtUtc { get; private set; }
 
+    public DateTime? CancelledAtUtc { get; private set; }
+
+    public string? CancellationReason { get; private set; }
+
     public static Appointment CreatePendingPayment(
         Guid patientId,
         Guid doctorId,
@@ -109,5 +113,65 @@ public sealed class Appointment : Entity
         ReminderSentAtUtc = sentAtUtc;
         Touch();
         return true;
+    }
+
+    public AppointmentCancellationOutcome Cancel(
+        DateTime cancelledAtUtc,
+        TimeSpan earlyCancellationWindow,
+        decimal doctorLateCancellationRetentionPercent,
+        string? reason)
+    {
+        if (Status != AppointmentStatus.Confirmed)
+        {
+            throw new AppointmentNotCancellableException(Status);
+        }
+
+        if (cancelledAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Cancellation time must be UTC.", nameof(cancelledAtUtc));
+        }
+
+        if (doctorLateCancellationRetentionPercent is < 0 or > 100)
+        {
+            throw new ArgumentOutOfRangeException(nameof(doctorLateCancellationRetentionPercent));
+        }
+
+        var timeUntilScheduled = ScheduledAtUtc - cancelledAtUtc;
+        var isEarlyCancellation = timeUntilScheduled > earlyCancellationWindow;
+
+        Status = AppointmentStatus.Cancelled;
+        CancelledAtUtc = cancelledAtUtc;
+        CancellationReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
+        Touch();
+
+        RaiseDomainEvent(new AppointmentCancelledDomainEvent(
+            Id,
+            PatientId,
+            DoctorId,
+            SlotId,
+            ScheduledAtUtc,
+            cancelledAtUtc,
+            isEarlyCancellation));
+
+        if (isEarlyCancellation)
+        {
+            RaiseDomainEvent(new AppointmentRefundRequestedDomainEvent(
+                Id,
+                PatientId,
+                DoctorId,
+                SlotId));
+        }
+        else
+        {
+            RaiseDomainEvent(new AppointmentLateCancellationPolicyAppliedDomainEvent(
+                Id,
+                PatientId,
+                DoctorId,
+                doctorLateCancellationRetentionPercent));
+        }
+
+        return new AppointmentCancellationOutcome(
+            isEarlyCancellation,
+            isEarlyCancellation ? 0m : doctorLateCancellationRetentionPercent);
     }
 }

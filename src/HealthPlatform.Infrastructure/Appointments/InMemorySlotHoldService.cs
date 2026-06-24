@@ -30,4 +30,29 @@ public sealed class InMemorySlotHoldService : ISlotHoldService
             return Task.FromResult(added);
         }
     }
+
+    public Task ReleaseHoldAsync(Guid slotId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        _holds.TryRemove($"slot:{slotId}:hold", out _);
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> IsSlotHeldAsync(Guid slotId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var key = $"slot:{slotId}:hold";
+        if (!_holds.TryGetValue(key, out var existingExpiry))
+        {
+            return Task.FromResult(false);
+        }
+
+        if (existingExpiry <= DateTime.UtcNow)
+        {
+            _holds.TryRemove(key, out _);
+            return Task.FromResult(false);
+        }
+
+        return Task.FromResult(true);
+    }
 }
