@@ -20,6 +20,23 @@ public sealed class AppointmentRepository(ApplicationDbContext db) : IAppointmen
             a => a.Id == appointmentId && a.PatientId == patientId,
             ct);
 
+    public Task<Appointment?> GetByIdForDoctorAsync(Guid appointmentId, Guid doctorId, CancellationToken ct) =>
+        db.Appointments.SingleOrDefaultAsync(
+            a => a.Id == appointmentId && a.DoctorId == doctorId,
+            ct);
+
+    public Task<bool> ExistsConfirmedForSlotAtTimeAsync(
+        Guid slotId,
+        DateTime scheduledAtUtc,
+        Guid excludeAppointmentId,
+        CancellationToken ct) =>
+        db.Appointments.AnyAsync(
+            a => a.SlotId == slotId
+                && a.ScheduledAtUtc == scheduledAtUtc
+                && a.Status == AppointmentStatus.Confirmed
+                && a.Id != excludeAppointmentId,
+            ct);
+
     public Task UpdateAsync(Appointment appointment, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 

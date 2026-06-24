@@ -174,4 +174,58 @@ public sealed class Appointment : Entity
             isEarlyCancellation,
             isEarlyCancellation ? 0m : doctorLateCancellationRetentionPercent);
     }
+
+    public void Reschedule(
+        Guid newSlotId,
+        DateTime newScheduledAtUtc,
+        DateTime rescheduledAtUtc)
+    {
+        if (Status != AppointmentStatus.Confirmed)
+        {
+            throw new AppointmentNotReschedulableException(Status);
+        }
+
+        if (newSlotId == Guid.Empty)
+        {
+            throw new ArgumentException("New slot id is required.", nameof(newSlotId));
+        }
+
+        if (newScheduledAtUtc == default)
+        {
+            throw new ArgumentException("New scheduled time is required.", nameof(newScheduledAtUtc));
+        }
+
+        if (newScheduledAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("New scheduled time must be UTC.", nameof(newScheduledAtUtc));
+        }
+
+        if (rescheduledAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Reschedule time must be UTC.", nameof(rescheduledAtUtc));
+        }
+
+        if (newSlotId == SlotId && newScheduledAtUtc == ScheduledAtUtc)
+        {
+            return;
+        }
+
+        var previousSlotId = SlotId;
+        var previousScheduledAtUtc = ScheduledAtUtc;
+
+        SlotId = newSlotId;
+        ScheduledAtUtc = newScheduledAtUtc;
+        ReminderSentAtUtc = null;
+        Touch();
+
+        RaiseDomainEvent(new AppointmentRescheduledDomainEvent(
+            Id,
+            PatientId,
+            DoctorId,
+            previousSlotId,
+            previousScheduledAtUtc,
+            newSlotId,
+            newScheduledAtUtc,
+            rescheduledAtUtc));
+    }
 }
