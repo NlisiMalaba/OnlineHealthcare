@@ -57,6 +57,15 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.ConfirmedAtUtc,
                     e.OccurredAtUtc),
                 ct),
+            AppointmentRescheduledDomainEvent e => mediator.Publish(
+                new AppointmentRescheduledNotification(
+                    e.AppointmentId,
+                    e.PatientId,
+                    e.DoctorId,
+                    e.PreviousScheduledAtUtc,
+                    e.NewScheduledAtUtc,
+                    e.OccurredAtUtc),
+                ct),
             AppointmentRefundRequestedDomainEvent => Task.CompletedTask,
             AppointmentLateCancellationPolicyAppliedDomainEvent => Task.CompletedTask,
             AppointmentCancelledDomainEvent => Task.CompletedTask,

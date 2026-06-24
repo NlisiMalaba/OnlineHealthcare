@@ -124,7 +124,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 7.8 Write property test for early cancellation releases slot (Property 9)
     - **Property 9: Early Cancellation Releases Slot**
     - **Validates: Requirements 4.6**
-  - [ ] 7.9 Implement doctor-initiated appointment reschedule with patient notification
+  - [x] 7.9 Implement doctor-initiated appointment reschedule with patient notification
     - _Requirements: 4.8_
   - [ ] 7.10 Implement physical appointment response: include clinic address and GPS navigation link
     - _Requirements: 4.3_

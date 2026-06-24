@@ -52,7 +52,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingSearchService SearchService => _searchService;
 
-    public PatientRegistrationTestHost(IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null)
+    public PatientRegistrationTestHost(
+        IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
+        IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null)
     {
         var services = new ServiceCollection();
         services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Warning));
@@ -102,6 +104,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         else
         {
             services.AddSingleton<IAppointmentConfirmationNotifier, LoggingAppointmentConfirmationNotifier>();
+        }
+
+        if (appointmentRescheduleNotifier is not null)
+        {
+            services.AddSingleton(appointmentRescheduleNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IAppointmentRescheduleNotifier, LoggingAppointmentRescheduleNotifier>();
         }
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
