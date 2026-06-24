@@ -1,4 +1,5 @@
 using HealthPlatform.Domain.HealthRecords;
+using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
@@ -30,6 +31,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<LicenseVerificationQueueItem> LicenseVerificationQueue => Set<LicenseVerificationQueueItem>();
 
     public DbSet<Pharmacy> Pharmacies => Set<Pharmacy>();
+
+    public DbSet<Appointment> Appointments => Set<Appointment>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
