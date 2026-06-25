@@ -1,6 +1,7 @@
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Domain.Identity;
+using HealthPlatform.Domain.Telemedicine;
 using HealthPlatform.Domain.Prescriptions;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Infrastructure.Identity;
@@ -35,6 +36,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Pharmacy> Pharmacies => Set<Pharmacy>();
 
     public DbSet<Appointment> Appointments => Set<Appointment>();
+
+    public DbSet<TelemedicineSession> TelemedicineSessions => Set<TelemedicineSession>();
 
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
 
