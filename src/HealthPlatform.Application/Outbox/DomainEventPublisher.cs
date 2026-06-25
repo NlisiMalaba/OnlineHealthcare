@@ -1,11 +1,14 @@
 using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Identity.Notifications;
+using HealthPlatform.Application.Outbox;
+using HealthPlatform.Application.Prescriptions.Notifications;
 using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Application.Telemedicine.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
+using HealthPlatform.Domain.Prescriptions.Events;
 using MediatR;
 
 namespace HealthPlatform.Application.Outbox;
@@ -93,6 +96,33 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.StartedAtUtc,
                     e.EndedAtUtc,
                     e.RecordingEnabled,
+                    e.OccurredAtUtc),
+                ct),
+            PrescriptionIssuedDomainEvent e => mediator.Publish(
+                new PrescriptionIssuedNotification(
+                    e.PrescriptionId,
+                    e.DoctorId,
+                    e.PatientId,
+                    e.HealthRecordId,
+                    e.IssuedAtUtc,
+                    e.ExpiresAtUtc,
+                    e.OccurredAtUtc),
+                ct),
+            PrescriptionCancelledDomainEvent e => mediator.Publish(
+                new PrescriptionCancelledNotification(
+                    e.PrescriptionId,
+                    e.DoctorId,
+                    e.PatientId,
+                    e.CancelledAtUtc,
+                    e.OccurredAtUtc),
+                ct),
+            DrugInteractionAlertDetectedDomainEvent e => mediator.Publish(
+                new DrugInteractionAlertDetectedNotification(
+                    e.DoctorId,
+                    e.PatientId,
+                    e.ProposedMedicationName,
+                    e.InteractingMedicationName,
+                    e.InteractionDescription,
                     e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask
