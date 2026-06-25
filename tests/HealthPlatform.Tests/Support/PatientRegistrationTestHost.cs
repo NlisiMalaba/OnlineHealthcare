@@ -5,6 +5,9 @@ using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.Prescriptions;
+using HealthPlatform.Application.Prescriptions.DrugInteractions;
+using HealthPlatform.Application.Wellness;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Application.Identity.UpdateDoctorProfile;
@@ -15,6 +18,7 @@ using HealthPlatform.Application.Storage;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
+using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
@@ -64,6 +68,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
+        IPrescriptionIssuedNotifier? prescriptionIssuedNotifier = null,
+        IPrescriptionCancelledNotifier? prescriptionCancelledNotifier = null,
+        IDrugInteractionAlertNotifier? drugInteractionAlertNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -107,6 +114,36 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+        services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
+        services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
+        if (prescriptionIssuedNotifier is not null)
+        {
+            services.AddSingleton(prescriptionIssuedNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IPrescriptionIssuedNotifier, LoggingPrescriptionIssuedNotifier>();
+        }
+
+        if (prescriptionCancelledNotifier is not null)
+        {
+            services.AddSingleton(prescriptionCancelledNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IPrescriptionCancelledNotifier, LoggingPrescriptionCancelledNotifier>();
+        }
+
+        if (drugInteractionAlertNotifier is not null)
+        {
+            services.AddSingleton(drugInteractionAlertNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IDrugInteractionAlertNotifier, LoggingDrugInteractionAlertNotifier>();
+        }
+
         services.Configure<RtcOptions>(options => { });
         services.AddSingleton<IRtcProviderResolver, ConfigurableRtcProviderResolver>();
         services.AddSingleton<IRtcTokenService, RtcTokenService>();
