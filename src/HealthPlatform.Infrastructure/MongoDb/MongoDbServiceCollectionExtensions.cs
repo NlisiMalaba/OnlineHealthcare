@@ -1,0 +1,40 @@
+using HealthPlatform.Application.HealthRecords;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+
+namespace HealthPlatform.Infrastructure.MongoDb;
+
+public static class MongoDbServiceCollectionExtensions
+{
+    public static IServiceCollection AddHealthPlatformMongoDb(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<MongoDbOptions>(configuration.GetSection(MongoDbOptions.SectionName));
+
+        var connectionString = configuration.GetConnectionString("MongoDb")
+            ?? configuration[$"{MongoDbOptions.SectionName}:ConnectionString"];
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            var databaseName = configuration[$"{MongoDbOptions.SectionName}:DatabaseName"] ?? "healthplatform";
+            services.AddSingleton<IMongoClient>(_ => new MongoClient(connectionString));
+            services.AddSingleton(sp =>
+                sp.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
+            services.AddSingleton<ITelemedicineSessionSummaryRepository, MongoTelemedicineSessionSummaryRepository>();
+            services.AddSingleton<IHealthRecordEntryRepository, MongoHealthRecordEntryRepository>();
+        }
+        else
+        {
+            services.AddSingleton<InMemoryTelemedicineSessionSummaryRepository>();
+            services.AddSingleton<InMemoryHealthRecordEntryRepository>();
+            services.AddSingleton<ITelemedicineSessionSummaryRepository>(sp =>
+                sp.GetRequiredService<InMemoryTelemedicineSessionSummaryRepository>());
+            services.AddSingleton<IHealthRecordEntryRepository>(sp =>
+                sp.GetRequiredService<InMemoryHealthRecordEntryRepository>());
+        }
+
+        return services;
+    }
+}

@@ -22,6 +22,11 @@ using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
+using HealthPlatform.Application.HealthRecords;
+using HealthPlatform.Application.Telemedicine;
+using HealthPlatform.Application.Telemedicine.Realtime;
+using HealthPlatform.Infrastructure.Telemedicine;
+using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Storage;
 using MediatR;
@@ -55,6 +60,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingSearchService _searchService = new();
 
     public CapturingSearchService SearchService => _searchService;
+
+    private readonly CapturingTelemedicineRealtimeNotifier _telemedicineRealtimeNotifier = new();
+
+    public CapturingTelemedicineRealtimeNotifier TelemedicineRealtimeNotifier => _telemedicineRealtimeNotifier;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -135,6 +144,18 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
             services.AddSingleton<IDrugInteractionAlertNotifier, LoggingDrugInteractionAlertNotifier>();
         }
 
+        services.Configure<RtcOptions>(options => { });
+        services.AddSingleton<IRtcProviderResolver, ConfigurableRtcProviderResolver>();
+        services.AddSingleton<IRtcTokenService, RtcTokenService>();
+        services.AddScoped<ITelemedicineSessionRepository, TelemedicineSessionRepository>();
+        services.AddScoped<ITelemedicineSessionParticipantService, TelemedicineSessionParticipantService>();
+        services.AddSingleton<ITelemedicineRealtimeNotifier>(_telemedicineRealtimeNotifier);
+        services.AddSingleton<InMemoryTelemedicineSessionSummaryRepository>();
+        services.AddSingleton<InMemoryHealthRecordEntryRepository>();
+        services.AddSingleton<ITelemedicineSessionSummaryRepository>(sp =>
+            sp.GetRequiredService<InMemoryTelemedicineSessionSummaryRepository>());
+        services.AddSingleton<IHealthRecordEntryRepository>(sp =>
+            sp.GetRequiredService<InMemoryHealthRecordEntryRepository>());
         if (appointmentConfirmationNotifier is not null)
         {
             services.AddSingleton(appointmentConfirmationNotifier);
