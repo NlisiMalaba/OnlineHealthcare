@@ -37,6 +37,14 @@ public sealed class MedicationOrder : Entity
 
     public MedicationOrderStatus Status { get; private set; }
 
+    public string? DeliveryAgentName { get; private set; }
+
+    public string? TrackingUrl { get; private set; }
+
+    public string? RejectionReason { get; private set; }
+
+    public string? ClarificationMessage { get; private set; }
+
     public static MedicationOrder Place(
         Guid patientId,
         Guid pharmacyId,
@@ -145,5 +153,164 @@ public sealed class MedicationOrder : Entity
             order.DeliveryAddress));
 
         return order;
+    }
+
+    public void ConfirmForDelivery(string deliveryAgentName, string trackingUrl, DateTime confirmedAtUtc)
+    {
+        EnsurePharmacyCanRespond();
+        ArgumentException.ThrowIfNullOrWhiteSpace(deliveryAgentName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(trackingUrl);
+        EnsureUtc(confirmedAtUtc, nameof(confirmedAtUtc));
+
+        if (DeliveryType != MedicationDeliveryType.Delivery)
+        {
+            throw new InvalidOperationException("Delivery agent assignment applies only to delivery orders.");
+        }
+
+        var previousStatus = Status;
+        DeliveryAgentName = deliveryAgentName.Trim();
+        TrackingUrl = trackingUrl.Trim();
+        Status = MedicationOrderStatus.Confirmed;
+        Touch();
+        RaiseStatusChanged(previousStatus);
+    }
+
+    public void ConfirmForPickup(DateTime confirmedAtUtc)
+    {
+        EnsurePharmacyCanRespond();
+        EnsureUtc(confirmedAtUtc, nameof(confirmedAtUtc));
+
+        if (DeliveryType != MedicationDeliveryType.Pickup)
+        {
+            throw new InvalidOperationException("Pickup confirmation applies only to pickup orders.");
+        }
+
+        var previousStatus = Status;
+        Status = MedicationOrderStatus.Confirmed;
+        Touch();
+        RaiseStatusChanged(previousStatus);
+    }
+
+    public void Reject(string reason, DateTime rejectedAtUtc)
+    {
+        EnsurePharmacyCanRespond();
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        EnsureUtc(rejectedAtUtc, nameof(rejectedAtUtc));
+
+        var previousStatus = Status;
+        RejectionReason = reason.Trim();
+        Status = MedicationOrderStatus.Rejected;
+        Touch();
+        RaiseStatusChanged(previousStatus);
+    }
+
+    public void RequestClarification(string message, DateTime requestedAtUtc)
+    {
+        EnsurePharmacyCanRespond();
+        ArgumentException.ThrowIfNullOrWhiteSpace(message);
+        EnsureUtc(requestedAtUtc, nameof(requestedAtUtc));
+
+        var previousStatus = Status;
+        ClarificationMessage = message.Trim();
+        Status = MedicationOrderStatus.ClarificationRequested;
+        Touch();
+        RaiseStatusChanged(previousStatus);
+    }
+
+    public void MarkDispatched(DateTime dispatchedAtUtc)
+    {
+        EnsureUtc(dispatchedAtUtc, nameof(dispatchedAtUtc));
+
+        if (DeliveryType != MedicationDeliveryType.Delivery)
+        {
+            throw new InvalidOperationException("Only delivery orders can be dispatched.");
+        }
+
+        if (Status != MedicationOrderStatus.Confirmed)
+        {
+            throw new MedicationOrderNotActionableException(Id, Status);
+        }
+
+        var previousStatus = Status;
+        Status = MedicationOrderStatus.Dispatched;
+        Touch();
+        RaiseStatusChanged(previousStatus);
+    }
+
+    public void MarkDelivered(DateTime deliveredAtUtc)
+    {
+        EnsureUtc(deliveredAtUtc, nameof(deliveredAtUtc));
+
+        if (DeliveryType != MedicationDeliveryType.Delivery)
+        {
+            throw new InvalidOperationException("Use pickup completion for pickup orders.");
+        }
+
+        if (Status != MedicationOrderStatus.Dispatched)
+        {
+            throw new MedicationOrderNotActionableException(Id, Status);
+        }
+
+        var previousStatus = Status;
+        Status = MedicationOrderStatus.Delivered;
+        Touch();
+        RaiseStatusChanged(previousStatus);
+    }
+
+    public void MarkPickedUp(DateTime pickedUpAtUtc)
+    {
+        EnsureUtc(pickedUpAtUtc, nameof(pickedUpAtUtc));
+
+        if (DeliveryType != MedicationDeliveryType.Pickup)
+        {
+            throw new InvalidOperationException("Pickup completion applies only to pickup orders.");
+        }
+
+        if (Status != MedicationOrderStatus.Confirmed)
+        {
+            throw new MedicationOrderNotActionableException(Id, Status);
+        }
+
+        var previousStatus = Status;
+        Status = MedicationOrderStatus.Delivered;
+        Touch();
+        RaiseStatusChanged(previousStatus);
+    }
+
+    private void EnsurePharmacyCanRespond()
+    {
+        if (Status is not (MedicationOrderStatus.Pending or MedicationOrderStatus.ClarificationRequested))
+        {
+            throw new MedicationOrderNotActionableException(Id, Status);
+        }
+    }
+
+    private void RaiseStatusChanged(MedicationOrderStatus previousStatus)
+    {
+        RaiseDomainEvent(new OrderStatusChangedDomainEvent(
+            Id,
+            PatientId,
+            PharmacyId,
+            MedicationSku,
+            previousStatus,
+            Status,
+            DeliveryType,
+            TrackingUrl,
+            DeliveryAgentName,
+            RejectionReason,
+            ClarificationMessage));
+    }
+
+    private static void EnsureUtc(DateTime timestamp, string parameterName)
+    {
+        if (timestamp == default)
+        {
+            throw new ArgumentException("Timestamp is required.", parameterName);
+        }
+
+        if (timestamp.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Timestamp must be UTC.", parameterName);
+        }
     }
 }

@@ -143,6 +143,21 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.DeliveryAddress,
                     e.OccurredAtUtc),
                 ct),
+            OrderStatusChangedDomainEvent e => mediator.Publish(
+                new OrderStatusChangedNotification(
+                    e.OrderId,
+                    e.PatientId,
+                    e.PharmacyId,
+                    e.MedicationSku,
+                    e.PreviousStatus,
+                    e.NewStatus,
+                    e.DeliveryType,
+                    e.TrackingUrl,
+                    e.DeliveryAgentName,
+                    e.RejectionReason,
+                    e.ClarificationMessage,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

@@ -14,4 +14,8 @@ public sealed record MedicationOrderDto(
     string DeliveryType,
     string? DeliveryAddress,
     string Status,
+    string? DeliveryAgentName,
+    string? TrackingUrl,
+    string? RejectionReason,
+    string? ClarificationMessage,
     DateTime CreatedAtUtc);
