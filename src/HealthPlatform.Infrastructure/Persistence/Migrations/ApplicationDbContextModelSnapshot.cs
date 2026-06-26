@@ -466,73 +466,78 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("pharmacies", (string)null);
                 });
 
-            modelBuilder.Entity("HealthPlatform.Domain.Telemedicine.TelemedicineSession", b =>
+            modelBuilder.Entity("HealthPlatform.Domain.Pharmacy.MedicationOrder", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AppointmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ChannelName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("DurationSeconds")
+                    b.Property<string>("DeliveryAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("DeliveryType")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Dosage")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("DurationDays")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("EndedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("InterruptedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Mode")
+                    b.Property<string>("Frequency")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.Property<bool>("RecordingConsent")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("RecordingEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("RecordingUrl")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)");
-
-                    b.Property<string>("RtcProvider")
+                    b.Property<string>("MedicationName")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
-                    b.Property<string>("SessionSummaryRef")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                    b.Property<string>("MedicationSku")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
-                    b.Property<DateTime?>("StartedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PharmacyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PrescriptionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SpecialInstructions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppointmentId")
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("PharmacyId");
+
+                    b.HasIndex("PrescriptionId")
                         .IsUnique();
 
-                    b.ToTable("telemedicine_sessions", (string)null);
+                    b.ToTable("medication_orders", (string)null);
                 });
 
             modelBuilder.Entity("HealthPlatform.Domain.Prescriptions.Prescription", b =>
@@ -607,6 +612,75 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                     b.HasIndex("PatientId", "Status");
 
                     b.ToTable("prescriptions", (string)null);
+                });
+
+            modelBuilder.Entity("HealthPlatform.Domain.Telemedicine.TelemedicineSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChannelName")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("EndedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("InterruptedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<bool>("RecordingConsent")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RecordingEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RecordingUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("RtcProvider")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("SessionSummaryRef")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.ToTable("telemedicine_sessions", (string)null);
                 });
 
             modelBuilder.Entity("HealthPlatform.Domain.Wellness.MedicationSchedule", b =>

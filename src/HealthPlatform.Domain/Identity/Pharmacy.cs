@@ -142,4 +142,21 @@ public sealed class Pharmacy : Entity
         Touch();
         RaiseDomainEvent(new PharmacyProfileUpdatedDomainEvent(Id));
     }
+
+    public void MarkVerified()
+    {
+        if (VerificationStatus == PharmacyVerificationStatus.Verified)
+        {
+            return;
+        }
+
+        if (VerificationStatus == PharmacyVerificationStatus.Suspended)
+        {
+            throw new InvalidOperationException("Suspended pharmacies cannot be verified.");
+        }
+
+        VerificationStatus = PharmacyVerificationStatus.Verified;
+        Touch();
+        RaiseDomainEvent(new PharmacyProfileUpdatedDomainEvent(Id));
+    }
 }

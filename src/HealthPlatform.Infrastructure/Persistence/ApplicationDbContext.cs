@@ -4,6 +4,7 @@ using HealthPlatform.Domain.Identity;
 using HealthPlatform.Domain.Telemedicine;
 using HealthPlatform.Domain.Prescriptions;
 using HealthPlatform.Domain.Wellness;
+using HealthPlatform.Domain.Pharmacy;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -42,6 +43,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
 
     public DbSet<MedicationSchedule> MedicationSchedules => Set<MedicationSchedule>();
+
+    public DbSet<MedicationOrder> MedicationOrders => Set<MedicationOrder>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
