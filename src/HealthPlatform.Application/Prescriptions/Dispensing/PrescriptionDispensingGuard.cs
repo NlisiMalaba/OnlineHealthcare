@@ -7,7 +7,7 @@ public sealed class PrescriptionDispensingGuard(
     IPrescriptionRepository prescriptionRepository,
     TimeProvider timeProvider) : IPrescriptionDispensingGuard
 {
-    public async Task<PrescriptionDto> DispenseForMedicationOrderAsync(
+    public async Task<Prescription> PrepareDispenseForMedicationOrderAsync(
         Guid prescriptionId,
         Guid patientId,
         CancellationToken ct)
@@ -43,6 +43,15 @@ public sealed class PrescriptionDispensingGuard(
                 "A valid prescription is required to place a medication order.");
         }
 
+        return prescription;
+    }
+
+    public async Task<PrescriptionDto> DispenseForMedicationOrderAsync(
+        Guid prescriptionId,
+        Guid patientId,
+        CancellationToken ct)
+    {
+        var prescription = await PrepareDispenseForMedicationOrderAsync(prescriptionId, patientId, ct);
         await prescriptionRepository.UpdateAsync(prescription, ct);
         return prescription.ToDto();
     }

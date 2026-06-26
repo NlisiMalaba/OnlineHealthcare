@@ -2,6 +2,7 @@ using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Identity.Notifications;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Prescriptions.Notifications;
+using HealthPlatform.Application.PharmacyOrders.Notifications;
 using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Application.Telemedicine.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
@@ -9,6 +10,7 @@ using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
+using HealthPlatform.Domain.Pharmacy.Events;
 using MediatR;
 
 namespace HealthPlatform.Application.Outbox;
@@ -123,6 +125,22 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.ProposedMedicationName,
                     e.InteractingMedicationName,
                     e.InteractionDescription,
+                    e.OccurredAtUtc),
+                ct),
+            MedicationOrderPlacedDomainEvent e => mediator.Publish(
+                new MedicationOrderPlacedNotification(
+                    e.OrderId,
+                    e.PatientId,
+                    e.PharmacyId,
+                    e.PrescriptionId,
+                    e.MedicationSku,
+                    e.MedicationName,
+                    e.Dosage,
+                    e.Frequency,
+                    e.DurationDays,
+                    e.SpecialInstructions,
+                    e.DeliveryType,
+                    e.DeliveryAddress,
                     e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask

@@ -1,6 +1,7 @@
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
 using HealthPlatform.Application.Wellness;
@@ -13,6 +14,7 @@ using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Telemedicine;
+using HealthPlatform.Infrastructure.PharmacyServices;
 using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
@@ -102,6 +104,8 @@ public static class DependencyInjection
         services.AddScoped<ITelemedicineSessionRepository, TelemedicineSessionRepository>();
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
         services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
+        services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
         services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
         services.AddSingleton<IPrescriptionIssuedNotifier, LoggingPrescriptionIssuedNotifier>();
         services.AddSingleton<IPrescriptionCancelledNotifier, LoggingPrescriptionCancelledNotifier>();
@@ -131,10 +135,12 @@ public static class DependencyInjection
             services.AddScoped<DoctorElasticsearchSearcher>();
             services.AddScoped<PharmacyElasticsearchSearcher>();
             services.AddScoped<LabPartnerElasticsearchSearcher>();
+            services.AddScoped<IPharmacyStockAvailabilityService, PharmacyStockAvailabilityService>();
         }
         else
         {
             services.AddSingleton<ISearchService, LoggingSearchService>();
+            services.AddSingleton<IPharmacyStockAvailabilityService, LoggingPharmacyStockAvailabilityService>();
         }
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();

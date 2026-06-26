@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using HealthPlatform.Application.Search;
+using HealthPlatform.Infrastructure.Search.Documents;
 
 namespace HealthPlatform.Infrastructure.Search;
 
@@ -11,6 +12,10 @@ public static class PharmacyElasticsearchSearchSupport
 
     public static PharmacySearchPageDto ParseSearchResponse(string? responseBody, bool hasGeo) =>
         PharmacyElasticsearchSearchResponseParser.Parse(responseBody, hasGeo);
+
+    public static string BuildSimulatedSearchResponse(
+        IReadOnlyList<(PharmacySearchDocument Document, double DistanceKilometers)> hits) =>
+        PharmacyElasticsearchSearchResponseParser.BuildSimulatedResponse(hits);
 }
 
 internal static class PharmacyElasticsearchSearchRequestBuilder
@@ -161,6 +166,37 @@ internal static class PharmacyElasticsearchSearchResponseParser
         }
 
         return new PharmacySearchPageDto(results, totalCount);
+    }
+
+    public static string BuildSimulatedResponse(
+        IReadOnlyList<(PharmacySearchDocument Document, double DistanceKilometers)> hits)
+    {
+        var hitArray = new JsonArray();
+        foreach (var (document, distanceKilometers) in hits)
+        {
+            hitArray.Add(new JsonObject
+            {
+                ["_source"] = new JsonObject
+                {
+                    ["pharmacyId"] = document.PharmacyId,
+                    ["name"] = document.Name,
+                    ["address"] = document.Address,
+                    ["hasStock"] = document.HasStock
+                },
+                ["sort"] = new JsonArray { distanceKilometers }
+            });
+        }
+
+        var root = new JsonObject
+        {
+            ["hits"] = new JsonObject
+            {
+                ["total"] = new JsonObject { ["value"] = hits.Count },
+                ["hits"] = hitArray
+            }
+        };
+
+        return root.ToJsonString();
     }
 
     private static long ReadTotalCount(JsonElement root)

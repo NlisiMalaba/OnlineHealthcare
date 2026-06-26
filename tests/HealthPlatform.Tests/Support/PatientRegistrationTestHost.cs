@@ -5,6 +5,8 @@ using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.PharmacyOrders;
+using HealthPlatform.Application.PharmacyOrders.Realtime;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
 using HealthPlatform.Application.Wellness;
@@ -64,6 +66,18 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingTelemedicineRealtimeNotifier _telemedicineRealtimeNotifier = new();
 
     public CapturingTelemedicineRealtimeNotifier TelemedicineRealtimeNotifier => _telemedicineRealtimeNotifier;
+
+    private readonly CapturingPharmacyOrderRealtimeNotifier _pharmacyOrderRealtimeNotifier = new();
+
+    public CapturingPharmacyOrderRealtimeNotifier PharmacyOrderRealtimeNotifier => _pharmacyOrderRealtimeNotifier;
+
+    private readonly CapturingPharmacyOrderReceivedNotifier _pharmacyOrderReceivedNotifier = new();
+
+    public CapturingPharmacyOrderReceivedNotifier PharmacyOrderReceivedNotifier => _pharmacyOrderReceivedNotifier;
+
+    private readonly FakePharmacyStockAvailabilityService _pharmacyStockAvailability = new();
+
+    public FakePharmacyStockAvailabilityService PharmacyStockAvailability => _pharmacyStockAvailability;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -177,6 +191,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
         services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
+        services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
+        services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
+        services.AddSingleton<IPharmacyOrderReceivedNotifier>(_pharmacyOrderReceivedNotifier);
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IPharmacyRegistrationWorkflow, PharmacyRegistrationWorkflow>();
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
