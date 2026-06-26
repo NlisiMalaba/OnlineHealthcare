@@ -180,7 +180,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 11.2 Write property test for pharmacy stock filter (Property 13)
     - **Property 13: Pharmacy Stock Filter**
     - **Validates: Requirements 7.1**
-  - [ ] 11.3 Implement pharmacy order workflow: confirm / reject / request-clarification actions; on confirmation assign delivery agent and generate tracking link; support pickup alternative
+  - [x] 11.3 Implement pharmacy order workflow: confirm / reject / request-clarification actions; on confirmation assign delivery agent and generate tracking link; support pickup alternative
     - Publish `OrderStatusChanged` domain event on each status transition; notify patient
     - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.9_
   - [ ] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; trigger Elasticsearch index update on stock change

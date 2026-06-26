@@ -9,4 +9,8 @@ public interface IMedicationOrderRepository
         MedicationOrder order,
         Prescription prescription,
         CancellationToken ct);
+
+    Task<MedicationOrder?> GetByIdForPharmacyAsync(Guid orderId, Guid pharmacyId, CancellationToken ct);
+
+    Task UpdateAsync(MedicationOrder order, CancellationToken ct);
 }

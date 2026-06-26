@@ -19,5 +19,9 @@ internal static class MedicationOrderMappings
             order.DeliveryType.ToString().ToLowerInvariant(),
             order.DeliveryAddress,
             order.Status.ToString().ToLowerInvariant(),
+            order.DeliveryAgentName,
+            order.TrackingUrl,
+            order.RejectionReason,
+            order.ClarificationMessage,
             order.CreatedAtUtc);
 }

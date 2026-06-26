@@ -44,6 +44,18 @@ public sealed class MedicationOrderConfiguration : IEntityTypeConfiguration<Medi
             .HasMaxLength(32)
             .IsRequired();
 
+        builder.Property(o => o.DeliveryAgentName)
+            .HasMaxLength(200);
+
+        builder.Property(o => o.TrackingUrl)
+            .HasMaxLength(500);
+
+        builder.Property(o => o.RejectionReason)
+            .HasMaxLength(500);
+
+        builder.Property(o => o.ClarificationMessage)
+            .HasMaxLength(1000);
+
         builder.HasIndex(o => o.PatientId);
         builder.HasIndex(o => o.PharmacyId);
         builder.HasIndex(o => o.PrescriptionId).IsUnique();
