@@ -46,6 +46,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<MedicationOrder> MedicationOrders => Set<MedicationOrder>();
 
+    public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

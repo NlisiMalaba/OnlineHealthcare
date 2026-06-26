@@ -183,7 +183,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 11.3 Implement pharmacy order workflow: confirm / reject / request-clarification actions; on confirmation assign delivery agent and generate tracking link; support pickup alternative
     - Publish `OrderStatusChanged` domain event on each status transition; notify patient
     - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.9_
-  - [ ] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; trigger Elasticsearch index update on stock change
+  - [x] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; trigger Elasticsearch index update on stock change
     - _Requirements: 7.8_
   - [ ] 11.5 Implement low-stock alert: when inventory item quantity falls at or below pharmacy-configured threshold, emit low-stock notification event to pharmacy
     - _Requirements: 13.6_
