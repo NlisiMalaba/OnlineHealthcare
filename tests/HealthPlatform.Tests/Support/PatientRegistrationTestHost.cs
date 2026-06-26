@@ -6,6 +6,7 @@ using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.PharmacyOrders;
+using HealthPlatform.Application.PharmacyOrders.Inventory;
 using HealthPlatform.Application.PharmacyOrders.Realtime;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
@@ -196,6 +197,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
         services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
         services.AddSingleton<IPharmacyOrderReceivedNotifier>(_pharmacyOrderReceivedNotifier);
