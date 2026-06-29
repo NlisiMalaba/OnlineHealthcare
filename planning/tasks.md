@@ -190,9 +190,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 11.6 Write property test for low stock alert threshold (Property 25)
     - **Property 25: Low Stock Alert Threshold**
     - **Validates: Requirements 13.6**
-  - [ ] 11.7 Implement pharmacy dashboard data endpoints: incoming orders, order statuses, inventory levels, daily summary report
+  - [x] 11.7 Implement pharmacy dashboard data endpoints: incoming orders, order statuses, inventory levels, daily summary report
     - _Requirements: 13.1, 13.2, 13.3, 13.7_
-  - [ ]* 11.8 Write unit tests for order rejection with alternative pharmacy suggestion, pickup flow, and stock sync
+  - [x]* 11.8 Write unit tests for order rejection with alternative pharmacy suggestion, pickup flow, and stock sync
     - _Requirements: 7.9, 7.6_
 
 - [ ] 12. Payments & Credit Module
