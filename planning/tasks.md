@@ -200,7 +200,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 12.1 Implement `IPaymentGateway` interface and concrete implementations for Stripe, Flutterwave, Paystack, and M-Pesa
     - Implement webhook endpoints per gateway with idempotency key validation
     - _Requirements: 8.1_
-  - [ ] 12.2 Implement insurance claim submission: transmit claim data to insurer REST API; display claim status to patient; poll or receive status via webhook
+  - [x] 12.2 Implement insurance claim submission: transmit claim data to insurer REST API; display claim status to patient; poll or receive status via webhook
     - _Requirements: 8.2, 8.3_
   - [ ] 12.3 Implement credit line payment: validate against patient's credit limit; record outstanding balance; send repayment reminders; emit balance warning when balance exceeds 80% of limit
     - _Requirements: 8.4, 8.7, 8.8_

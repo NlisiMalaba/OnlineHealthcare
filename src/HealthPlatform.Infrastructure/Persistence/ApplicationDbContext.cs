@@ -1,6 +1,7 @@
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Domain.Identity;
+using HealthPlatform.Domain.Insurance;
 using HealthPlatform.Domain.Telemedicine;
 using HealthPlatform.Domain.Prescriptions;
 using HealthPlatform.Domain.Wellness;
@@ -47,6 +48,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<MedicationOrder> MedicationOrders => Set<MedicationOrder>();
 
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
+
+    public DbSet<InsuranceClaim> InsuranceClaims => Set<InsuranceClaim>();
+
+    public DbSet<PatientInsurancePolicy> PatientInsurancePolicies => Set<PatientInsurancePolicy>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

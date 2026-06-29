@@ -209,6 +209,11 @@ app.Lifetime.ApplicationStarted.Register(() =>
             "scheduled-reminders",
             job => job.Run(),
             Cron.MinuteInterval(15));
+
+        RecurringJob.AddOrUpdate<InsuranceClaimStatusPollingJob>(
+            "insurance-claim-status-polling",
+            job => job.Run(),
+            Cron.MinuteInterval(15));
     }
     catch (Exception ex)
     {
