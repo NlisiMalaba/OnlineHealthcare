@@ -174,7 +174,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 10.8 Write unit tests for expiry edge cases, cancellation, and interaction check with empty schedule
     - _Requirements: 6.6, 6.7, 6.8, 9.8_
 
-- [ ] 11. Pharmacy & Inventory Module
+- [x] 11. Pharmacy & Inventory Module
   - [x] 11.1 Implement medication order creation: filter pharmacies by stock availability; sync prescription data to selected pharmacy in real time; notify pharmacy with prescription details and delivery address
     - _Requirements: 7.1, 7.2, 7.3_
   - [x]* 11.2 Write property test for pharmacy stock filter (Property 13)
@@ -197,7 +197,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 
 - [ ] 12. Payments & Credit Module
   - _MVP: ship **one** gateway first (see `mvp.md`); add others after pilot._
-  - [ ] 12.1 Implement `IPaymentGateway` interface and concrete implementations for Stripe, Flutterwave, Paystack, and M-Pesa
+  - [x] 12.1 Implement `IPaymentGateway` interface and concrete implementations for Stripe, Flutterwave, Paystack, and M-Pesa
     - Implement webhook endpoints per gateway with idempotency key validation
     - _Requirements: 8.1_
   - [ ] 12.2 Implement insurance claim submission: transmit claim data to insurer REST API; display claim status to patient; poll or receive status via webhook

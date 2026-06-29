@@ -23,6 +23,7 @@ using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
+using HealthPlatform.Infrastructure.Payments;
 using HealthPlatform.Infrastructure.Persistence;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Search;
@@ -44,6 +45,7 @@ public static class DependencyInjection
         services.Configure<Aes256AtRestEncryptionOptions>(
             configuration.GetSection(Aes256AtRestEncryptionOptions.SectionName));
         services.AddSingleton<IAtRestEncryption, Aes256AtRestEncryption>();
+        services.AddPaymentGateways(configuration);
         services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
         services.AddHealthPlatformMongoDb(configuration);
         services.AddScoped<IOutboxRepository, OutboxRepository>();
