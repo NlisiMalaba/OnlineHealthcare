@@ -16,6 +16,7 @@ using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Application.Identity.UpdateDoctorProfile;
 using HealthPlatform.Application.Outbox;
+using HealthPlatform.Application.Payments;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
@@ -29,6 +30,7 @@ using HealthPlatform.Infrastructure.Persistence;
 using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.Realtime;
+using HealthPlatform.Infrastructure.Payments;
 using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
@@ -229,6 +231,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
+        RegisterPaymentGateways(services);
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();
@@ -271,6 +274,23 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
             }
         }
+    }
+
+    private static void RegisterPaymentGateways(IServiceCollection services)
+    {
+        services.AddSingleton<IHttpClientFactory>(_ => new TestHttpClientFactory());
+        services.Configure<PaymentGatewaysOptions>(_ => { });
+        services.AddSingleton<IPaymentGateway, StripePaymentGateway>();
+        services.AddSingleton<IPaymentGateway, FlutterwavePaymentGateway>();
+        services.AddSingleton<IPaymentGateway, PaystackPaymentGateway>();
+        services.AddSingleton<IPaymentGateway, MpesaPaymentGateway>();
+        services.AddSingleton<IPaymentGatewayResolver, PaymentGatewayResolver>();
+        services.AddSingleton<IPaymentWebhookIdempotencyStore, InMemoryPaymentWebhookIdempotencyStore>();
+    }
+
+    private sealed class TestHttpClientFactory : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name) => new();
     }
 
     private sealed class TestHostEnvironment : IHostEnvironment

@@ -15,13 +15,19 @@ public interface IPaymentGateway
     Task<PaymentCaptureResultDto> CapturePaymentAsync(
         CapturePaymentRequestDto request,
         CancellationToken ct);
+
+    Task<PaymentWebhookParseResultDto> ParseWebhookAsync(
+        PaymentWebhookParseRequestDto request,
+        CancellationToken ct);
 }
 
 public sealed record CreatePaymentIntentRequestDto(
     string Currency,
     long AmountMinorUnits,
     string? CustomerReference,
-    string? Description);
+    string? Description,
+    string? IdempotencyKey,
+    IReadOnlyDictionary<string, string>? Metadata);
 
 public sealed record PaymentIntentResultDto(
     bool Succeeded,
