@@ -149,10 +149,10 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 8.7 Write unit tests for reconnect timeout, session summary attachment, and mode switching
     - _Requirements: 5.2, 5.5, 5.6_
 
-- [ ] 9. Checkpoint — Appointment and Telemedicine flows complete
+- [x] 9. Checkpoint — Appointment and Telemedicine flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Prescriptions Module
+- [x] 10. Prescriptions Module
   - [x] 10.1 Implement prescription creation endpoint: record medication name, dosage, frequency, duration, special instructions; link to doctor and patient health record; default expiry to issued_at + 30 days if not specified
     - Publish `PrescriptionIssued` domain event; notify patient
     - _Requirements: 6.1, 6.2, 6.3, 6.6_
@@ -175,24 +175,24 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 6.6, 6.7, 6.8, 9.8_
 
 - [ ] 11. Pharmacy & Inventory Module
-  - [ ] 11.1 Implement medication order creation: filter pharmacies by stock availability; sync prescription data to selected pharmacy in real time; notify pharmacy with prescription details and delivery address
+  - [x] 11.1 Implement medication order creation: filter pharmacies by stock availability; sync prescription data to selected pharmacy in real time; notify pharmacy with prescription details and delivery address
     - _Requirements: 7.1, 7.2, 7.3_
-  - [ ]* 11.2 Write property test for pharmacy stock filter (Property 13)
+  - [x]* 11.2 Write property test for pharmacy stock filter (Property 13)
     - **Property 13: Pharmacy Stock Filter**
     - **Validates: Requirements 7.1**
-  - [ ] 11.3 Implement pharmacy order workflow: confirm / reject / request-clarification actions; on confirmation assign delivery agent and generate tracking link; support pickup alternative
+  - [x] 11.3 Implement pharmacy order workflow: confirm / reject / request-clarification actions; on confirmation assign delivery agent and generate tracking link; support pickup alternative
     - Publish `OrderStatusChanged` domain event on each status transition; notify patient
     - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.9_
-  - [ ] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; trigger Elasticsearch index update on stock change
+  - [x] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; trigger Elasticsearch index update on stock change
     - _Requirements: 7.8_
-  - [ ] 11.5 Implement low-stock alert: when inventory item quantity falls at or below pharmacy-configured threshold, emit low-stock notification event to pharmacy
+  - [x] 11.5 Implement low-stock alert: when inventory item quantity falls at or below pharmacy-configured threshold, emit low-stock notification event to pharmacy
     - _Requirements: 13.6_
-  - [ ]* 11.6 Write property test for low stock alert threshold (Property 25)
+  - [x]* 11.6 Write property test for low stock alert threshold (Property 25)
     - **Property 25: Low Stock Alert Threshold**
     - **Validates: Requirements 13.6**
-  - [ ] 11.7 Implement pharmacy dashboard data endpoints: incoming orders, order statuses, inventory levels, daily summary report
+  - [x] 11.7 Implement pharmacy dashboard data endpoints: incoming orders, order statuses, inventory levels, daily summary report
     - _Requirements: 13.1, 13.2, 13.3, 13.7_
-  - [ ]* 11.8 Write unit tests for order rejection with alternative pharmacy suggestion, pickup flow, and stock sync
+  - [x]* 11.8 Write unit tests for order rejection with alternative pharmacy suggestion, pickup flow, and stock sync
     - _Requirements: 7.9, 7.6_
 
 - [ ] 12. Payments & Credit Module

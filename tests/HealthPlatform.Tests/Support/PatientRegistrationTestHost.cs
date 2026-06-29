@@ -5,6 +5,10 @@ using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.PharmacyOrders;
+using HealthPlatform.Application.PharmacyOrders.Dashboard;
+using HealthPlatform.Application.PharmacyOrders.Inventory;
+using HealthPlatform.Application.PharmacyOrders.Realtime;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
 using HealthPlatform.Application.Wellness;
@@ -64,6 +68,26 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingTelemedicineRealtimeNotifier _telemedicineRealtimeNotifier = new();
 
     public CapturingTelemedicineRealtimeNotifier TelemedicineRealtimeNotifier => _telemedicineRealtimeNotifier;
+
+    private readonly CapturingPharmacyOrderRealtimeNotifier _pharmacyOrderRealtimeNotifier = new();
+
+    public CapturingPharmacyOrderRealtimeNotifier PharmacyOrderRealtimeNotifier => _pharmacyOrderRealtimeNotifier;
+
+    private readonly CapturingPharmacyOrderReceivedNotifier _pharmacyOrderReceivedNotifier = new();
+
+    public CapturingPharmacyOrderReceivedNotifier PharmacyOrderReceivedNotifier => _pharmacyOrderReceivedNotifier;
+
+    private readonly FakePharmacyStockAvailabilityService _pharmacyStockAvailability = new();
+
+    public FakePharmacyStockAvailabilityService PharmacyStockAvailability => _pharmacyStockAvailability;
+
+    private readonly CapturingMedicationOrderPatientNotifier _medicationOrderPatientNotifier = new();
+
+    public CapturingMedicationOrderPatientNotifier MedicationOrderPatientNotifier => _medicationOrderPatientNotifier;
+
+    private readonly CapturingLowStockAlertNotifier _lowStockAlertNotifier = new();
+
+    public CapturingLowStockAlertNotifier LowStockAlertNotifier => _lowStockAlertNotifier;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -177,6 +201,16 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
         services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
+        services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+        services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
+        services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
+        services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
+        services.AddSingleton<IPharmacyOrderReceivedNotifier>(_pharmacyOrderReceivedNotifier);
+        services.AddSingleton<IMedicationOrderPatientNotifier>(_medicationOrderPatientNotifier);
+        services.AddSingleton<ILowStockAlertNotifier>(_lowStockAlertNotifier);
+        services.Configure<HealthPlatform.Infrastructure.PharmacyServices.DeliveryAgentAssignmentOptions>(_ => { });
+        services.AddSingleton<IDeliveryAgentAssignmentService, HealthPlatform.Infrastructure.PharmacyServices.ConfigurableDeliveryAgentAssignmentService>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IPharmacyRegistrationWorkflow, PharmacyRegistrationWorkflow>();
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();

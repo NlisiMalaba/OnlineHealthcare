@@ -4,6 +4,8 @@ namespace HealthPlatform.Tests.Support;
 
 public sealed class CapturingSearchService : ISearchService
 {
+    private IReadOnlyList<PharmacySearchMatchDto> _pharmacySearchResults = [];
+
     public List<Guid> DoctorUpserts { get; } = [];
 
     public List<Guid> DoctorRemovals { get; } = [];
@@ -15,6 +17,9 @@ public sealed class CapturingSearchService : ISearchService
     public PharmacySearchCriteria? LastPharmacySearchCriteria { get; private set; }
 
     public LabPartnerSearchCriteria? LastLabPartnerSearchCriteria { get; private set; }
+
+    public void SeedPharmacySearchResults(IReadOnlyList<PharmacySearchMatchDto> results) =>
+        _pharmacySearchResults = results;
 
     public Task UpsertDoctorAsync(Guid doctorId, CancellationToken ct)
     {
@@ -57,7 +62,20 @@ public sealed class CapturingSearchService : ISearchService
     {
         ct.ThrowIfCancellationRequested();
         LastPharmacySearchCriteria = criteria;
-        return Task.FromResult(new PharmacySearchPageDto([], 0));
+
+        var matches = _pharmacySearchResults.AsEnumerable();
+        if (criteria.HasStock == true)
+        {
+            matches = matches.Where(match => match.HasStock);
+        }
+
+        var results = matches.ToList();
+        var pageResults = results
+            .Skip((criteria.Page - 1) * criteria.PageSize)
+            .Take(criteria.PageSize)
+            .ToList();
+
+        return Task.FromResult(new PharmacySearchPageDto(pageResults, results.Count));
     }
 
     public Task<LabPartnerSearchPageDto> SearchLabPartnersAsync(LabPartnerSearchCriteria criteria, CancellationToken ct)
