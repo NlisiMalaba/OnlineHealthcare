@@ -2,6 +2,7 @@ using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.PharmacyOrders;
+using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
@@ -107,6 +108,7 @@ public static class DependencyInjection
         services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+        services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
         services.AddSingleton<ILowStockAlertNotifier, LoggingLowStockAlertNotifier>();
         services.AddSingleton<IMedicationOrderPatientNotifier, LoggingMedicationOrderPatientNotifier>();
