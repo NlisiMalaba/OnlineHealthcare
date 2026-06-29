@@ -5,6 +5,7 @@ using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
+using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using HealthPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -104,6 +105,10 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<OrderStatusChangedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Pharmacy.Events.InventoryLowStockDetectedDomainEvent" =>
                 JsonSerializer.Deserialize<InventoryLowStockDetectedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Insurance.Events.InsuranceClaimSubmittedDomainEvent" =>
+                JsonSerializer.Deserialize<InsuranceClaimSubmittedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Insurance.Events.InsuranceClaimStatusChangedDomainEvent" =>
+                JsonSerializer.Deserialize<InsuranceClaimStatusChangedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }

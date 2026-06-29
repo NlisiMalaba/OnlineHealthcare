@@ -21,6 +21,7 @@ using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.MongoDb;
+using HealthPlatform.Infrastructure.Insurance;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Payments;
@@ -46,6 +47,7 @@ public static class DependencyInjection
             configuration.GetSection(Aes256AtRestEncryptionOptions.SectionName));
         services.AddSingleton<IAtRestEncryption, Aes256AtRestEncryption>();
         services.AddPaymentGateways(configuration);
+        services.AddInsuranceServices(configuration);
         services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
         services.AddHealthPlatformMongoDb(configuration);
         services.AddScoped<IOutboxRepository, OutboxRepository>();
@@ -182,6 +184,7 @@ public static class DependencyInjection
 
         services.AddTransient<OutboxProcessorJob>();
         services.AddTransient<ScheduledRemindersJob>();
+        services.AddTransient<InsuranceClaimStatusPollingJob>();
         return services;
     }
 

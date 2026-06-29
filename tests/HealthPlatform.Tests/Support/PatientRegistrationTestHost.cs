@@ -17,6 +17,7 @@ using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Application.Identity.UpdateDoctorProfile;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Payments;
+using HealthPlatform.Application.Insurance;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
@@ -30,6 +31,7 @@ using HealthPlatform.Infrastructure.Persistence;
 using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.Realtime;
+using HealthPlatform.Infrastructure.Insurance;
 using HealthPlatform.Infrastructure.Payments;
 using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.MongoDb;
@@ -232,6 +234,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
         RegisterPaymentGateways(services);
+        RegisterInsuranceServices(services);
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();
@@ -274,6 +277,31 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
             }
         }
+    }
+
+    private static void RegisterInsuranceServices(IServiceCollection services)
+    {
+        services.AddSingleton<IHttpClientFactory>(_ => new TestHttpClientFactory());
+        services.Configure<InsurerApiOptions>(_ =>
+        {
+            _.Endpoints =
+            [
+                new InsurerEndpointOptions { Code = "demo-insurer", Enabled = false }
+            ];
+        });
+        services.AddSingleton<IInsurerApiClientResolver, InsurerApiClientResolver>();
+        services.AddScoped<IInsuranceClaimRepository, HealthPlatform.Infrastructure.Persistence.Repositories.InsuranceClaimRepository>();
+        services.AddScoped<IPatientInsurancePolicyRepository, HealthPlatform.Infrastructure.Persistence.Repositories.PatientInsurancePolicyRepository>();
+        services.AddScoped<IInsuranceClaimStatusPoller, InsuranceClaimStatusPoller>();
+        services.AddSingleton<IInsuranceClaimWebhookIdempotencyStore, InMemoryInsuranceClaimWebhookIdempotencyStore>();
+        services.AddSingleton<IInsurerApiClient>(sp =>
+        {
+            var endpoint = new InsurerEndpointOptions { Code = "demo-insurer", Enabled = false };
+            return new RestInsurerApiClient(
+                endpoint,
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RestInsurerApiClient>>());
+        });
     }
 
     private static void RegisterPaymentGateways(IServiceCollection services)

@@ -8,6 +8,7 @@ using HealthPlatform.Application.Telemedicine.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
+using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
