@@ -158,6 +158,16 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.ClarificationMessage,
                     e.OccurredAtUtc),
                 ct),
+            InventoryLowStockDetectedDomainEvent e => mediator.Publish(
+                new InventoryLowStockDetectedNotification(
+                    e.InventoryItemId,
+                    e.PharmacyId,
+                    e.MedicationSku,
+                    e.MedicationName,
+                    e.Quantity,
+                    e.LowStockThreshold,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

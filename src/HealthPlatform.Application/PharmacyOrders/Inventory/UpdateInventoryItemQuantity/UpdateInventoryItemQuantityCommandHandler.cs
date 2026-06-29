@@ -26,8 +26,16 @@ public sealed class UpdateInventoryItemQuantityCommandHandler(
                 InventoryErrorCodes.ItemNotFound,
                 "Inventory item was not found.");
 
+        var previousQuantity = item.Quantity;
         item.UpdateQuantity(request.Quantity);
         await inventoryItemRepository.UpdateAsync(item, ct);
+
+        await InventoryLowStockAlertPublisher.PublishIfNeededAsync(
+            item,
+            previousQuantity,
+            outboxRepository,
+            domainEventPublisher,
+            ct);
 
         var allItems = await inventoryItemRepository.ListByPharmacyIdAsync(pharmacy.Id, ct);
         await InventoryStockChangePublisher.PublishStockSummaryAsync(
