@@ -78,6 +78,88 @@ public sealed class InventoryManagementCommandHandlerTests : IAsyncLifetime
         Assert.Equal(0, _host.SearchService.PharmacyStockUpdates[^1].Stock.Single(s => s.MedicationSku == "MED-003").QuantityOnHand);
     }
 
+    [Fact]
+    public async Task UpdateInventoryItemQuantity_when_crossing_low_stock_threshold_notifies_pharmacy()
+    {
+        var pharmacy = await SeedVerifiedPharmacyAsync();
+        _host.CurrentUser.UserId = pharmacy.UserId;
+
+        var item = await _host.Sender.Send(
+            new AddInventoryItemCommand("Metformin", "MED-004", 25, 10),
+            CancellationToken.None);
+
+        await _host.Sender.Send(
+            new UpdateInventoryItemQuantityCommand(item.Id, 10),
+            CancellationToken.None);
+
+        Assert.Single(_host.LowStockAlertNotifier.Notifications);
+        var alert = _host.LowStockAlertNotifier.Notifications[0];
+        Assert.Equal(pharmacy.UserId, alert.PharmacyUserId);
+        Assert.Equal(item.Id, alert.InventoryItemId);
+        Assert.Equal("MED-004", alert.MedicationSku);
+        Assert.Equal(10, alert.Quantity);
+        Assert.Equal(10, alert.LowStockThreshold);
+    }
+
+    [Fact]
+    public async Task UpdateInventoryItemQuantity_when_remaining_above_threshold_does_not_notify_pharmacy()
+    {
+        var pharmacy = await SeedVerifiedPharmacyAsync();
+        _host.CurrentUser.UserId = pharmacy.UserId;
+
+        var item = await _host.Sender.Send(
+            new AddInventoryItemCommand("Aspirin", "MED-005", 25, 10),
+            CancellationToken.None);
+
+        await _host.Sender.Send(
+            new UpdateInventoryItemQuantityCommand(item.Id, 11),
+            CancellationToken.None);
+
+        Assert.Empty(_host.LowStockAlertNotifier.Notifications);
+    }
+
+    [Fact]
+    public async Task UpdateInventoryItemQuantity_when_already_below_threshold_does_not_notify_again()
+    {
+        var pharmacy = await SeedVerifiedPharmacyAsync();
+        _host.CurrentUser.UserId = pharmacy.UserId;
+
+        var item = await _host.Sender.Send(
+            new AddInventoryItemCommand("Vitamin C", "MED-006", 25, 10),
+            CancellationToken.None);
+
+        await _host.Sender.Send(
+            new UpdateInventoryItemQuantityCommand(item.Id, 8),
+            CancellationToken.None);
+
+        await _host.Sender.Send(
+            new UpdateInventoryItemQuantityCommand(item.Id, 5),
+            CancellationToken.None);
+
+        Assert.Single(_host.LowStockAlertNotifier.Notifications);
+    }
+
+    [Fact]
+    public async Task MarkInventoryItemOutOfStock_when_above_threshold_notifies_pharmacy()
+    {
+        var pharmacy = await SeedVerifiedPharmacyAsync();
+        _host.CurrentUser.UserId = pharmacy.UserId;
+
+        var item = await _host.Sender.Send(
+            new AddInventoryItemCommand("Cetirizine", "MED-007", 12, 10),
+            CancellationToken.None);
+
+        await _host.Sender.Send(
+            new MarkInventoryItemOutOfStockCommand(item.Id),
+            CancellationToken.None);
+
+        Assert.Single(_host.LowStockAlertNotifier.Notifications);
+        var alert = _host.LowStockAlertNotifier.Notifications[0];
+        Assert.Equal(pharmacy.UserId, alert.PharmacyUserId);
+        Assert.Equal(0, alert.Quantity);
+        Assert.Equal(10, alert.LowStockThreshold);
+    }
+
     private async Task<Pharmacy> SeedVerifiedPharmacyAsync()
     {
         var registration = await _host.Sender.Send(

@@ -108,6 +108,7 @@ public static class DependencyInjection
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
+        services.AddSingleton<ILowStockAlertNotifier, LoggingLowStockAlertNotifier>();
         services.AddSingleton<IMedicationOrderPatientNotifier, LoggingMedicationOrderPatientNotifier>();
         services.Configure<DeliveryAgentAssignmentOptions>(
             configuration.GetSection(DeliveryAgentAssignmentOptions.SectionName));

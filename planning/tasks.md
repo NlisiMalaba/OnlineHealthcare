@@ -185,9 +185,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.9_
   - [x] 11.4 Implement real-time inventory management: add stock, update quantities, mark out-of-stock; trigger Elasticsearch index update on stock change
     - _Requirements: 7.8_
-  - [ ] 11.5 Implement low-stock alert: when inventory item quantity falls at or below pharmacy-configured threshold, emit low-stock notification event to pharmacy
+  - [x] 11.5 Implement low-stock alert: when inventory item quantity falls at or below pharmacy-configured threshold, emit low-stock notification event to pharmacy
     - _Requirements: 13.6_
-  - [ ]* 11.6 Write property test for low stock alert threshold (Property 25)
+  - [x]* 11.6 Write property test for low stock alert threshold (Property 25)
     - **Property 25: Low Stock Alert Threshold**
     - **Validates: Requirements 13.6**
   - [ ] 11.7 Implement pharmacy dashboard data endpoints: incoming orders, order statuses, inventory levels, daily summary report
