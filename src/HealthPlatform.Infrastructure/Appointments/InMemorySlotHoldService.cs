@@ -38,6 +38,14 @@ public sealed class InMemorySlotHoldService(TimeProvider timeProvider) : ISlotHo
         return Task.CompletedTask;
     }
 
+    public Task ExtendHoldAsync(Guid slotId, TimeSpan ttl, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var key = $"slot:{slotId}:hold";
+        _holds[key] = timeProvider.GetUtcNow().UtcDateTime.Add(ttl);
+        return Task.CompletedTask;
+    }
+
     public Task<bool> IsSlotHeldAsync(Guid slotId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();

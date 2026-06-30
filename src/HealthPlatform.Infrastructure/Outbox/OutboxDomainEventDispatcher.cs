@@ -7,6 +7,7 @@ using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
 using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Payments.CreditLine.Events;
+using HealthPlatform.Domain.Payments.Events;
 using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using HealthPlatform.Infrastructure.Persistence;
@@ -77,6 +78,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<DoctorProfileUpdatedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Appointments.Events.PaymentCompletedDomainEvent" =>
                 JsonSerializer.Deserialize<PaymentCompletedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Payments.Events.PaymentFailedDomainEvent" =>
+                JsonSerializer.Deserialize<PaymentFailedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Appointments.Events.AppointmentConfirmedDomainEvent" =>
                 JsonSerializer.Deserialize<AppointmentConfirmedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Appointments.Events.AppointmentCancelledDomainEvent" =>

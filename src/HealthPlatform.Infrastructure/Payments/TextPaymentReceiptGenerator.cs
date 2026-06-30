@@ -14,7 +14,7 @@ public sealed class TextPaymentReceiptGenerator : IPaymentReceiptGenerator
         builder.AppendLine(new string('-', 40));
         builder.AppendLine(CultureInfo.InvariantCulture, $"Receipt ID: {payment.Id}");
         builder.AppendLine(CultureInfo.InvariantCulture, $"Patient ID: {payment.PatientId}");
-        builder.AppendLine(CultureInfo.InvariantCulture, $"Completed: {payment.CompletedAtUtc:O}");
+        builder.AppendLine(CultureInfo.InvariantCulture, $"Completed: {(payment.CompletedAtUtc ?? payment.FailedAtUtc ?? payment.CreatedAtUtc):O}");
         builder.AppendLine(CultureInfo.InvariantCulture, $"Amount: {payment.AmountMinorUnits} {payment.Currency}");
         builder.AppendLine(CultureInfo.InvariantCulture, $"Method: {payment.PaymentMethod}");
         builder.AppendLine(CultureInfo.InvariantCulture, $"Gateway: {payment.Gateway}");

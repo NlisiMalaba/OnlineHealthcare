@@ -22,6 +22,12 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(payment => payment.ReceiptStorageKey)
             .HasMaxLength(512);
 
+        builder.Property(payment => payment.FailureCode)
+            .HasMaxLength(64);
+
+        builder.Property(payment => payment.FailureMessage)
+            .HasMaxLength(500);
+
         builder.Property(payment => payment.PaymentMethod)
             .HasConversion<string>()
             .HasMaxLength(32)

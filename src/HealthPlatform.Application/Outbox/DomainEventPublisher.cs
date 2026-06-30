@@ -4,6 +4,7 @@ using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Prescriptions.Notifications;
 using HealthPlatform.Application.Payments.CreditLine.Notifications;
 using HealthPlatform.Application.Payments.Instalments.Notifications;
+using HealthPlatform.Application.Payments.Notifications;
 using HealthPlatform.Application.PharmacyOrders.Notifications;
 using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Application.Telemedicine.Notifications;
@@ -14,6 +15,7 @@ using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
 using HealthPlatform.Domain.Payments.CreditLine.Events;
+using HealthPlatform.Domain.Payments.Events;
 using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using MediatR;
@@ -58,6 +60,18 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                 ct),
             PaymentCompletedDomainEvent e => mediator.Publish(
                 new PaymentCompletedNotification(e.AppointmentId, e.PaymentId, e.OccurredAtUtc),
+                ct),
+            PaymentFailedDomainEvent e => mediator.Publish(
+                new PaymentFailedNotification(
+                    e.PaymentId,
+                    e.PatientId,
+                    e.AppointmentId,
+                    e.MedicationOrderId,
+                    e.LabOrderId,
+                    e.FailureCode,
+                    e.FailureMessage,
+                    e.RetentionExpiresAtUtc,
+                    e.OccurredAtUtc),
                 ct),
             AppointmentConfirmedDomainEvent e => mediator.Publish(
                 new AppointmentConfirmedNotification(

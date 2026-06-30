@@ -111,6 +111,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingInstalmentMissedPaymentNotifier InstalmentMissedPaymentNotifier => _instalmentMissedPaymentNotifier;
 
+    private readonly CapturingPaymentFailedNotifier _paymentFailedNotifier = new();
+
+    public CapturingPaymentFailedNotifier PaymentFailedNotifier => _paymentFailedNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -255,7 +259,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         RegisterInsuranceServices(services);
         RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);
         RegisterInstalmentServices(services, _instalmentDueReminderNotifier, _instalmentMissedPaymentNotifier);
-        RegisterPaymentCompletionServices(services);
+        RegisterPaymentCompletionServices(services, _paymentFailedNotifier);
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();
@@ -300,11 +304,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         }
     }
 
-    private static void RegisterPaymentCompletionServices(IServiceCollection services)
+    private static void RegisterPaymentCompletionServices(
+        IServiceCollection services,
+        CapturingPaymentFailedNotifier paymentFailedNotifier)
     {
         services.AddScoped<IPaymentRepository, HealthPlatform.Infrastructure.Persistence.Repositories.PaymentRepository>();
         services.AddSingleton<IPaymentReceiptGenerator, HealthPlatform.Infrastructure.Payments.TextPaymentReceiptGenerator>();
         services.AddScoped<IPaymentCompletionService, PaymentCompletionService>();
+        services.AddScoped<IPaymentFailureService, PaymentFailureService>();
+        services.AddSingleton<IPaymentFailedNotifier>(paymentFailedNotifier);
     }
 
     private static void RegisterInstalmentServices(

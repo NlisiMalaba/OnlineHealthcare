@@ -31,7 +31,7 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
         var resolver = new Mock<IPaymentGatewayResolver>();
         resolver.Setup(r => r.GetRequired(PaymentGatewayProviders.Stripe)).Returns(gateway.Object);
 
-        var handler = CreateHandler(resolver.Object, new InMemoryPaymentWebhookIdempotencyStore());
+        var handler = CreateHandler(resolver.Object, new InMemoryPaymentWebhookIdempotencyStore(), new Mock<IPaymentCompletionService>().Object, new Mock<IPaymentFailureService>().Object);
 
         await Assert.ThrowsAsync<AccessDeniedException>(() => handler.Handle(
             new ProcessPaymentWebhookCommand(
@@ -50,7 +50,8 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
 
         var idempotency = new InMemoryPaymentWebhookIdempotencyStore();
         var completionService = new Mock<IPaymentCompletionService>();
-        var handler = CreateHandler(resolver.Object, idempotency, completionService.Object);
+        var failureService = new Mock<IPaymentFailureService>();
+        var handler = CreateHandler(resolver.Object, idempotency, completionService.Object, failureService.Object);
 
         var command = new ProcessPaymentWebhookCommand(
             PaymentGatewayProviders.Flutterwave,
@@ -83,10 +84,12 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
                 "patients/receipt.txt",
                 "file:///receipt.txt"));
 
+        var failureService = new Mock<IPaymentFailureService>();
         var handler = CreateHandler(
             resolver.Object,
             new InMemoryPaymentWebhookIdempotencyStore(),
-            completionService.Object);
+            completionService.Object,
+            failureService.Object);
 
         var result = await handler.Handle(
             new ProcessPaymentWebhookCommand(
@@ -101,6 +104,59 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
                 It.Is<CompletePaymentRequest>(request => request.AppointmentId == appointmentId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Handler_records_payment_failure_for_failed_appointment_webhook()
+    {
+        var appointmentId = Guid.CreateVersion7();
+        var gateway = CreateFailedGateway(appointmentId);
+        var resolver = new Mock<IPaymentGatewayResolver>();
+        resolver.Setup(r => r.GetRequired(PaymentGatewayProviders.Stripe)).Returns(gateway);
+
+        var failureService = new Mock<IPaymentFailureService>();
+        failureService
+            .Setup(s => s.RecordFailureAsync(It.IsAny<RecordPaymentFailureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentFailureResultDto(Guid.CreateVersion7(), DateTime.UtcNow.AddMinutes(10)));
+
+        var handler = CreateHandler(
+            resolver.Object,
+            new InMemoryPaymentWebhookIdempotencyStore(),
+            new Mock<IPaymentCompletionService>().Object,
+            failureService.Object);
+
+        var result = await handler.Handle(
+            new ProcessPaymentWebhookCommand(
+                PaymentGatewayProviders.Stripe,
+                "{}",
+                new Dictionary<string, string> { ["Stripe-Signature"] = "dev:test" }),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        failureService.Verify(
+            s => s.RecordFailureAsync(
+                It.Is<RecordPaymentFailureRequest>(request => request.AppointmentId == appointmentId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private static IPaymentGateway CreateFailedGateway(Guid? appointmentId = null)
+    {
+        var gateway = new Mock<IPaymentGateway>();
+        gateway.Setup(g => g.ProviderName).Returns(PaymentGatewayProviders.Stripe);
+        gateway.Setup(g => g.ParseWebhookAsync(It.IsAny<PaymentWebhookParseRequestDto>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentWebhookParseResultDto(
+                true,
+                "evt_failed",
+                "provider_failed",
+                PaymentWebhookEventStatus.Failed,
+                2500,
+                "USD",
+                appointmentId ?? Guid.CreateVersion7(),
+                null,
+                "card_declined",
+                "Card was declined."));
+        return gateway.Object;
     }
 
     private static IPaymentGateway CreateSuccessfulGateway(Guid? appointmentId = null)
@@ -125,7 +181,8 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
     private static ProcessPaymentWebhookCommandHandler CreateHandler(
         IPaymentGatewayResolver resolver,
         IPaymentWebhookIdempotencyStore idempotencyStore,
-        IPaymentCompletionService? completionService = null)
+        IPaymentCompletionService completionService,
+        IPaymentFailureService failureService)
     {
         var appointmentRepository = new Mock<HealthPlatform.Application.Appointments.IAppointmentRepository>();
         appointmentRepository
@@ -141,7 +198,8 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
         return new(
             resolver,
             idempotencyStore,
-            completionService ?? new Mock<IPaymentCompletionService>().Object,
+            completionService,
+            failureService,
             appointmentRepository.Object,
             new Mock<HealthPlatform.Application.PharmacyOrders.IMedicationOrderRepository>().Object,
             TimeProvider.System,

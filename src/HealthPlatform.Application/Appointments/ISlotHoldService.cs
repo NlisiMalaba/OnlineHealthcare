@@ -6,5 +6,7 @@ public interface ISlotHoldService
 
     Task ReleaseHoldAsync(Guid slotId, CancellationToken ct);
 
+    Task ExtendHoldAsync(Guid slotId, TimeSpan ttl, CancellationToken ct);
+
     Task<bool> IsSlotHeldAsync(Guid slotId, CancellationToken ct);
 }

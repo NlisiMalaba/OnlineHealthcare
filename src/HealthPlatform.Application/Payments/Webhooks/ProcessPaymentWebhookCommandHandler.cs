@@ -11,6 +11,7 @@ public sealed class ProcessPaymentWebhookCommandHandler(
     IPaymentGatewayResolver gatewayResolver,
     IPaymentWebhookIdempotencyStore idempotencyStore,
     IPaymentCompletionService paymentCompletionService,
+    IPaymentFailureService paymentFailureService,
     IAppointmentRepository appointmentRepository,
     IMedicationOrderRepository medicationOrderRepository,
     TimeProvider timeProvider,
@@ -75,11 +76,7 @@ public sealed class ProcessPaymentWebhookCommandHandler(
 
         if (parsed.Status == PaymentWebhookEventStatus.Failed)
         {
-            logger.LogWarning(
-                "Payment webhook reported failure for provider payment {ProviderPaymentId}: {FailureCode} {FailureMessage}",
-                parsed.ProviderPaymentId,
-                parsed.FailureCode,
-                parsed.FailureMessage);
+            await RecordPaymentFailureAsync(providerName, parsed, ct);
         }
     }
 
@@ -121,6 +118,49 @@ public sealed class ProcessPaymentWebhookCommandHandler(
                 parsed.MedicationOrderId,
                 null,
                 timeProvider.GetUtcNow().UtcDateTime),
+            ct);
+    }
+
+    private async Task RecordPaymentFailureAsync(
+        string providerName,
+        PaymentWebhookParseResultDto parsed,
+        CancellationToken ct)
+    {
+        if (parsed.AppointmentId is null && parsed.MedicationOrderId is null)
+        {
+            logger.LogWarning(
+                "Skipping payment failure handling for provider payment {ProviderPaymentId} because no target was resolved.",
+                parsed.ProviderPaymentId);
+            return;
+        }
+
+        var patientId = await ResolvePatientIdAsync(parsed, ct);
+        if (patientId is null)
+        {
+            logger.LogWarning(
+                "Skipping payment failure handling for provider payment {ProviderPaymentId} because patient could not be resolved.",
+                parsed.ProviderPaymentId);
+            return;
+        }
+
+        var gatewayType = PaymentGatewayMapper.FromProviderName(providerName);
+        var paymentMethod = PaymentGatewayMapper.DefaultMethodForGateway(gatewayType);
+        var failedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
+
+        await paymentFailureService.RecordFailureAsync(
+            new RecordPaymentFailureRequest(
+                patientId.Value,
+                parsed.AmountMinorUnits ?? 1,
+                string.IsNullOrWhiteSpace(parsed.Currency) ? "USD" : parsed.Currency,
+                paymentMethod,
+                gatewayType,
+                parsed.ProviderPaymentId,
+                parsed.AppointmentId,
+                parsed.MedicationOrderId,
+                null,
+                parsed.FailureCode ?? "PAYMENT_FAILED",
+                parsed.FailureMessage ?? "Payment could not be completed.",
+                failedAtUtc),
             ct);
     }
 

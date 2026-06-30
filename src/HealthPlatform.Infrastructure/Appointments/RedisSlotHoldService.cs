@@ -24,6 +24,20 @@ public sealed class RedisSlotHoldService(IConnectionMultiplexer redis) : ISlotHo
         await db.KeyDeleteAsync(key);
     }
 
+    public async Task ExtendHoldAsync(Guid slotId, TimeSpan ttl, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var key = $"slot:{slotId}:hold";
+        var db = redis.GetDatabase();
+        if (await db.KeyExistsAsync(key))
+        {
+            await db.KeyExpireAsync(key, ttl);
+            return;
+        }
+
+        await db.StringSetAsync(key, "retained", ttl);
+    }
+
     public async Task<bool> IsSlotHeldAsync(Guid slotId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();

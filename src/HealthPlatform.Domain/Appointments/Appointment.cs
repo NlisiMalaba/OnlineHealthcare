@@ -175,6 +175,23 @@ public sealed class Appointment : Entity
             isEarlyCancellation ? 0m : doctorLateCancellationRetentionPercent);
     }
 
+    public DateTime RetainPendingAfterPaymentFailure(DateTime failedAtUtc, TimeSpan retentionWindow)
+    {
+        if (Status != AppointmentStatus.PendingPayment)
+        {
+            return SlotHoldExpiresAtUtc;
+        }
+
+        var retentionExpiresAtUtc = failedAtUtc.Add(retentionWindow);
+        if (retentionExpiresAtUtc > SlotHoldExpiresAtUtc)
+        {
+            SlotHoldExpiresAtUtc = retentionExpiresAtUtc;
+            Touch();
+        }
+
+        return SlotHoldExpiresAtUtc;
+    }
+
     public void Reschedule(
         Guid newSlotId,
         DateTime newScheduledAtUtc,

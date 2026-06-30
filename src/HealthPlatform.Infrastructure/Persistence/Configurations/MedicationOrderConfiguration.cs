@@ -56,6 +56,8 @@ public sealed class MedicationOrderConfiguration : IEntityTypeConfiguration<Medi
         builder.Property(o => o.ClarificationMessage)
             .HasMaxLength(1000);
 
+        builder.Property(o => o.PaymentRetryExpiresAtUtc);
+
         builder.HasIndex(o => o.PatientId);
         builder.HasIndex(o => o.PharmacyId);
         builder.HasIndex(o => o.PrescriptionId).IsUnique();

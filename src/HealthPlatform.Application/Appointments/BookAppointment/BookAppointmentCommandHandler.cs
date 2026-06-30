@@ -1,6 +1,7 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Domain.Appointments;
+using HealthPlatform.Domain.Payments;
 using MediatR;
 
 namespace HealthPlatform.Application.Appointments.BookAppointment;
@@ -13,7 +14,7 @@ public sealed class BookAppointmentCommandHandler(
     ISlotHoldService slotHoldService)
     : IRequestHandler<BookAppointmentCommand, BookAppointmentDto>
 {
-    private static readonly TimeSpan SlotHoldTtl = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan SlotHoldTtl = PaymentPolicies.PendingRetentionWindow;
 
     public async Task<BookAppointmentDto> Handle(BookAppointmentCommand request, CancellationToken ct)
     {

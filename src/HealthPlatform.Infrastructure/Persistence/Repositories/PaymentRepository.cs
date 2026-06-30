@@ -18,7 +18,7 @@ public sealed class PaymentRepository(ApplicationDbContext db) : IPaymentReposit
     public async Task<IReadOnlyList<Payment>> ListForPatientAsync(Guid patientId, CancellationToken ct) =>
         await db.Payments
             .Where(payment => payment.PatientId == patientId)
-            .OrderByDescending(payment => payment.CompletedAtUtc)
+            .OrderByDescending(payment => payment.CompletedAtUtc ?? payment.FailedAtUtc ?? payment.CreatedAtUtc)
             .ToListAsync(ct);
 
     public async Task AddAsync(Payment payment, CancellationToken ct) =>

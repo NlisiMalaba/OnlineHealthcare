@@ -45,6 +45,8 @@ public sealed class MedicationOrder : Entity
 
     public string? ClarificationMessage { get; private set; }
 
+    public DateTime? PaymentRetryExpiresAtUtc { get; private set; }
+
     public static MedicationOrder Place(
         Guid patientId,
         Guid pharmacyId,
@@ -275,6 +277,18 @@ public sealed class MedicationOrder : Entity
         Status = MedicationOrderStatus.Delivered;
         Touch();
         RaiseStatusChanged(previousStatus);
+    }
+
+    public DateTime RetainPendingAfterPaymentFailure(DateTime failedAtUtc, TimeSpan retentionWindow)
+    {
+        if (Status != MedicationOrderStatus.Pending)
+        {
+            return PaymentRetryExpiresAtUtc ?? failedAtUtc;
+        }
+
+        PaymentRetryExpiresAtUtc = failedAtUtc.Add(retentionWindow);
+        Touch();
+        return PaymentRetryExpiresAtUtc.Value;
     }
 
     private void EnsurePharmacyCanRespond()
