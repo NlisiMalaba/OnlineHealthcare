@@ -3,6 +3,7 @@ using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Domain.Insurance;
 using HealthPlatform.Domain.Telemedicine;
+using HealthPlatform.Domain.Payments;
 using HealthPlatform.Domain.Payments.CreditLine;
 using HealthPlatform.Domain.Payments.Instalments;
 using HealthPlatform.Domain.Prescriptions;
@@ -62,6 +63,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<InstalmentPlan> InstalmentPlans => Set<InstalmentPlan>();
 
     public DbSet<InstalmentPayment> InstalmentPayments => Set<InstalmentPayment>();
+
+    public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

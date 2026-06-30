@@ -255,6 +255,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         RegisterInsuranceServices(services);
         RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);
         RegisterInstalmentServices(services, _instalmentDueReminderNotifier, _instalmentMissedPaymentNotifier);
+        RegisterPaymentCompletionServices(services);
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();
@@ -297,6 +298,13 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
             }
         }
+    }
+
+    private static void RegisterPaymentCompletionServices(IServiceCollection services)
+    {
+        services.AddScoped<IPaymentRepository, HealthPlatform.Infrastructure.Persistence.Repositories.PaymentRepository>();
+        services.AddSingleton<IPaymentReceiptGenerator, HealthPlatform.Infrastructure.Payments.TextPaymentReceiptGenerator>();
+        services.AddScoped<IPaymentCompletionService, PaymentCompletionService>();
     }
 
     private static void RegisterInstalmentServices(

@@ -209,9 +209,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 8.8**
   - [x] 12.5 Implement instalment plan creation: display instalment amount, frequency, total repayable, and due dates before confirmation; store as scheduled payment records; send due-date reminders 24 hours before; record missed payments and apply late fees
     - _Requirements: 8.9, 8.10, 8.11, 8.12_
-  - [ ] 12.6 Implement payment completion: generate digital receipt (S3), attach to patient transaction history; publish `PaymentCompleted` domain event
+  - [x] 12.6 Implement payment completion: generate digital receipt (S3), attach to patient transaction history; publish `PaymentCompleted` domain event
     - _Requirements: 8.13, 8.15_
-  - [ ]* 12.7 Write property test for payment receipt round trip (Property 16)
+  - [x]* 12.7 Write property test for payment receipt round trip (Property 16)
     - **Property 16: Payment Receipt Round Trip**
     - **Validates: Requirements 8.13**
   - [ ] 12.8 Implement payment failure handling: retain appointment/order in `pending` state for 10 minutes; publish `PaymentFailed` domain event; notify patient with descriptive error

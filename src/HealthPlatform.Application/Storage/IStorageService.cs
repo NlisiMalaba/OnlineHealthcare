@@ -40,4 +40,10 @@ public interface IStorageService
         string contentType,
         string fileName,
         CancellationToken ct);
+
+    Task<StorageUploadResult> UploadPaymentReceiptAsync(
+        Guid patientId,
+        Guid paymentId,
+        Stream content,
+        CancellationToken ct);
 }

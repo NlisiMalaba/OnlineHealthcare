@@ -17,6 +17,8 @@ public interface ICreditLineTransactionRepository
 {
     Task AddAsync(CreditLineTransaction transaction, CancellationToken ct);
 
+    Task<IReadOnlyList<CreditLineTransaction>> ListForPatientAsync(Guid patientId, CancellationToken ct);
+
     Task<IReadOnlyList<CreditLineTransaction>> ListDueRepaymentRemindersAsync(
         DateTime dueBeforeUtc,
         int take,

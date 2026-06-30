@@ -1,9 +1,7 @@
-using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Payments;
 using HealthPlatform.Application.Payments.Webhooks;
 using HealthPlatform.Infrastructure.Payments;
-using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
@@ -33,7 +31,7 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
         var resolver = new Mock<IPaymentGatewayResolver>();
         resolver.Setup(r => r.GetRequired(PaymentGatewayProviders.Stripe)).Returns(gateway.Object);
 
-        var handler = CreateHandler(resolver.Object, new InMemoryPaymentWebhookIdempotencyStore(), new RecordingMediator());
+        var handler = CreateHandler(resolver.Object, new InMemoryPaymentWebhookIdempotencyStore());
 
         await Assert.ThrowsAsync<AccessDeniedException>(() => handler.Handle(
             new ProcessPaymentWebhookCommand(
@@ -51,8 +49,8 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
         resolver.Setup(r => r.GetRequired(PaymentGatewayProviders.Flutterwave)).Returns(gateway);
 
         var idempotency = new InMemoryPaymentWebhookIdempotencyStore();
-        var mediator = new RecordingMediator();
-        var handler = CreateHandler(resolver.Object, idempotency, mediator);
+        var completionService = new Mock<IPaymentCompletionService>();
+        var handler = CreateHandler(resolver.Object, idempotency, completionService.Object);
 
         var command = new ProcessPaymentWebhookCommand(
             PaymentGatewayProviders.Flutterwave,
@@ -64,22 +62,31 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
 
         Assert.False(first.Duplicate);
         Assert.True(second.Duplicate);
-        Assert.Single(mediator.PublishedNotifications);
+        completionService.Verify(
+            s => s.CompleteAsync(It.IsAny<CompletePaymentRequest>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task Handler_publishes_payment_completed_notification_for_appointment()
+    public async Task Handler_completes_payment_for_appointment_webhook()
     {
         var appointmentId = Guid.CreateVersion7();
         var gateway = CreateSuccessfulGateway(appointmentId);
         var resolver = new Mock<IPaymentGatewayResolver>();
         resolver.Setup(r => r.GetRequired(PaymentGatewayProviders.Paystack)).Returns(gateway);
 
-        var mediator = new RecordingMediator();
+        var completionService = new Mock<IPaymentCompletionService>();
+        completionService
+            .Setup(s => s.CompleteAsync(It.IsAny<CompletePaymentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentCompletionResultDto(
+                Guid.CreateVersion7(),
+                "patients/receipt.txt",
+                "file:///receipt.txt"));
+
         var handler = CreateHandler(
             resolver.Object,
             new InMemoryPaymentWebhookIdempotencyStore(),
-            mediator);
+            completionService.Object);
 
         var result = await handler.Handle(
             new ProcessPaymentWebhookCommand(
@@ -89,9 +96,11 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        var notification = Assert.Single(mediator.PublishedNotifications) as PaymentCompletedNotification;
-        Assert.NotNull(notification);
-        Assert.Equal(appointmentId, notification.AppointmentId);
+        completionService.Verify(
+            s => s.CompleteAsync(
+                It.Is<CompletePaymentRequest>(request => request.AppointmentId == appointmentId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static IPaymentGateway CreateSuccessfulGateway(Guid? appointmentId = null)
@@ -116,53 +125,26 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
     private static ProcessPaymentWebhookCommandHandler CreateHandler(
         IPaymentGatewayResolver resolver,
         IPaymentWebhookIdempotencyStore idempotencyStore,
-        IMediator mediator) =>
-        new(
+        IPaymentCompletionService? completionService = null)
+    {
+        var appointmentRepository = new Mock<HealthPlatform.Application.Appointments.IAppointmentRepository>();
+        appointmentRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) =>
+                HealthPlatform.Domain.Appointments.Appointment.CreatePendingPayment(
+                    Guid.CreateVersion7(),
+                    Guid.CreateVersion7(),
+                    Guid.CreateVersion7(),
+                    DateTime.UtcNow.AddDays(1),
+                    DateTime.UtcNow.AddMinutes(10)));
+
+        return new(
             resolver,
             idempotencyStore,
-            mediator,
+            completionService ?? new Mock<IPaymentCompletionService>().Object,
+            appointmentRepository.Object,
+            new Mock<HealthPlatform.Application.PharmacyOrders.IMedicationOrderRepository>().Object,
             TimeProvider.System,
             NullLogger<ProcessPaymentWebhookCommandHandler>.Instance);
-
-    private sealed class RecordingMediator : IMediator
-    {
-        public List<INotification> PublishedNotifications { get; } = [];
-
-        public Task Publish(object notification, CancellationToken cancellationToken = default)
-        {
-            if (notification is INotification typed)
-            {
-                PublishedNotifications.Add(typed);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
-            where TNotification : INotification
-        {
-            PublishedNotifications.Add(notification);
-            return Task.CompletedTask;
-        }
-
-        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
-
-        public Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default)
-            where TRequest : IRequest =>
-            throw new NotSupportedException();
-
-        public Task<object?> Send(object request, CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
-
-        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(
-            IStreamRequest<TResponse> request,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
-
-        public IAsyncEnumerable<object?> CreateStream(
-            object request,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
     }
 }

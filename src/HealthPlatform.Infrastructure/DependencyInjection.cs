@@ -52,6 +52,7 @@ public static class DependencyInjection
         services.AddInsuranceServices(configuration);
         services.AddCreditLineServices();
         services.AddInstalmentServices(configuration);
+        services.AddPaymentCompletionServices();
         services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
         services.AddHealthPlatformMongoDb(configuration);
         services.AddScoped<IOutboxRepository, OutboxRepository>();
