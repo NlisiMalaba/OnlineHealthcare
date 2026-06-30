@@ -17,7 +17,7 @@ public static class PaymentMappings
             payment.AmountMinorUnits,
             payment.Currency,
             payment.Status.ToString(),
-            payment.CompletedAtUtc,
+            payment.CompletedAtUtc ?? payment.FailedAtUtc ?? payment.CreatedAtUtc,
             payment.Id,
             receiptUrl);
 

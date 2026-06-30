@@ -10,6 +10,8 @@ public static class PaymentCompletionServiceCollectionExtensions
         services.AddScoped<IPaymentRepository, Persistence.Repositories.PaymentRepository>();
         services.AddSingleton<IPaymentReceiptGenerator, TextPaymentReceiptGenerator>();
         services.AddScoped<IPaymentCompletionService, PaymentCompletionService>();
+        services.AddScoped<IPaymentFailureService, PaymentFailureService>();
+        services.AddSingleton<IPaymentFailedNotifier, LoggingPaymentFailedNotifier>();
         return services;
     }
 }

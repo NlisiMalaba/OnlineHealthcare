@@ -195,7 +195,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 11.8 Write unit tests for order rejection with alternative pharmacy suggestion, pickup flow, and stock sync
     - _Requirements: 7.9, 7.6_
 
-- [ ] 12. Payments & Credit Module
+- [x] 12. Payments & Credit Module
   - _MVP: ship **one** gateway first (see `mvp.md`); add others after pilot._
   - [x] 12.1 Implement `IPaymentGateway` interface and concrete implementations for Stripe, Flutterwave, Paystack, and M-Pesa
     - Implement webhook endpoints per gateway with idempotency key validation
@@ -214,15 +214,15 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 12.7 Write property test for payment receipt round trip (Property 16)
     - **Property 16: Payment Receipt Round Trip**
     - **Validates: Requirements 8.13**
-  - [ ] 12.8 Implement payment failure handling: retain appointment/order in `pending` state for 10 minutes; publish `PaymentFailed` domain event; notify patient with descriptive error
+  - [x] 12.8 Implement payment failure handling: retain appointment/order in `pending` state for 10 minutes; publish `PaymentFailed` domain event; notify patient with descriptive error
     - _Requirements: 8.14_
-  - [ ]* 12.9 Write property test for failed payment preserves pending state (Property 17)
+  - [x]* 12.9 Write property test for failed payment preserves pending state (Property 17)
     - **Property 17: Failed Payment Preserves Pending State**
     - **Validates: Requirements 8.14**
-  - [ ]* 12.10 Write unit tests for gateway abstraction, idempotency, instalment edge cases, and transaction history display
+  - [x]* 12.10 Write unit tests for gateway abstraction, idempotency, instalment edge cases, and transaction history display
     - _Requirements: 8.1, 8.9, 8.15_
 
-- [ ] 13. Checkpoint — Prescription, Pharmacy, and Payment flows complete
+- [x] 13. Checkpoint — Prescription, Pharmacy, and Payment flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. Medication Adherence Module

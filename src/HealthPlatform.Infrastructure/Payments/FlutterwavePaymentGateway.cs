@@ -156,8 +156,12 @@ public sealed class FlutterwavePaymentGateway(
             PaymentWebhookEventStatus.Failed,
             null,
             data.TryGetProperty("currency", out var currency) ? currency.GetString() : null,
-            null,
-            null,
+            PaymentGatewayMetadataSupport.TryReadGuidMetadata(
+                data.TryGetProperty("meta", out var metaElement) ? metaElement : default,
+                PaymentMetadataKeys.AppointmentId),
+            PaymentGatewayMetadataSupport.TryReadGuidMetadata(
+                data.TryGetProperty("meta", out var metaElement2) ? metaElement2 : default,
+                PaymentMetadataKeys.MedicationOrderId),
             status,
             "Flutterwave charge was not successful.");
     }

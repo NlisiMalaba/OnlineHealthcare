@@ -213,8 +213,12 @@ public sealed class StripePaymentGateway(
             PaymentWebhookEventStatus.Failed,
             dataObject.TryGetProperty("amount", out var amount) ? amount.GetInt64() : null,
             dataObject.TryGetProperty("currency", out var currency) ? currency.GetString() : null,
-            null,
-            null,
+            PaymentGatewayMetadataSupport.TryReadGuidMetadata(
+                dataObject.TryGetProperty("metadata", out var metadataElement) ? metadataElement : default,
+                PaymentMetadataKeys.AppointmentId),
+            PaymentGatewayMetadataSupport.TryReadGuidMetadata(
+                dataObject.TryGetProperty("metadata", out var metadataElement2) ? metadataElement2 : default,
+                PaymentMetadataKeys.MedicationOrderId),
             failureCode,
             failureMessage);
     }

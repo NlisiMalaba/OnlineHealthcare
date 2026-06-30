@@ -1,5 +1,6 @@
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Common;
+using HealthPlatform.Domain.Payments.Events;
 
 namespace HealthPlatform.Domain.Payments;
 
@@ -32,7 +33,15 @@ public sealed class Payment : Entity
 
     public Guid? LabOrderId { get; private set; }
 
-    public DateTime CompletedAtUtc { get; private set; }
+    public DateTime? RetentionExpiresAtUtc { get; private set; }
+
+    public DateTime? CompletedAtUtc { get; private set; }
+
+    public DateTime? FailedAtUtc { get; private set; }
+
+    public string? FailureCode { get; private set; }
+
+    public string? FailureMessage { get; private set; }
 
     public static Payment RecordCompletion(
         Guid patientId,
@@ -82,6 +91,71 @@ public sealed class Payment : Entity
         {
             payment.RaiseDomainEvent(new PaymentCompletedDomainEvent(resolvedAppointmentId, payment.Id));
         }
+
+        return payment;
+    }
+
+    public static Payment RecordFailure(
+        Guid patientId,
+        long amountMinorUnits,
+        string currency,
+        PaymentMethod paymentMethod,
+        PaymentGatewayType gateway,
+        string? gatewayReference,
+        Guid? appointmentId,
+        Guid? medicationOrderId,
+        Guid? labOrderId,
+        string failureCode,
+        string failureMessage,
+        DateTime failedAtUtc,
+        DateTime retentionExpiresAtUtc)
+    {
+        if (patientId == Guid.Empty)
+        {
+            throw new ArgumentException("Patient id is required.", nameof(patientId));
+        }
+
+        if (amountMinorUnits <= 0)
+        {
+            throw new ArgumentException("Amount must be positive.", nameof(amountMinorUnits));
+        }
+
+        if (string.IsNullOrWhiteSpace(currency))
+        {
+            throw new ArgumentException("Currency is required.", nameof(currency));
+        }
+
+        var payment = new Payment
+        {
+            PatientId = patientId,
+            AmountMinorUnits = amountMinorUnits,
+            Currency = currency.Trim().ToUpperInvariant(),
+            PaymentMethod = paymentMethod,
+            Gateway = gateway,
+            GatewayReference = string.IsNullOrWhiteSpace(gatewayReference) ? null : gatewayReference.Trim(),
+            Status = PaymentStatus.Failed,
+            AppointmentId = appointmentId,
+            MedicationOrderId = medicationOrderId,
+            LabOrderId = labOrderId,
+            FailedAtUtc = failedAtUtc,
+            RetentionExpiresAtUtc = retentionExpiresAtUtc,
+            FailureCode = string.IsNullOrWhiteSpace(failureCode) ? "PAYMENT_FAILED" : failureCode.Trim(),
+            FailureMessage = string.IsNullOrWhiteSpace(failureMessage)
+                ? "Payment could not be completed."
+                : failureMessage.Trim(),
+            CreatedAtUtc = failedAtUtc,
+            UpdatedAtUtc = failedAtUtc
+        };
+
+        payment.RaiseDomainEvent(new PaymentFailedDomainEvent(
+            payment.Id,
+            patientId,
+            appointmentId,
+            medicationOrderId,
+            labOrderId,
+            payment.FailureCode,
+            payment.FailureMessage,
+            retentionExpiresAtUtc));
 
         return payment;
     }
