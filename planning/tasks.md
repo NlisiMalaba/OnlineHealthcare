@@ -207,7 +207,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 12.4 Write property test for credit balance warning threshold (Property 15)
     - **Property 15: Credit Balance Warning Threshold**
     - **Validates: Requirements 8.8**
-  - [ ] 12.5 Implement instalment plan creation: display instalment amount, frequency, total repayable, and due dates before confirmation; store as scheduled payment records; send due-date reminders 24 hours before; record missed payments and apply late fees
+  - [x] 12.5 Implement instalment plan creation: display instalment amount, frequency, total repayable, and due dates before confirmation; store as scheduled payment records; send due-date reminders 24 hours before; record missed payments and apply late fees
     - _Requirements: 8.9, 8.10, 8.11, 8.12_
   - [ ] 12.6 Implement payment completion: generate digital receipt (S3), attach to patient transaction history; publish `PaymentCompleted` domain event
     - _Requirements: 8.13, 8.15_

@@ -7,6 +7,7 @@ using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
 using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Payments.CreditLine.Events;
+using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using HealthPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -114,6 +115,10 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<CreditLineChargedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Payments.CreditLine.Events.CreditBalanceWarningTriggeredDomainEvent" =>
                 JsonSerializer.Deserialize<CreditBalanceWarningTriggeredDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Payments.Instalments.Events.InstalmentPlanCreatedDomainEvent" =>
+                JsonSerializer.Deserialize<InstalmentPlanCreatedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Payments.Instalments.Events.InstalmentPaymentMissedDomainEvent" =>
+                JsonSerializer.Deserialize<InstalmentPaymentMissedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }

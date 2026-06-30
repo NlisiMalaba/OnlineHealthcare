@@ -3,6 +3,7 @@ using HealthPlatform.Application.Identity.Notifications;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Prescriptions.Notifications;
 using HealthPlatform.Application.Payments.CreditLine.Notifications;
+using HealthPlatform.Application.Payments.Instalments.Notifications;
 using HealthPlatform.Application.PharmacyOrders.Notifications;
 using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Application.Telemedicine.Notifications;
@@ -13,6 +14,7 @@ using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
 using HealthPlatform.Domain.Payments.CreditLine.Events;
+using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using MediatR;
 
@@ -181,6 +183,19 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.OccurredAtUtc),
                 ct),
             CreditLineChargedDomainEvent => Task.CompletedTask,
+            InstalmentPlanCreatedDomainEvent => Task.CompletedTask,
+            InstalmentPaymentMissedDomainEvent e => mediator.Publish(
+                new InstalmentPaymentMissedNotification(
+                    e.InstalmentPaymentId,
+                    e.InstalmentPlanId,
+                    e.PatientId,
+                    e.SequenceNumber,
+                    e.AmountMinorUnits,
+                    e.LateFeeMinorUnits,
+                    e.Currency,
+                    e.DueDate,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }
