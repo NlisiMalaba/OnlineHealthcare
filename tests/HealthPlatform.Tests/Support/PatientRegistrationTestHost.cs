@@ -18,6 +18,7 @@ using HealthPlatform.Application.Identity.UpdateDoctorProfile;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Payments;
 using HealthPlatform.Application.Insurance;
+using HealthPlatform.Application.Payments.CreditLine;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
@@ -92,6 +93,14 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingLowStockAlertNotifier _lowStockAlertNotifier = new();
 
     public CapturingLowStockAlertNotifier LowStockAlertNotifier => _lowStockAlertNotifier;
+
+    private readonly CapturingCreditBalanceWarningNotifier _creditBalanceWarningNotifier = new();
+
+    public CapturingCreditBalanceWarningNotifier CreditBalanceWarningNotifier => _creditBalanceWarningNotifier;
+
+    private readonly CapturingCreditRepaymentReminderNotifier _creditRepaymentReminderNotifier = new();
+
+    public CapturingCreditRepaymentReminderNotifier CreditRepaymentReminderNotifier => _creditRepaymentReminderNotifier;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -235,6 +244,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<IStorageService, LocalFileStorageService>();
         RegisterPaymentGateways(services);
         RegisterInsuranceServices(services);
+        RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();
@@ -277,6 +287,18 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
             }
         }
+    }
+
+    private static void RegisterCreditLineServices(
+        IServiceCollection services,
+        CapturingCreditBalanceWarningNotifier balanceWarningNotifier,
+        CapturingCreditRepaymentReminderNotifier repaymentReminderNotifier)
+    {
+        services.AddScoped<IPatientCreditLineRepository, HealthPlatform.Infrastructure.Persistence.Repositories.PatientCreditLineRepository>();
+        services.AddScoped<ICreditLineTransactionRepository, HealthPlatform.Infrastructure.Persistence.Repositories.CreditLineTransactionRepository>();
+        services.AddScoped<ICreditRepaymentReminderDispatcher, CreditRepaymentReminderDispatcher>();
+        services.AddSingleton<ICreditBalanceWarningNotifier>(balanceWarningNotifier);
+        services.AddSingleton<ICreditRepaymentReminderNotifier>(repaymentReminderNotifier);
     }
 
     private static void RegisterInsuranceServices(IServiceCollection services)

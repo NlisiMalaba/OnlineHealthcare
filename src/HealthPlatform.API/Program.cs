@@ -214,6 +214,11 @@ app.Lifetime.ApplicationStarted.Register(() =>
             "insurance-claim-status-polling",
             job => job.Run(),
             Cron.MinuteInterval(15));
+
+        RecurringJob.AddOrUpdate<CreditRepaymentReminderJob>(
+            "credit-repayment-reminders",
+            job => job.Run(),
+            Cron.HourInterval(6));
     }
     catch (Exception ex)
     {
