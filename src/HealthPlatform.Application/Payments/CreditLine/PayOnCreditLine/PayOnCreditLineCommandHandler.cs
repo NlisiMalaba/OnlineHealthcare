@@ -1,7 +1,7 @@
-using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Outbox;
+using HealthPlatform.Domain.Payments;
 using HealthPlatform.Domain.Payments.CreditLine;
 using MediatR;
 
@@ -13,9 +13,9 @@ public sealed class PayOnCreditLineCommandHandler(
     IPatientCreditLineRepository creditLineRepository,
     ICreditLineTransactionRepository transactionRepository,
     ICreditRepaymentReminderNotifier repaymentReminderNotifier,
+    IPaymentCompletionService paymentCompletionService,
     IOutboxRepository outboxRepository,
     IDomainEventPublisher domainEventPublisher,
-    IMediator mediator,
     TimeProvider timeProvider)
     : IRequestHandler<PayOnCreditLineCommand, CreditLinePaymentDto>
 {
@@ -80,15 +80,19 @@ public sealed class PayOnCreditLineCommandHandler(
         transaction.MarkRepaymentReminderSent();
         await transactionRepository.UpdateAsync(transaction, ct);
 
-        if (request.AppointmentId is { } appointmentId)
-        {
-            await mediator.Publish(
-                new PaymentCompletedNotification(
-                    appointmentId,
-                    transaction.Id,
-                    chargedAtUtc),
-                ct);
-        }
+        await paymentCompletionService.CompleteAsync(
+            new CompletePaymentRequest(
+                patient.Id,
+                request.AmountMinorUnits,
+                creditLine.Currency,
+                PaymentMethod.CreditLine,
+                PaymentGatewayType.Internal,
+                transaction.Id.ToString(),
+                request.AppointmentId,
+                request.MedicationOrderId,
+                request.LabOrderId,
+                chargedAtUtc),
+            ct);
 
         await creditLineRepository.SaveChangesAsync(ct);
         await transactionRepository.SaveChangesAsync(ct);

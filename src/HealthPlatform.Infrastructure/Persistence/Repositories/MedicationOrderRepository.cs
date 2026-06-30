@@ -17,6 +17,9 @@ public sealed class MedicationOrderRepository(ApplicationDbContext db) : IMedica
         await db.SaveChangesAsync(ct);
     }
 
+    public Task<MedicationOrder?> GetByIdAsync(Guid orderId, CancellationToken ct) =>
+        db.MedicationOrders.SingleOrDefaultAsync(order => order.Id == orderId, ct);
+
     public Task<MedicationOrder?> GetByIdForPharmacyAsync(Guid orderId, Guid pharmacyId, CancellationToken ct) =>
         db.MedicationOrders.SingleOrDefaultAsync(
             order => order.Id == orderId && order.PharmacyId == pharmacyId,

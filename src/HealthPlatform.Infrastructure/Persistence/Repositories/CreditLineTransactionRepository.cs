@@ -12,6 +12,14 @@ public sealed class CreditLineTransactionRepository(ApplicationDbContext db) : I
         await db.CreditLineTransactions.AddAsync(transaction, ct);
     }
 
+    public async Task<IReadOnlyList<CreditLineTransaction>> ListForPatientAsync(
+        Guid patientId,
+        CancellationToken ct) =>
+        await db.CreditLineTransactions
+            .Where(t => t.PatientId == patientId)
+            .OrderByDescending(t => t.CreatedAtUtc)
+            .ToListAsync(ct);
+
     public async Task<IReadOnlyList<CreditLineTransaction>> ListDueRepaymentRemindersAsync(
         DateTime dueBeforeUtc,
         int take,

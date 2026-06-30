@@ -1,7 +1,7 @@
-using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Outbox;
+using HealthPlatform.Domain.Payments;
 using HealthPlatform.Domain.Payments.Instalments;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -13,9 +13,9 @@ public sealed class CreateInstalmentPlanCommandHandler(
     IPatientRepository patientRepository,
     IInstalmentPlanRepository planRepository,
     IInstalmentPaymentRepository paymentRepository,
+    IPaymentCompletionService paymentCompletionService,
     IOutboxRepository outboxRepository,
     IDomainEventPublisher domainEventPublisher,
-    IMediator mediator,
     IOptions<InstalmentPlanOptions> options,
     TimeProvider timeProvider)
     : IRequestHandler<CreateInstalmentPlanCommand, InstalmentPlanDto>
@@ -79,15 +79,19 @@ public sealed class CreateInstalmentPlanCommandHandler(
 
         plan.ClearDomainEvents();
 
-        if (request.AppointmentId is { } appointmentId)
-        {
-            await mediator.Publish(
-                new PaymentCompletedNotification(
-                    appointmentId,
-                    plan.Id,
-                    timeProvider.GetUtcNow().UtcDateTime),
-                ct);
-        }
+        await paymentCompletionService.CompleteAsync(
+            new CompletePaymentRequest(
+                patient.Id,
+                request.TotalAmountMinorUnits,
+                plan.Currency,
+                PaymentMethod.Instalment,
+                PaymentGatewayType.Internal,
+                plan.Id.ToString(),
+                request.AppointmentId,
+                request.MedicationOrderId,
+                request.LabOrderId,
+                timeProvider.GetUtcNow().UtcDateTime),
+            ct);
 
         await planRepository.SaveChangesAsync(ct);
         await paymentRepository.SaveChangesAsync(ct);

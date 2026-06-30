@@ -1,5 +1,7 @@
-using HealthPlatform.Application.Appointments.Notifications;
+using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Exceptions;
+using HealthPlatform.Application.PharmacyOrders;
+using HealthPlatform.Domain.Payments;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +10,9 @@ namespace HealthPlatform.Application.Payments.Webhooks;
 public sealed class ProcessPaymentWebhookCommandHandler(
     IPaymentGatewayResolver gatewayResolver,
     IPaymentWebhookIdempotencyStore idempotencyStore,
-    IMediator mediator,
+    IPaymentCompletionService paymentCompletionService,
+    IAppointmentRepository appointmentRepository,
+    IMedicationOrderRepository medicationOrderRepository,
     TimeProvider timeProvider,
     ILogger<ProcessPaymentWebhookCommandHandler> logger)
     : IRequestHandler<ProcessPaymentWebhookCommand, ProcessPaymentWebhookResultDto>
@@ -51,7 +55,7 @@ public sealed class ProcessPaymentWebhookCommandHandler(
                 Status: parsed.Status);
         }
 
-        await DispatchSideEffectsAsync(parsed, ct);
+        await DispatchSideEffectsAsync(gateway.ProviderName, parsed, ct);
 
         return new ProcessPaymentWebhookResultDto(
             Accepted: true,
@@ -59,17 +63,14 @@ public sealed class ProcessPaymentWebhookCommandHandler(
             Status: parsed.Status);
     }
 
-    private async Task DispatchSideEffectsAsync(PaymentWebhookParseResultDto parsed, CancellationToken ct)
+    private async Task DispatchSideEffectsAsync(
+        string providerName,
+        PaymentWebhookParseResultDto parsed,
+        CancellationToken ct)
     {
-        if (parsed.Status == PaymentWebhookEventStatus.Completed && parsed.AppointmentId is { } appointmentId)
+        if (parsed.Status == PaymentWebhookEventStatus.Completed)
         {
-            var paymentId = Guid.CreateVersion7();
-            await mediator.Publish(
-                new PaymentCompletedNotification(
-                    appointmentId,
-                    paymentId,
-                    timeProvider.GetUtcNow().UtcDateTime),
-                ct);
+            await CompletePaymentAsync(providerName, parsed, ct);
         }
 
         if (parsed.Status == PaymentWebhookEventStatus.Failed)
@@ -80,5 +81,63 @@ public sealed class ProcessPaymentWebhookCommandHandler(
                 parsed.FailureCode,
                 parsed.FailureMessage);
         }
+    }
+
+    private async Task CompletePaymentAsync(
+        string providerName,
+        PaymentWebhookParseResultDto parsed,
+        CancellationToken ct)
+    {
+        if (parsed.AmountMinorUnits is not { } amountMinorUnits
+            || string.IsNullOrWhiteSpace(parsed.Currency))
+        {
+            logger.LogWarning(
+                "Skipping payment completion for provider payment {ProviderPaymentId} because amount or currency is missing.",
+                parsed.ProviderPaymentId);
+            return;
+        }
+
+        var patientId = await ResolvePatientIdAsync(parsed, ct);
+        if (patientId is null)
+        {
+            logger.LogWarning(
+                "Skipping payment completion for provider payment {ProviderPaymentId} because patient could not be resolved.",
+                parsed.ProviderPaymentId);
+            return;
+        }
+
+        var gatewayType = PaymentGatewayMapper.FromProviderName(providerName);
+        var paymentMethod = PaymentGatewayMapper.DefaultMethodForGateway(gatewayType);
+
+        await paymentCompletionService.CompleteAsync(
+            new CompletePaymentRequest(
+                patientId.Value,
+                amountMinorUnits,
+                parsed.Currency,
+                paymentMethod,
+                gatewayType,
+                parsed.ProviderPaymentId,
+                parsed.AppointmentId,
+                parsed.MedicationOrderId,
+                null,
+                timeProvider.GetUtcNow().UtcDateTime),
+            ct);
+    }
+
+    private async Task<Guid?> ResolvePatientIdAsync(PaymentWebhookParseResultDto parsed, CancellationToken ct)
+    {
+        if (parsed.AppointmentId is { } appointmentId)
+        {
+            var appointment = await appointmentRepository.GetByIdAsync(appointmentId, ct);
+            return appointment?.PatientId;
+        }
+
+        if (parsed.MedicationOrderId is { } medicationOrderId)
+        {
+            var order = await medicationOrderRepository.GetByIdAsync(medicationOrderId, ct);
+            return order?.PatientId;
+        }
+
+        return null;
     }
 }
