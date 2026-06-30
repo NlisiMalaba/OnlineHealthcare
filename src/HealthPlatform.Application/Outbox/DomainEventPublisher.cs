@@ -2,6 +2,7 @@ using HealthPlatform.Application.Appointments.Notifications;
 using HealthPlatform.Application.Identity.Notifications;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Prescriptions.Notifications;
+using HealthPlatform.Application.Payments.CreditLine.Notifications;
 using HealthPlatform.Application.PharmacyOrders.Notifications;
 using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Application.Telemedicine.Notifications;
@@ -11,6 +12,7 @@ using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
+using HealthPlatform.Domain.Payments.CreditLine.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using MediatR;
 
@@ -169,6 +171,16 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.LowStockThreshold,
                     e.OccurredAtUtc),
                 ct),
+            CreditBalanceWarningTriggeredDomainEvent e => mediator.Publish(
+                new CreditBalanceWarningNotification(
+                    e.CreditLineId,
+                    e.PatientId,
+                    e.OutstandingBalanceMinorUnits,
+                    e.CreditLimitMinorUnits,
+                    e.Currency,
+                    e.OccurredAtUtc),
+                ct),
+            CreditLineChargedDomainEvent => Task.CompletedTask,
             _ => Task.CompletedTask
         };
 }
