@@ -19,6 +19,7 @@ using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Payments;
 using HealthPlatform.Application.Insurance;
 using HealthPlatform.Application.Payments.CreditLine;
+using HealthPlatform.Application.Payments.Instalments;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
@@ -101,6 +102,14 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingCreditRepaymentReminderNotifier _creditRepaymentReminderNotifier = new();
 
     public CapturingCreditRepaymentReminderNotifier CreditRepaymentReminderNotifier => _creditRepaymentReminderNotifier;
+
+    private readonly CapturingInstalmentDueReminderNotifier _instalmentDueReminderNotifier = new();
+
+    public CapturingInstalmentDueReminderNotifier InstalmentDueReminderNotifier => _instalmentDueReminderNotifier;
+
+    private readonly CapturingInstalmentMissedPaymentNotifier _instalmentMissedPaymentNotifier = new();
+
+    public CapturingInstalmentMissedPaymentNotifier InstalmentMissedPaymentNotifier => _instalmentMissedPaymentNotifier;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -245,6 +254,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         RegisterPaymentGateways(services);
         RegisterInsuranceServices(services);
         RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);
+        RegisterInstalmentServices(services, _instalmentDueReminderNotifier, _instalmentMissedPaymentNotifier);
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();
@@ -287,6 +297,20 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
             }
         }
+    }
+
+    private static void RegisterInstalmentServices(
+        IServiceCollection services,
+        CapturingInstalmentDueReminderNotifier dueReminderNotifier,
+        CapturingInstalmentMissedPaymentNotifier missedPaymentNotifier)
+    {
+        services.Configure<InstalmentPlanOptions>(_ => { });
+        services.AddScoped<IInstalmentPlanRepository, HealthPlatform.Infrastructure.Persistence.Repositories.InstalmentPlanRepository>();
+        services.AddScoped<IInstalmentPaymentRepository, HealthPlatform.Infrastructure.Persistence.Repositories.InstalmentPaymentRepository>();
+        services.AddScoped<IInstalmentDueReminderDispatcher, InstalmentDueReminderDispatcher>();
+        services.AddScoped<IInstalmentMissedPaymentProcessor, InstalmentMissedPaymentProcessor>();
+        services.AddSingleton<IInstalmentDueReminderNotifier>(dueReminderNotifier);
+        services.AddSingleton<IInstalmentMissedPaymentNotifier>(missedPaymentNotifier);
     }
 
     private static void RegisterCreditLineServices(

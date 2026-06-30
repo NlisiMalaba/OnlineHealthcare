@@ -219,6 +219,16 @@ app.Lifetime.ApplicationStarted.Register(() =>
             "credit-repayment-reminders",
             job => job.Run(),
             Cron.HourInterval(6));
+
+        RecurringJob.AddOrUpdate<InstalmentDueReminderJob>(
+            "instalment-due-reminders",
+            job => job.Run(),
+            Cron.Hourly);
+
+        RecurringJob.AddOrUpdate<InstalmentMissedPaymentJob>(
+            "instalment-missed-payments",
+            job => job.Run(),
+            Cron.Hourly);
     }
     catch (Exception ex)
     {

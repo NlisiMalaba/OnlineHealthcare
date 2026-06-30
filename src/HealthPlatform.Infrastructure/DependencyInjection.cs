@@ -25,6 +25,7 @@ using HealthPlatform.Infrastructure.Insurance;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Payments.CreditLine;
+using HealthPlatform.Infrastructure.Payments.Instalments;
 using HealthPlatform.Infrastructure.Payments;
 using HealthPlatform.Infrastructure.Persistence;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
@@ -50,6 +51,7 @@ public static class DependencyInjection
         services.AddPaymentGateways(configuration);
         services.AddInsuranceServices(configuration);
         services.AddCreditLineServices();
+        services.AddInstalmentServices(configuration);
         services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
         services.AddHealthPlatformMongoDb(configuration);
         services.AddScoped<IOutboxRepository, OutboxRepository>();
@@ -188,6 +190,8 @@ public static class DependencyInjection
         services.AddTransient<ScheduledRemindersJob>();
         services.AddTransient<InsuranceClaimStatusPollingJob>();
         services.AddTransient<CreditRepaymentReminderJob>();
+        services.AddTransient<InstalmentDueReminderJob>();
+        services.AddTransient<InstalmentMissedPaymentJob>();
         return services;
     }
 
