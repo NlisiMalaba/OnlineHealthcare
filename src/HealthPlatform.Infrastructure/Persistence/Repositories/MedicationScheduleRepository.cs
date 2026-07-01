@@ -6,6 +6,9 @@ namespace HealthPlatform.Infrastructure.Persistence.Repositories;
 
 public sealed class MedicationScheduleRepository(ApplicationDbContext db) : IMedicationScheduleRepository
 {
+    public Task<MedicationSchedule?> GetByPrescriptionIdAsync(Guid prescriptionId, CancellationToken ct) =>
+        db.MedicationSchedules.SingleOrDefaultAsync(schedule => schedule.PrescriptionId == prescriptionId, ct);
+
     public async Task<IReadOnlyList<MedicationSchedule>> ListActiveByPatientIdAsync(
         Guid patientId,
         CancellationToken ct) =>

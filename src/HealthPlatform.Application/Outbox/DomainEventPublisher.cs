@@ -137,6 +137,17 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.CancelledAtUtc,
                     e.OccurredAtUtc),
                 ct),
+            PrescriptionDispensedDomainEvent e => mediator.Publish(
+                new PrescriptionDispensedNotification(
+                    e.PrescriptionId,
+                    e.PatientId,
+                    e.MedicationName,
+                    e.Dosage,
+                    e.Frequency,
+                    e.DurationDays,
+                    e.DispensedAtUtc,
+                    e.OccurredAtUtc),
+                ct),
             DrugInteractionAlertDetectedDomainEvent e => mediator.Publish(
                 new DrugInteractionAlertDetectedNotification(
                     e.DoctorId,

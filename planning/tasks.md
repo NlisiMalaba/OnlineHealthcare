@@ -226,9 +226,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. Medication Adherence Module
-  - [ ] 14.1 Implement medication schedule generation: on `PrescriptionDispensed` domain event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
+  - [x] 14.1 Implement medication schedule generation: on `PrescriptionDispensed` domain event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
     - _Requirements: 9.1_
-  - [ ]* 14.2 Write property test for medication schedule generation (Property 18)
+  - [x]* 14.2 Write property test for medication schedule generation (Property 18)
     - **Property 18: Medication Schedule Generation**
     - **Validates: Requirements 9.1**
   - [ ] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time via Hangfire recurring jobs
