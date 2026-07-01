@@ -238,9 +238,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 14.5 Write property test for missed dose detection (Property 19)
     - **Property 19: Missed Dose Detection**
     - **Validates: Requirements 9.4**
-  - [ ] 14.6 Implement consecutive missed dose alert: after 3 consecutive `missed` adherence events, emit notification event to all patient next-of-kin
+  - [x] 14.6 Implement consecutive missed dose alert: after 3 consecutive `missed` adherence events, emit notification event to all patient next-of-kin
     - _Requirements: 9.5, 10.5_
-  - [ ]* 14.7 Write property test for consecutive missed doses alert (Property 20)
+  - [x]* 14.7 Write property test for consecutive missed doses alert (Property 20)
     - **Property 20: Consecutive Missed Doses Alert**
     - **Validates: Requirements 9.5, 10.5**
   - [ ] 14.8 Implement adherence summary endpoints: weekly and monthly summaries for patient and prescribing doctor; schedule completion notification

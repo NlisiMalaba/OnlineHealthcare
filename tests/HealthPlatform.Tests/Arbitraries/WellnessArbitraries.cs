@@ -12,10 +12,19 @@ public sealed record MissedDoseDetectionCase(
     MissedDoseDetectionExpectation Expectation,
     int OffsetMinutes);
 
+public sealed record ConsecutiveMissedDosesAlertCase(
+    int NextOfKinContactCount,
+    int ConsecutiveMissedDoseCount);
+
 public static class WellnessArbitraries
 {
     public static Arbitrary<MissedDoseDetectionCase> MissedDoseDetectionCase() =>
         Gen.OneOf(ShouldRecordMissedCase(), StillWithinGraceCase()).ToArbitrary();
+
+    public static Arbitrary<ConsecutiveMissedDosesAlertCase> ConsecutiveMissedDosesAlertCase() =>
+        (from contactCount in Gen.Choose(1, 5)
+         from missedCount in Gen.Choose(3, 6)
+         select new ConsecutiveMissedDosesAlertCase(contactCount, missedCount)).ToArbitrary();
 
     private static Gen<MissedDoseDetectionCase> ShouldRecordMissedCase() =>
         from offsetMinutes in Gen.Choose(0, 180)

@@ -19,6 +19,11 @@ public interface IAdherenceEventRepository
         int batchSize,
         CancellationToken ct);
 
+    Task<IReadOnlyList<AdherenceEvent>> ListByPatientIdOrderedByScheduledDescAsync(
+        Guid patientId,
+        int take,
+        CancellationToken ct);
+
     Task AddAsync(AdherenceEvent adherenceEvent, CancellationToken ct);
 
     Task SaveChangesAsync(CancellationToken ct);

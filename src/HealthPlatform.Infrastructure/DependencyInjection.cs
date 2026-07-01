@@ -1,6 +1,7 @@
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.NextOfKin;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -120,6 +121,10 @@ public static class DependencyInjection
         services.AddSingleton<IMedicationDoseReminderNotifier, LoggingMedicationDoseReminderNotifier>();
         services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
         services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
+        services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
+        services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
+        services.AddSingleton<IConsecutiveMissedDosesNextOfKinNotifier, LoggingConsecutiveMissedDosesNextOfKinNotifier>();
+        services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();

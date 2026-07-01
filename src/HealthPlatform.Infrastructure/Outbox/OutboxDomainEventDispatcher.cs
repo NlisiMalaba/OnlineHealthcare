@@ -5,6 +5,7 @@ using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
+using HealthPlatform.Domain.Wellness.Events;
 using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Payments.CreditLine.Events;
 using HealthPlatform.Domain.Payments.Events;
@@ -124,6 +125,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<InstalmentPlanCreatedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Payments.Instalments.Events.InstalmentPaymentMissedDomainEvent" =>
                 JsonSerializer.Deserialize<InstalmentPaymentMissedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Wellness.Events.ConsecutiveMissedDosesDetectedDomainEvent" =>
+                JsonSerializer.Deserialize<ConsecutiveMissedDosesDetectedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }

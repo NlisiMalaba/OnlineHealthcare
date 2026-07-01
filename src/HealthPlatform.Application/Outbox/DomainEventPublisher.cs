@@ -8,12 +8,14 @@ using HealthPlatform.Application.Payments.Notifications;
 using HealthPlatform.Application.PharmacyOrders.Notifications;
 using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Application.Telemedicine.Notifications;
+using HealthPlatform.Application.Wellness.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
+using HealthPlatform.Domain.Wellness.Events;
 using HealthPlatform.Domain.Payments.CreditLine.Events;
 using HealthPlatform.Domain.Payments.Events;
 using HealthPlatform.Domain.Payments.Instalments.Events;
@@ -219,6 +221,13 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.LateFeeMinorUnits,
                     e.Currency,
                     e.DueDate,
+                    e.OccurredAtUtc),
+                ct),
+            ConsecutiveMissedDosesDetectedDomainEvent e => mediator.Publish(
+                new ConsecutiveMissedDosesDetectedNotification(
+                    e.PatientId,
+                    e.TriggeringAdherenceEventId,
+                    e.StreakEndScheduledAtUtc,
                     e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask
