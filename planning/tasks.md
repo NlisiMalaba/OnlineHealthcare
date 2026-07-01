@@ -231,7 +231,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 14.2 Write property test for medication schedule generation (Property 18)
     - **Property 18: Medication Schedule Generation**
     - **Validates: Requirements 9.1**
-  - [ ] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time via Hangfire recurring jobs
+  - [x] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time via Hangfire recurring jobs
     - _Requirements: 9.2_
   - [ ] 14.4 Implement adherence event recording: on patient confirmation → record `taken` event with timestamp; on 2-hour overdue → record `missed` event
     - _Requirements: 9.3, 9.4_

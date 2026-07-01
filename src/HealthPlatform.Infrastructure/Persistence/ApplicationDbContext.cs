@@ -48,6 +48,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<MedicationSchedule> MedicationSchedules => Set<MedicationSchedule>();
 
+    public DbSet<MedicationDoseReminder> MedicationDoseReminders => Set<MedicationDoseReminder>();
+
     public DbSet<MedicationOrder> MedicationOrders => Set<MedicationOrder>();
 
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();

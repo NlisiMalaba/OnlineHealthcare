@@ -16,6 +16,7 @@ using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Telemedicine;
+using HealthPlatform.Infrastructure.Wellness;
 using HealthPlatform.Infrastructure.PharmacyServices;
 using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Hosting;
@@ -115,6 +116,9 @@ public static class DependencyInjection
         services.AddScoped<ITelemedicineSessionRepository, TelemedicineSessionRepository>();
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
         services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
+        services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
+        services.AddSingleton<IMedicationDoseReminderNotifier, LoggingMedicationDoseReminderNotifier>();
+        services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();

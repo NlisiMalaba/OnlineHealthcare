@@ -115,12 +115,17 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingPaymentFailedNotifier PaymentFailedNotifier => _paymentFailedNotifier;
 
+    private readonly CapturingMedicationDoseReminderNotifier _medicationDoseReminderNotifier = new();
+
+    public CapturingMedicationDoseReminderNotifier MedicationDoseReminderNotifier => _medicationDoseReminderNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
         IPrescriptionIssuedNotifier? prescriptionIssuedNotifier = null,
         IPrescriptionCancelledNotifier? prescriptionCancelledNotifier = null,
         IDrugInteractionAlertNotifier? drugInteractionAlertNotifier = null,
+        IMedicationDoseReminderNotifier? medicationDoseReminderNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -166,6 +171,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
         services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
+        services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
+        services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
         services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
         if (prescriptionIssuedNotifier is not null)
         {
@@ -192,6 +199,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         else
         {
             services.AddSingleton<IDrugInteractionAlertNotifier, LoggingDrugInteractionAlertNotifier>();
+        }
+
+        if (medicationDoseReminderNotifier is not null)
+        {
+            services.AddSingleton(medicationDoseReminderNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IMedicationDoseReminderNotifier>(_medicationDoseReminderNotifier);
         }
 
         services.Configure<RtcOptions>(options => { });
