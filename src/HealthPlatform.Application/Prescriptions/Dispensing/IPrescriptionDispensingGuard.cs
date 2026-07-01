@@ -9,6 +9,8 @@ public interface IPrescriptionDispensingGuard
         Guid patientId,
         CancellationToken ct);
 
+    Task PersistDispensedPrescriptionAsync(Prescription prescription, CancellationToken ct);
+
     Task<PrescriptionDto> DispenseForMedicationOrderAsync(
         Guid prescriptionId,
         Guid patientId,

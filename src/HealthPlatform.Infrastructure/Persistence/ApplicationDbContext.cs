@@ -7,6 +7,7 @@ using HealthPlatform.Domain.Payments;
 using HealthPlatform.Domain.Payments.CreditLine;
 using HealthPlatform.Domain.Payments.Instalments;
 using HealthPlatform.Domain.Prescriptions;
+using HealthPlatform.Domain.NextOfKin;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
 using HealthPlatform.Infrastructure.Identity;
@@ -47,6 +48,14 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
 
     public DbSet<MedicationSchedule> MedicationSchedules => Set<MedicationSchedule>();
+
+    public DbSet<MedicationDoseReminder> MedicationDoseReminders => Set<MedicationDoseReminder>();
+
+    public DbSet<AdherenceEvent> AdherenceEvents => Set<AdherenceEvent>();
+
+    public DbSet<ConsecutiveMissedDoseAlert> ConsecutiveMissedDoseAlerts => Set<ConsecutiveMissedDoseAlert>();
+
+    public DbSet<NextOfKinContact> NextOfKinContacts => Set<NextOfKinContact>();
 
     public DbSet<MedicationOrder> MedicationOrders => Set<MedicationOrder>();
 

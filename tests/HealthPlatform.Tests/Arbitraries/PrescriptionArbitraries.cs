@@ -28,6 +28,12 @@ public sealed record DrugInteractionFinalizationCase(
     DrugInteractionFinalizationScenario Scenario,
     int DurationDays);
 
+public sealed record MedicationScheduleGenerationCase(
+    string Frequency,
+    int DurationDays,
+    int DispenseHourUtc,
+    int DispenseMinuteUtc);
+
 public static class PrescriptionArbitraries
 {
     public static Arbitrary<PrescriptionDefaultExpiryCase> PrescriptionDefaultExpiryCase() =>
@@ -86,4 +92,24 @@ public static class PrescriptionArbitraries
         select new DrugInteractionFinalizationCase(
             DrugInteractionFinalizationScenario.EmptySchedule,
             durationDays);
+
+    public static Arbitrary<MedicationScheduleGenerationCase> MedicationScheduleGenerationCase() =>
+        (from frequency in Gen.Elements(
+                "Once daily",
+                "Twice daily",
+                "Three times daily",
+                "Four times daily",
+                "BID",
+                "TID",
+                "Every 6 hours",
+                "Every 8 hours",
+                "Every 12 hours")
+         from durationDays in Gen.Choose(1, 30)
+         from dispenseHour in Gen.Choose(0, 23)
+         from dispenseMinute in Gen.Choose(0, 59)
+         select new MedicationScheduleGenerationCase(
+             frequency,
+             durationDays,
+             dispenseHour,
+             dispenseMinute)).ToArbitrary();
 }

@@ -5,6 +5,7 @@ using HealthPlatform.Application;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.NextOfKin;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -115,12 +116,28 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingPaymentFailedNotifier PaymentFailedNotifier => _paymentFailedNotifier;
 
+    private readonly CapturingMedicationDoseReminderNotifier _medicationDoseReminderNotifier = new();
+
+    public CapturingMedicationDoseReminderNotifier MedicationDoseReminderNotifier => _medicationDoseReminderNotifier;
+
+    private readonly CapturingConsecutiveMissedDosesNextOfKinNotifier _consecutiveMissedDosesNextOfKinNotifier = new();
+
+    public CapturingConsecutiveMissedDosesNextOfKinNotifier ConsecutiveMissedDosesNextOfKinNotifier =>
+        _consecutiveMissedDosesNextOfKinNotifier;
+
+    private readonly CapturingMedicationScheduleCompletionNotifier _medicationScheduleCompletionNotifier = new();
+
+    public CapturingMedicationScheduleCompletionNotifier MedicationScheduleCompletionNotifier =>
+        _medicationScheduleCompletionNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
         IPrescriptionIssuedNotifier? prescriptionIssuedNotifier = null,
         IPrescriptionCancelledNotifier? prescriptionCancelledNotifier = null,
         IDrugInteractionAlertNotifier? drugInteractionAlertNotifier = null,
+        IMedicationDoseReminderNotifier? medicationDoseReminderNotifier = null,
+        IConsecutiveMissedDosesNextOfKinNotifier? consecutiveMissedDosesNextOfKinNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -166,6 +183,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
         services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
+        services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
+        services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
+        services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
+        services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
+        services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
+        services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();
+        services.AddSingleton<IMedicationScheduleCompletionNotifier>(_medicationScheduleCompletionNotifier);
+        services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
+        services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
         if (prescriptionIssuedNotifier is not null)
         {
@@ -192,6 +218,24 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         else
         {
             services.AddSingleton<IDrugInteractionAlertNotifier, LoggingDrugInteractionAlertNotifier>();
+        }
+
+        if (medicationDoseReminderNotifier is not null)
+        {
+            services.AddSingleton(medicationDoseReminderNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IMedicationDoseReminderNotifier>(_medicationDoseReminderNotifier);
+        }
+
+        if (consecutiveMissedDosesNextOfKinNotifier is not null)
+        {
+            services.AddSingleton(consecutiveMissedDosesNextOfKinNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IConsecutiveMissedDosesNextOfKinNotifier>(_consecutiveMissedDosesNextOfKinNotifier);
         }
 
         services.Configure<RtcOptions>(options => { });

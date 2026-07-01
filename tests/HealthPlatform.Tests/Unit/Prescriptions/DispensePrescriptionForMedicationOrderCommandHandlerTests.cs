@@ -43,6 +43,11 @@ public sealed class DispensePrescriptionForMedicationOrderCommandHandlerTests : 
 
         var stored = await _host.DbContext.Prescriptions.SingleAsync(p => p.Id == prescription.Id);
         Assert.Equal(PrescriptionStatus.Dispensed, stored.Status);
+
+        var schedule = await _host.DbContext.MedicationSchedules
+            .SingleAsync(s => s.PrescriptionId == prescription.Id);
+        Assert.Equal("Amoxicillin", schedule.MedicationName);
+        Assert.Equal(14, schedule.DoseTimes.Count);
     }
 
     [Fact]

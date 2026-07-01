@@ -210,6 +210,16 @@ app.Lifetime.ApplicationStarted.Register(() =>
             job => job.Run(),
             Cron.MinuteInterval(15));
 
+        RecurringJob.AddOrUpdate<MedicationDoseReminderJob>(
+            "medication-dose-reminders",
+            job => job.Run(),
+            Cron.MinuteInterval(1));
+
+        RecurringJob.AddOrUpdate<MissedDoseDetectionJob>(
+            "missed-dose-detection",
+            job => job.Run(),
+            Cron.MinuteInterval(15));
+
         RecurringJob.AddOrUpdate<InsuranceClaimStatusPollingJob>(
             "insurance-claim-status-polling",
             job => job.Run(),
