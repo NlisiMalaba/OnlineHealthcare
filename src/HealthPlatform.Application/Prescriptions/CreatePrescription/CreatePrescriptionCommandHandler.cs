@@ -20,6 +20,7 @@ public sealed class CreatePrescriptionCommandHandler(
     IMedicationScheduleRepository medicationScheduleRepository,
     IDrugInteractionChecker drugInteractionChecker,
     IPrescriptionRepository prescriptionRepository,
+    IPrescriptionDomainEventPublisher prescriptionDomainEventPublisher,
     IOutboxRepository outboxRepository,
     IDomainEventPublisher domainEventPublisher,
     TimeProvider timeProvider)
@@ -60,7 +61,7 @@ public sealed class CreatePrescriptionCommandHandler(
             issuedAtUtc);
 
         await prescriptionRepository.AddAsync(prescription, ct);
-        await PublishPendingEventsAsync(prescription, ct);
+        await prescriptionDomainEventPublisher.PublishPendingAsync(prescription, ct);
 
         return prescription.ToDto();
     }
@@ -138,17 +139,5 @@ public sealed class CreatePrescriptionCommandHandler(
                 "ACCESS_DENIED",
                 "Appointment does not belong to the prescribing doctor and patient.");
         }
-    }
-
-    private async Task PublishPendingEventsAsync(Prescription prescription, CancellationToken ct)
-    {
-        var pendingEvents = prescription.DomainEvents.ToList();
-        foreach (var domainEvent in pendingEvents)
-        {
-            await outboxRepository.EnqueueAsync(domainEvent, ct);
-            await domainEventPublisher.PublishAsync(domainEvent, ct);
-        }
-
-        prescription.ClearDomainEvents();
     }
 }

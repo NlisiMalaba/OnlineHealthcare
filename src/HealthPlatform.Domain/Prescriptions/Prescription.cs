@@ -142,6 +142,15 @@ public sealed class Prescription : Entity
 
         Status = PrescriptionStatus.Dispensed;
         Touch();
+
+        RaiseDomainEvent(new PrescriptionDispensedDomainEvent(
+            Id,
+            PatientId,
+            MedicationName,
+            Dosage,
+            Frequency,
+            DurationDays,
+            dispensedAtUtc));
     }
 
     public void EnsureEligibleForDispensing(DateTime asOfUtc)

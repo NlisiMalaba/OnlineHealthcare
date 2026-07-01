@@ -46,6 +46,9 @@ public sealed class PrescriptionDispensingGuard(
         return prescription;
     }
 
+    public Task PersistDispensedPrescriptionAsync(Prescription prescription, CancellationToken ct) =>
+        prescriptionRepository.UpdateAsync(prescription, ct);
+
     public async Task<PrescriptionDto> DispenseForMedicationOrderAsync(
         Guid prescriptionId,
         Guid patientId,

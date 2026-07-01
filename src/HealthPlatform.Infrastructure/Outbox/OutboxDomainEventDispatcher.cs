@@ -102,6 +102,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<PrescriptionIssuedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Prescriptions.Events.PrescriptionCancelledDomainEvent" =>
                 JsonSerializer.Deserialize<PrescriptionCancelledDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Prescriptions.Events.PrescriptionDispensedDomainEvent" =>
+                JsonSerializer.Deserialize<PrescriptionDispensedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Prescriptions.Events.DrugInteractionAlertDetectedDomainEvent" =>
                 JsonSerializer.Deserialize<DrugInteractionAlertDetectedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Pharmacy.Events.MedicationOrderPlacedDomainEvent" =>

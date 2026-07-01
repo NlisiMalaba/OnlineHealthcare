@@ -18,7 +18,8 @@ public sealed class CreateMedicationOrderCommandHandler(
     IPharmacyStockAvailabilityService stockAvailabilityService,
     IMedicationOrderRepository medicationOrderRepository,
     IOutboxRepository outboxRepository,
-    IDomainEventPublisher domainEventPublisher)
+    IDomainEventPublisher domainEventPublisher,
+    IPrescriptionDomainEventPublisher prescriptionDomainEventPublisher)
     : IRequestHandler<CreateMedicationOrderCommand, MedicationOrderDto>
 {
     public async Task<MedicationOrderDto> Handle(CreateMedicationOrderCommand request, CancellationToken ct)
@@ -75,6 +76,7 @@ public sealed class CreateMedicationOrderCommandHandler(
 
         await medicationOrderRepository.AddWithDispensedPrescriptionAsync(order, dispensedPrescription, ct);
         await PublishPendingEventsAsync(order, ct);
+        await prescriptionDomainEventPublisher.PublishPendingAsync(dispensedPrescription, ct);
 
         return order.ToDto();
     }
