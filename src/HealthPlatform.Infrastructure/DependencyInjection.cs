@@ -23,6 +23,7 @@ using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.MongoDb;
+using HealthPlatform.Infrastructure.NextOfKin;
 using HealthPlatform.Infrastructure.Insurance;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
@@ -126,6 +127,7 @@ public static class DependencyInjection
         services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();
         services.AddSingleton<IMedicationScheduleCompletionNotifier, LoggingMedicationScheduleCompletionNotifier>();
         services.AddSingleton<IConsecutiveMissedDosesNextOfKinNotifier, LoggingConsecutiveMissedDosesNextOfKinNotifier>();
+        services.AddSingleton<INextOfKinDesignationNotifier, LoggingNextOfKinDesignationNotifier>();
         services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
