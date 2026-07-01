@@ -73,6 +73,17 @@ public sealed class AdherenceEventRepository(ApplicationDbContext db) : IAdheren
         return overdueDoses;
     }
 
+    public async Task<IReadOnlyList<AdherenceEvent>> ListByPatientIdOrderedByScheduledDescAsync(
+        Guid patientId,
+        int take,
+        CancellationToken ct) =>
+        await db.AdherenceEvents
+            .AsNoTracking()
+            .Where(adherenceEvent => adherenceEvent.PatientId == patientId)
+            .OrderByDescending(adherenceEvent => adherenceEvent.ScheduledAtUtc)
+            .Take(take)
+            .ToListAsync(ct);
+
     public async Task AddAsync(AdherenceEvent adherenceEvent, CancellationToken ct) =>
         await db.AdherenceEvents.AddAsync(adherenceEvent, ct);
 

@@ -14,6 +14,8 @@ public static class WellnessPolicies
 
     public const int MissedDoseDetectionBatchSize = 100;
 
+    public const int AdherenceStreakLookbackCount = 10;
+
     public static bool IsMissed(DateTime scheduledAtUtc, DateTime nowUtc) =>
         nowUtc >= scheduledAtUtc.Add(MissedDoseGracePeriod);
 

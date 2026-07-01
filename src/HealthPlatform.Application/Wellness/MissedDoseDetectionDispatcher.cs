@@ -1,3 +1,4 @@
+using HealthPlatform.Application.Wellness;
 using HealthPlatform.Domain.Wellness;
 using Microsoft.Extensions.Logging;
 
@@ -6,6 +7,7 @@ namespace HealthPlatform.Application.Wellness;
 public sealed class MissedDoseDetectionDispatcher(
     TimeProvider timeProvider,
     IAdherenceEventRepository adherenceEventRepository,
+    IConsecutiveMissedDoseAlertService consecutiveMissedDoseAlertService,
     ILogger<MissedDoseDetectionDispatcher> logger) : IMissedDoseDetectionDispatcher
 {
     public async Task<int> RecordMissedDosesAsync(CancellationToken ct)
@@ -47,17 +49,16 @@ public sealed class MissedDoseDetectionDispatcher(
                 nowUtc);
 
             await adherenceEventRepository.AddAsync(missedEvent, ct);
+            await adherenceEventRepository.SaveChangesAsync(ct);
+            await consecutiveMissedDoseAlertService.TryEmitAlertIfThresholdReachedAsync(
+                overdueDose.PatientId,
+                ct);
             recorded++;
 
             logger.LogInformation(
                 "Recorded missed medication dose for schedule {ScheduleId} scheduled at {ScheduledAtUtc}.",
                 overdueDose.ScheduleId,
                 overdueDose.ScheduledAtUtc);
-        }
-
-        if (recorded > 0)
-        {
-            await adherenceEventRepository.SaveChangesAsync(ct);
         }
 
         return recorded;
