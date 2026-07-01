@@ -129,6 +129,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingNextOfKinDesignationNotifier NextOfKinDesignationNotifier => _nextOfKinDesignationNotifier;
 
+    private readonly CapturingNextOfKinEmergencyAlertNotifier _nextOfKinEmergencyAlertNotifier = new();
+
+    public CapturingNextOfKinEmergencyAlertNotifier NextOfKinEmergencyAlertNotifier =>
+        _nextOfKinEmergencyAlertNotifier;
+
     private readonly CapturingMedicationScheduleCompletionNotifier _medicationScheduleCompletionNotifier = new();
 
     public CapturingMedicationScheduleCompletionNotifier MedicationScheduleCompletionNotifier =>
@@ -196,6 +201,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<IMedicationScheduleCompletionNotifier>(_medicationScheduleCompletionNotifier);
         services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
         services.AddSingleton<INextOfKinDesignationNotifier>(_nextOfKinDesignationNotifier);
+        services.AddSingleton<INextOfKinEmergencyAlertNotifier>(_nextOfKinEmergencyAlertNotifier);
+        services.AddScoped<IEmergencyAlertRepository, EmergencyAlertRepository>();
+        services.AddScoped<IEmergencyAlertDispatchService, EmergencyAlertDispatchService>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
         if (prescriptionIssuedNotifier is not null)

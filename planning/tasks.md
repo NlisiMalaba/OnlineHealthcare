@@ -225,7 +225,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [x] 13. Checkpoint — Prescription, Pharmacy, and Payment flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Medication Adherence Module
+- [x] 14. Medication Adherence Module
   - [x] 14.1 Implement medication schedule generation: on `PrescriptionDispensed` domain event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
     - _Requirements: 9.1_
   - [x]* 14.2 Write property test for medication schedule generation (Property 18)
@@ -251,7 +251,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [ ] 15. Next of Kin Module
   - [x] 15.1 Implement next-of-kin CRUD: allow patient to add up to 3 contacts (name, relationship, phone, email, mental health contact flag); notify contact on addition
     - _Requirements: 10.1, 10.2, 22.8_
-  - [ ] 15.2 Implement emergency alert dispatch: doctor-triggered or system-triggered alert sends simultaneous SMS + push to all patient next-of-kin; log alert with timestamp, trigger reason, and delivery status
+  - [x] 15.2 Implement emergency alert dispatch: doctor-triggered or system-triggered alert sends simultaneous SMS + push to all patient next-of-kin; log alert with timestamp, trigger reason, and delivery status
     - _Requirements: 10.3, 10.4, 10.6_
   - [ ]* 15.3 Write property test for emergency alert reaches all next of kin (Property 22)
     - **Property 22: Emergency Alert Reaches All Next of Kin**

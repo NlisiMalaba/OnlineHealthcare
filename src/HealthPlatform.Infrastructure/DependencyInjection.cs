@@ -128,7 +128,10 @@ public static class DependencyInjection
         services.AddSingleton<IMedicationScheduleCompletionNotifier, LoggingMedicationScheduleCompletionNotifier>();
         services.AddSingleton<IConsecutiveMissedDosesNextOfKinNotifier, LoggingConsecutiveMissedDosesNextOfKinNotifier>();
         services.AddSingleton<INextOfKinDesignationNotifier, LoggingNextOfKinDesignationNotifier>();
+        services.AddSingleton<INextOfKinEmergencyAlertNotifier, LoggingNextOfKinEmergencyAlertNotifier>();
         services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
+        services.AddScoped<IEmergencyAlertRepository, EmergencyAlertRepository>();
+        services.AddScoped<IEmergencyAlertDispatchService, EmergencyAlertDispatchService>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
