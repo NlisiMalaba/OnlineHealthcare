@@ -16,6 +16,10 @@ public static class WellnessPolicies
 
     public const int AdherenceStreakLookbackCount = 10;
 
+    public static readonly TimeSpan AdherenceSummaryWeeklyWindow = TimeSpan.FromDays(7);
+
+    public static readonly TimeSpan AdherenceSummaryMonthlyWindow = TimeSpan.FromDays(30);
+
     public static bool IsMissed(DateTime scheduledAtUtc, DateTime nowUtc) =>
         nowUtc >= scheduledAtUtc.Add(MissedDoseGracePeriod);
 

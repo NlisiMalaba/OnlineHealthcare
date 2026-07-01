@@ -11,13 +11,14 @@ public sealed class ConfirmMedicationDoseCommandHandler(
     IPatientRepository patientRepository,
     IMedicationScheduleRepository medicationScheduleRepository,
     IAdherenceEventRepository adherenceEventRepository,
+    IMedicationScheduleCompletionService scheduleCompletionService,
     TimeProvider timeProvider)
     : IRequestHandler<ConfirmMedicationDoseCommand, AdherenceEventDto>
 {
     public async Task<AdherenceEventDto> Handle(ConfirmMedicationDoseCommand request, CancellationToken ct)
     {
         var patient = await ResolvePatientAsync(ct);
-        var schedule = await medicationScheduleRepository.GetActiveByIdForPatientAsync(
+        var schedule = await medicationScheduleRepository.GetByIdForPatientAsync(
             request.ScheduleId,
             patient.Id,
             ct)
@@ -43,6 +44,13 @@ public sealed class ConfirmMedicationDoseCommandHandler(
                 "An adherence event has already been recorded for this dose.");
         }
 
+        if (schedule.Status != MedicationScheduleStatus.Active)
+        {
+            throw new DomainException(
+                WellnessErrorCodes.ScheduleNotActive,
+                "The medication schedule is no longer active.");
+        }
+
         var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
         if (nowUtc < request.ScheduledAtUtc)
         {
@@ -66,6 +74,7 @@ public sealed class ConfirmMedicationDoseCommandHandler(
 
         await adherenceEventRepository.AddAsync(adherenceEvent, ct);
         await adherenceEventRepository.SaveChangesAsync(ct);
+        await scheduleCompletionService.EvaluateCompletionAsync(schedule.Id, ct);
         return adherenceEvent.ToDto();
     }
 

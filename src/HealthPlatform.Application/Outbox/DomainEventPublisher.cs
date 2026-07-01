@@ -230,6 +230,14 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.StreakEndScheduledAtUtc,
                     e.OccurredAtUtc),
                 ct),
+            MedicationScheduleCompletedDomainEvent e => mediator.Publish(
+                new MedicationScheduleCompletedNotification(
+                    e.ScheduleId,
+                    e.PrescriptionId,
+                    e.PatientId,
+                    e.MedicationName,
+                    e.CompletedAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

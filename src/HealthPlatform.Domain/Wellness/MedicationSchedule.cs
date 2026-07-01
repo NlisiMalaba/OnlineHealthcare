@@ -21,6 +21,8 @@ public sealed class MedicationSchedule : Entity
 
     public MedicationScheduleStatus Status { get; private set; }
 
+    public DateTime? CompletedAtUtc { get; private set; }
+
     public static MedicationSchedule CreateActive(
         Guid prescriptionId,
         Guid patientId,
@@ -63,5 +65,22 @@ public sealed class MedicationSchedule : Entity
 
         schedule._doseTimes.AddRange(doseTimes.OrderBy(doseTime => doseTime));
         return schedule;
+    }
+
+    public bool MarkCompleted(DateTime completedAtUtc)
+    {
+        if (completedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Completion time must be UTC.", nameof(completedAtUtc));
+        }
+
+        if (Status == MedicationScheduleStatus.Completed)
+        {
+            return false;
+        }
+
+        Status = MedicationScheduleStatus.Completed;
+        CompletedAtUtc = completedAtUtc;
+        return true;
     }
 }

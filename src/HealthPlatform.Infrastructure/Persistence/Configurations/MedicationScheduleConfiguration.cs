@@ -21,6 +21,8 @@ public sealed class MedicationScheduleConfiguration : IEntityTypeConfiguration<M
             .HasMaxLength(32)
             .IsRequired();
 
+        builder.Property(s => s.CompletedAtUtc);
+
         builder.PrimitiveCollection(s => s.DoseTimes)
             .HasColumnType("timestamp with time zone[]")
             .IsRequired();

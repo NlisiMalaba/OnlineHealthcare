@@ -125,6 +125,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public CapturingConsecutiveMissedDosesNextOfKinNotifier ConsecutiveMissedDosesNextOfKinNotifier =>
         _consecutiveMissedDosesNextOfKinNotifier;
 
+    private readonly CapturingMedicationScheduleCompletionNotifier _medicationScheduleCompletionNotifier = new();
+
+    public CapturingMedicationScheduleCompletionNotifier MedicationScheduleCompletionNotifier =>
+        _medicationScheduleCompletionNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -183,6 +188,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
+        services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();
+        services.AddSingleton<IMedicationScheduleCompletionNotifier>(_medicationScheduleCompletionNotifier);
         services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();

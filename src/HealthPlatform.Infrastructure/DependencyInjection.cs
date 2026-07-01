@@ -123,6 +123,8 @@ public static class DependencyInjection
         services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
+        services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();
+        services.AddSingleton<IMedicationScheduleCompletionNotifier, LoggingMedicationScheduleCompletionNotifier>();
         services.AddSingleton<IConsecutiveMissedDosesNextOfKinNotifier, LoggingConsecutiveMissedDosesNextOfKinNotifier>();
         services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();

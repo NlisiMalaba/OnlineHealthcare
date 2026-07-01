@@ -24,6 +24,14 @@ public interface IAdherenceEventRepository
         int take,
         CancellationToken ct);
 
+    Task<int> CountRecordedByScheduleIdAsync(Guid scheduleId, CancellationToken ct);
+
+    Task<IReadOnlyList<AdherenceEvent>> ListByScheduleIdsInRangeAsync(
+        IReadOnlyCollection<Guid> scheduleIds,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken ct);
+
     Task AddAsync(AdherenceEvent adherenceEvent, CancellationToken ct);
 
     Task SaveChangesAsync(CancellationToken ct);
