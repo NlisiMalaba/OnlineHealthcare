@@ -173,6 +173,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
         services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
         services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
+        services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
+        services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
         if (prescriptionIssuedNotifier is not null)
         {
