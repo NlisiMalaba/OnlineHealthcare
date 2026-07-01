@@ -249,7 +249,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 9.6, 9.7_
 
 - [ ] 15. Next of Kin Module
-  - [ ] 15.1 Implement next-of-kin CRUD: allow patient to add up to 3 contacts (name, relationship, phone, email, mental health contact flag); notify contact on addition
+  - [x] 15.1 Implement next-of-kin CRUD: allow patient to add up to 3 contacts (name, relationship, phone, email, mental health contact flag); notify contact on addition
     - _Requirements: 10.1, 10.2, 22.8_
   - [ ] 15.2 Implement emergency alert dispatch: doctor-triggered or system-triggered alert sends simultaneous SMS + push to all patient next-of-kin; log alert with timestamp, trigger reason, and delivery status
     - _Requirements: 10.3, 10.4, 10.6_

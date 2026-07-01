@@ -62,4 +62,34 @@ public sealed class NextOfKinContact : Entity
             IsMentalHealthContact = isMentalHealthContact
         };
     }
+
+    public void Update(
+        string fullName,
+        string relationship,
+        string phoneNumber,
+        string? email,
+        bool isMentalHealthContact)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            throw new ArgumentException("Full name is required.", nameof(fullName));
+        }
+
+        if (string.IsNullOrWhiteSpace(relationship))
+        {
+            throw new ArgumentException("Relationship is required.", nameof(relationship));
+        }
+
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            throw new ArgumentException("Phone number is required.", nameof(phoneNumber));
+        }
+
+        FullName = fullName.Trim();
+        Relationship = relationship.Trim();
+        PhoneNumber = phoneNumber.Trim();
+        Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        IsMentalHealthContact = isMentalHealthContact;
+        Touch();
+    }
 }
