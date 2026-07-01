@@ -226,26 +226,26 @@ The full task list below is the **complete platform** backlog. For a **working M
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. Medication Adherence Module
-  - [ ] 14.1 Implement medication schedule generation: on `PrescriptionDispensed` domain event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
+  - [x] 14.1 Implement medication schedule generation: on `PrescriptionDispensed` domain event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
     - _Requirements: 9.1_
-  - [ ]* 14.2 Write property test for medication schedule generation (Property 18)
+  - [x]* 14.2 Write property test for medication schedule generation (Property 18)
     - **Property 18: Medication Schedule Generation**
     - **Validates: Requirements 9.1**
-  - [ ] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time via Hangfire recurring jobs
+  - [x] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time via Hangfire recurring jobs
     - _Requirements: 9.2_
-  - [ ] 14.4 Implement adherence event recording: on patient confirmation → record `taken` event with timestamp; on 2-hour overdue → record `missed` event
+  - [x] 14.4 Implement adherence event recording: on patient confirmation → record `taken` event with timestamp; on 2-hour overdue → record `missed` event
     - _Requirements: 9.3, 9.4_
-  - [ ]* 14.5 Write property test for missed dose detection (Property 19)
+  - [x]* 14.5 Write property test for missed dose detection (Property 19)
     - **Property 19: Missed Dose Detection**
     - **Validates: Requirements 9.4**
-  - [ ] 14.6 Implement consecutive missed dose alert: after 3 consecutive `missed` adherence events, emit notification event to all patient next-of-kin
+  - [x] 14.6 Implement consecutive missed dose alert: after 3 consecutive `missed` adherence events, emit notification event to all patient next-of-kin
     - _Requirements: 9.5, 10.5_
-  - [ ]* 14.7 Write property test for consecutive missed doses alert (Property 20)
+  - [x]* 14.7 Write property test for consecutive missed doses alert (Property 20)
     - **Property 20: Consecutive Missed Doses Alert**
     - **Validates: Requirements 9.5, 10.5**
-  - [ ] 14.8 Implement adherence summary endpoints: weekly and monthly summaries for patient and prescribing doctor; schedule completion notification
+  - [x] 14.8 Implement adherence summary endpoints: weekly and monthly summaries for patient and prescribing doctor; schedule completion notification
     - _Requirements: 9.6, 9.7_
-  - [ ]* 14.9 Write unit tests for schedule completion, zero-dose-schedule edge case, and summary aggregation
+  - [x]* 14.9 Write unit tests for schedule completion, zero-dose-schedule edge case, and summary aggregation
     - _Requirements: 9.6, 9.7_
 
 - [ ] 15. Next of Kin Module

@@ -106,7 +106,11 @@ public sealed class CreatePrescriptionDrugInteractionTests : IAsyncLifetime
     {
         var scheduleRepository = _host.GetRequiredService<IMedicationScheduleRepository>();
         await scheduleRepository.AddAsync(
-            MedicationSchedule.CreateActive(Guid.CreateVersion7(), patientId, medicationName),
+            MedicationSchedule.CreateActive(
+                Guid.CreateVersion7(),
+                patientId,
+                medicationName,
+                [new DateTime(2026, 6, 24, 8, 0, 0, DateTimeKind.Utc)]),
             CancellationToken.None);
     }
 }

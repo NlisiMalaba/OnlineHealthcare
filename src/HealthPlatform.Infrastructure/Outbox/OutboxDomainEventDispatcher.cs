@@ -5,6 +5,7 @@ using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
 using HealthPlatform.Domain.Telemedicine.Events;
 using HealthPlatform.Domain.Prescriptions.Events;
+using HealthPlatform.Domain.Wellness.Events;
 using HealthPlatform.Domain.Insurance.Events;
 using HealthPlatform.Domain.Payments.CreditLine.Events;
 using HealthPlatform.Domain.Payments.Events;
@@ -102,6 +103,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<PrescriptionIssuedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Prescriptions.Events.PrescriptionCancelledDomainEvent" =>
                 JsonSerializer.Deserialize<PrescriptionCancelledDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Prescriptions.Events.PrescriptionDispensedDomainEvent" =>
+                JsonSerializer.Deserialize<PrescriptionDispensedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Prescriptions.Events.DrugInteractionAlertDetectedDomainEvent" =>
                 JsonSerializer.Deserialize<DrugInteractionAlertDetectedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Pharmacy.Events.MedicationOrderPlacedDomainEvent" =>
@@ -122,6 +125,10 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<InstalmentPlanCreatedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Payments.Instalments.Events.InstalmentPaymentMissedDomainEvent" =>
                 JsonSerializer.Deserialize<InstalmentPaymentMissedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Wellness.Events.ConsecutiveMissedDosesDetectedDomainEvent" =>
+                JsonSerializer.Deserialize<ConsecutiveMissedDosesDetectedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Wellness.Events.MedicationScheduleCompletedDomainEvent" =>
+                JsonSerializer.Deserialize<MedicationScheduleCompletedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }

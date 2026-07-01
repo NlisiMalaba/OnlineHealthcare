@@ -7,7 +7,8 @@ namespace HealthPlatform.Application.Prescriptions.Dispensing;
 public sealed class DispensePrescriptionForMedicationOrderCommandHandler(
     ICurrentUserAccessor currentUser,
     IPatientRepository patientRepository,
-    IPrescriptionDispensingGuard dispensingGuard)
+    IPrescriptionDispensingGuard dispensingGuard,
+    IPrescriptionDomainEventPublisher prescriptionDomainEventPublisher)
     : IRequestHandler<DispensePrescriptionForMedicationOrderCommand, PrescriptionDto>
 {
     public async Task<PrescriptionDto> Handle(
@@ -22,9 +23,14 @@ public sealed class DispensePrescriptionForMedicationOrderCommandHandler(
                 PrescriptionErrorCodes.PatientNotFound,
                 "Patient profile was not found.");
 
-        return await dispensingGuard.DispenseForMedicationOrderAsync(
+        var prescription = await dispensingGuard.PrepareDispenseForMedicationOrderAsync(
             request.PrescriptionId,
             patient.Id,
             ct);
+
+        await dispensingGuard.PersistDispensedPrescriptionAsync(prescription, ct);
+        await prescriptionDomainEventPublisher.PublishPendingAsync(prescription, ct);
+
+        return prescription.ToDto();
     }
 }

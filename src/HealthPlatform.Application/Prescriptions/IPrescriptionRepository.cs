@@ -12,5 +12,7 @@ public interface IPrescriptionRepository
 
     Task<Prescription?> GetByIdForDoctorAsync(Guid prescriptionId, Guid doctorId, CancellationToken ct);
 
+    Task<IReadOnlyList<Prescription>> ListByDoctorIdAsync(Guid doctorId, CancellationToken ct);
+
     Task UpdateAsync(Prescription prescription, CancellationToken ct);
 }

@@ -1,4 +1,5 @@
 using HealthPlatform.Domain.Prescriptions;
+using HealthPlatform.Domain.Prescriptions.Events;
 using Xunit;
 
 namespace HealthPlatform.Tests.Unit.Prescriptions;
@@ -57,6 +58,26 @@ public sealed class PrescriptionTests
         prescription.MarkDispensed(issuedAtUtc.AddDays(1));
 
         Assert.Equal(PrescriptionStatus.Dispensed, prescription.Status);
+    }
+
+    [Fact]
+    public void MarkDispensed_raises_prescription_dispensed_domain_event()
+    {
+        var issuedAtUtc = new DateTime(2026, 6, 1, 10, 0, 0, DateTimeKind.Utc);
+        var dispensedAtUtc = issuedAtUtc.AddDays(1);
+        var prescription = CreateActivePrescription(issuedAtUtc);
+
+        prescription.MarkDispensed(dispensedAtUtc);
+
+        var domainEvent = Assert.Single(
+            prescription.DomainEvents.OfType<PrescriptionDispensedDomainEvent>());
+        Assert.Equal(prescription.Id, domainEvent.PrescriptionId);
+        Assert.Equal(prescription.PatientId, domainEvent.PatientId);
+        Assert.Equal(prescription.MedicationName, domainEvent.MedicationName);
+        Assert.Equal(prescription.Dosage, domainEvent.Dosage);
+        Assert.Equal(prescription.Frequency, domainEvent.Frequency);
+        Assert.Equal(prescription.DurationDays, domainEvent.DurationDays);
+        Assert.Equal(dispensedAtUtc, domainEvent.DispensedAtUtc);
     }
 
     [Fact]

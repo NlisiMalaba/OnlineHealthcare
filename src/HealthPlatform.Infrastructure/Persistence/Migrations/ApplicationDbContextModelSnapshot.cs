@@ -591,6 +591,50 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("patient_insurance_policies", (string)null);
                 });
 
+            modelBuilder.Entity("HealthPlatform.Domain.NextOfKin.NextOfKinContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsMentalHealthContact")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Relationship")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("next_of_kin_contacts", (string)null);
+                });
+
             modelBuilder.Entity("HealthPlatform.Domain.Payments.CreditLine.CreditLineTransaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1178,7 +1222,7 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("telemedicine_sessions", (string)null);
                 });
 
-            modelBuilder.Entity("HealthPlatform.Domain.Wellness.MedicationSchedule", b =>
+            modelBuilder.Entity("HealthPlatform.Domain.Wellness.AdherenceEvent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1186,6 +1230,125 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("RecordedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ScheduledAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("PatientId", "Status");
+
+                    b.HasIndex("ScheduleId", "ScheduledAtUtc")
+                        .IsUnique();
+
+                    b.ToTable("adherence_events", (string)null);
+                });
+
+            modelBuilder.Entity("HealthPlatform.Domain.Wellness.ConsecutiveMissedDoseAlert", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StreakEndScheduledAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("TriggeredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TriggeringAdherenceEventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TriggeringAdherenceEventId")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "StreakEndScheduledAtUtc")
+                        .IsUnique();
+
+                    b.ToTable("consecutive_missed_dose_alerts", (string)null);
+                });
+
+            modelBuilder.Entity("HealthPlatform.Domain.Wellness.MedicationDoseReminder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ScheduledAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("SentAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("ScheduledAtUtc");
+
+                    b.HasIndex("ScheduleId", "ScheduledAtUtc")
+                        .IsUnique();
+
+                    b.ToTable("medication_dose_reminders", (string)null);
+                });
+
+            modelBuilder.Entity("HealthPlatform.Domain.Wellness.MedicationSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.PrimitiveCollection<DateTime[]>("DoseTimes")
+                        .IsRequired()
+                        .HasColumnType("timestamp with time zone[]");
 
                     b.Property<string>("MedicationName")
                         .IsRequired()
