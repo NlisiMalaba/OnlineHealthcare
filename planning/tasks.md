@@ -243,9 +243,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 14.7 Write property test for consecutive missed doses alert (Property 20)
     - **Property 20: Consecutive Missed Doses Alert**
     - **Validates: Requirements 9.5, 10.5**
-  - [ ] 14.8 Implement adherence summary endpoints: weekly and monthly summaries for patient and prescribing doctor; schedule completion notification
+  - [x] 14.8 Implement adherence summary endpoints: weekly and monthly summaries for patient and prescribing doctor; schedule completion notification
     - _Requirements: 9.6, 9.7_
-  - [ ]* 14.9 Write unit tests for schedule completion, zero-dose-schedule edge case, and summary aggregation
+  - [x]* 14.9 Write unit tests for schedule completion, zero-dose-schedule edge case, and summary aggregation
     - _Requirements: 9.6, 9.7_
 
 - [ ] 15. Next of Kin Module

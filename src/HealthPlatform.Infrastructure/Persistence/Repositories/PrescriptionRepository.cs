@@ -25,6 +25,12 @@ public sealed class PrescriptionRepository(ApplicationDbContext db) : IPrescript
             p => p.Id == prescriptionId && p.DoctorId == doctorId,
             ct);
 
+    public async Task<IReadOnlyList<Prescription>> ListByDoctorIdAsync(Guid doctorId, CancellationToken ct) =>
+        await db.Prescriptions
+            .AsNoTracking()
+            .Where(p => p.DoctorId == doctorId)
+            .ToListAsync(ct);
+
     public Task UpdateAsync(Prescription prescription, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 }

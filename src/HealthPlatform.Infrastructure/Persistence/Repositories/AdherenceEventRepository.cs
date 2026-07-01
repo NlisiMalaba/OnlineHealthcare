@@ -84,6 +84,30 @@ public sealed class AdherenceEventRepository(ApplicationDbContext db) : IAdheren
             .Take(take)
             .ToListAsync(ct);
 
+    public Task<int> CountRecordedByScheduleIdAsync(Guid scheduleId, CancellationToken ct) =>
+        db.AdherenceEvents
+            .AsNoTracking()
+            .CountAsync(adherenceEvent => adherenceEvent.ScheduleId == scheduleId, ct);
+
+    public async Task<IReadOnlyList<AdherenceEvent>> ListByScheduleIdsInRangeAsync(
+        IReadOnlyCollection<Guid> scheduleIds,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken ct)
+    {
+        if (scheduleIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await db.AdherenceEvents
+            .AsNoTracking()
+            .Where(adherenceEvent => scheduleIds.Contains(adherenceEvent.ScheduleId)
+                && adherenceEvent.ScheduledAtUtc >= fromUtc
+                && adherenceEvent.ScheduledAtUtc < toUtc)
+            .ToListAsync(ct);
+    }
+
     public async Task AddAsync(AdherenceEvent adherenceEvent, CancellationToken ct) =>
         await db.AdherenceEvents.AddAsync(adherenceEvent, ct);
 

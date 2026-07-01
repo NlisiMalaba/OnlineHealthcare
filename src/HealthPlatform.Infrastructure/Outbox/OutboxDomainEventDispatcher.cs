@@ -127,6 +127,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<InstalmentPaymentMissedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Wellness.Events.ConsecutiveMissedDosesDetectedDomainEvent" =>
                 JsonSerializer.Deserialize<ConsecutiveMissedDosesDetectedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Wellness.Events.MedicationScheduleCompletedDomainEvent" =>
+                JsonSerializer.Deserialize<MedicationScheduleCompletedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }

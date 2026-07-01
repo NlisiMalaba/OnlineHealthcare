@@ -8,6 +8,7 @@ public sealed class MissedDoseDetectionDispatcher(
     TimeProvider timeProvider,
     IAdherenceEventRepository adherenceEventRepository,
     IConsecutiveMissedDoseAlertService consecutiveMissedDoseAlertService,
+    IMedicationScheduleCompletionService scheduleCompletionService,
     ILogger<MissedDoseDetectionDispatcher> logger) : IMissedDoseDetectionDispatcher
 {
     public async Task<int> RecordMissedDosesAsync(CancellationToken ct)
@@ -53,6 +54,7 @@ public sealed class MissedDoseDetectionDispatcher(
             await consecutiveMissedDoseAlertService.TryEmitAlertIfThresholdReachedAsync(
                 overdueDose.PatientId,
                 ct);
+            await scheduleCompletionService.EvaluateCompletionAsync(overdueDose.ScheduleId, ct);
             recorded++;
 
             logger.LogInformation(
