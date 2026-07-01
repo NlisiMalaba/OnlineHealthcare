@@ -233,9 +233,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 9.1**
   - [x] 14.3 Implement dose reminder scheduler: send push notification at each scheduled dose time via Hangfire recurring jobs
     - _Requirements: 9.2_
-  - [ ] 14.4 Implement adherence event recording: on patient confirmation → record `taken` event with timestamp; on 2-hour overdue → record `missed` event
+  - [x] 14.4 Implement adherence event recording: on patient confirmation → record `taken` event with timestamp; on 2-hour overdue → record `missed` event
     - _Requirements: 9.3, 9.4_
-  - [ ]* 14.5 Write property test for missed dose detection (Property 19)
+  - [x]* 14.5 Write property test for missed dose detection (Property 19)
     - **Property 19: Missed Dose Detection**
     - **Validates: Requirements 9.4**
   - [ ] 14.6 Implement consecutive missed dose alert: after 3 consecutive `missed` adherence events, emit notification event to all patient next-of-kin

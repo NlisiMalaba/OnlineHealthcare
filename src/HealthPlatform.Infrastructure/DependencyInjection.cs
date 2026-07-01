@@ -119,6 +119,8 @@ public static class DependencyInjection
         services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
         services.AddSingleton<IMedicationDoseReminderNotifier, LoggingMedicationDoseReminderNotifier>();
         services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
+        services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
+        services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
