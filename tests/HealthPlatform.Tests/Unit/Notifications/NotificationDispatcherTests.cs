@@ -42,10 +42,20 @@ public sealed class NotificationDispatcherTests
         var gatewayResolver = new Mock<INotificationChannelGatewayResolver>();
         gatewayResolver.Setup(resolver => resolver.ResolveEmail()).Returns(emailGateway.Object);
 
+        var logWriter = new Mock<INotificationLogWriter>();
+        logWriter
+            .Setup(writer => writer.RecordDispatchAsync(
+                It.IsAny<NotificationDispatchRequest>(),
+                It.IsAny<ResolvedNotificationRecipient>(),
+                It.IsAny<IReadOnlyList<ChannelDeliveryResult>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         var dispatcher = new NotificationDispatcher(
             preferenceResolver.Object,
             recipientResolver.Object,
             gatewayResolver.Object,
+            logWriter.Object,
             NullLogger<NotificationDispatcher>.Instance);
 
         var result = await dispatcher.DispatchAsync(
@@ -85,10 +95,20 @@ public sealed class NotificationDispatcherTests
         gatewayResolver.Setup(resolver => resolver.ResolvePush()).Returns(pushGateway.Object);
         gatewayResolver.Setup(resolver => resolver.ResolveSms()).Returns(smsGateway.Object);
 
+        var logWriter = new Mock<INotificationLogWriter>();
+        logWriter
+            .Setup(writer => writer.RecordDispatchAsync(
+                It.IsAny<NotificationDispatchRequest>(),
+                It.IsAny<ResolvedNotificationRecipient>(),
+                It.IsAny<IReadOnlyList<ChannelDeliveryResult>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         var dispatcher = new NotificationDispatcher(
             new DefaultNotificationPreferenceResolver(),
             new FixedRecipientResolver(),
             gatewayResolver.Object,
+            logWriter.Object,
             NullLogger<NotificationDispatcher>.Instance);
 
         var result = await dispatcher.DispatchAsync(
@@ -124,10 +144,20 @@ public sealed class NotificationDispatcherTests
         var gatewayResolver = new Mock<INotificationChannelGatewayResolver>();
         gatewayResolver.Setup(resolver => resolver.ResolveSms()).Returns(smsGateway.Object);
 
+        var logWriter = new Mock<INotificationLogWriter>();
+        logWriter
+            .Setup(writer => writer.RecordDispatchAsync(
+                It.IsAny<NotificationDispatchRequest>(),
+                It.IsAny<ResolvedNotificationRecipient>(),
+                It.IsAny<IReadOnlyList<ChannelDeliveryResult>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         var dispatcher = new NotificationDispatcher(
             new DefaultNotificationPreferenceResolver(),
             recipientResolver.Object,
             gatewayResolver.Object,
+            logWriter.Object,
             NullLogger<NotificationDispatcher>.Instance);
 
         await dispatcher.DispatchAsync(
@@ -138,6 +168,10 @@ public sealed class NotificationDispatcherTests
                 NotificationCriticality.Critical,
                 new NotificationContent("Emergency alert", "Alert body"),
                 new NotificationContactOverride("kin@example.com", "+263772222222"),
+                Metadata: new Dictionary<string, string>
+                {
+                    ["contact_id"] = Guid.CreateVersion7().ToString()
+                },
                 Channels: [NotificationChannel.Sms]),
             CancellationToken.None);
 

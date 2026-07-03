@@ -31,6 +31,7 @@ using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Application.Notifications;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Notifications;
+using HealthPlatform.Infrastructure.Notifications.Routing;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
@@ -353,6 +354,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         services.AddScoped<INotificationPreferenceResolver, StoredNotificationPreferenceResolver>();
         services.AddScoped<IUserRoleResolver, IdentityUserRoleResolver>();
+        services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
+        services.AddScoped<INotificationLogWriter, NotificationLogWriter>();
+        services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
+        services.AddScoped<INotificationChannelGatewayResolver, NotificationChannelGatewayResolver>();
+        services.AddSingleton<IPushNotificationGateway, Infrastructure.Notifications.Gateways.LoggingPushNotificationGateway>();
+        services.AddSingleton<ISmsNotificationGateway, Infrastructure.Notifications.Gateways.LoggingSmsNotificationGateway>();
+        services.AddSingleton<IEmailNotificationGateway, Infrastructure.Notifications.Gateways.LoggingEmailNotificationGateway>();
+        services.AddScoped<INotificationRecipientResolver, IdentityNotificationRecipientResolver>();
+        services.AddScoped<IAppointmentConfirmationNotifier, RoutingAppointmentConfirmationNotifier>();
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();

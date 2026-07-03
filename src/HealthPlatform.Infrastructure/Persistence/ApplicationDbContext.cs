@@ -85,6 +85,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
 
+    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
