@@ -1,4 +1,6 @@
 using HealthPlatform.Application.HealthRecords;
+using HealthPlatform.Application.HealthRecords.ExportPatientHealthRecordPdf;
+using HealthPlatform.Application.HealthRecords.GetPatientHealthRecord;
 using HealthPlatform.Application.HealthRecords.GetPatientHealthRecordEntry;
 using HealthPlatform.Application.HealthRecords.ListPatientHealthRecordEntries;
 using HealthPlatform.Application.Security;
@@ -13,6 +15,16 @@ namespace HealthPlatform.API.Controllers;
 [Authorize(Policy = AuthorizationPolicies.Patient)]
 public sealed class PatientHealthRecordController(ISender sender) : ControllerBase
 {
+    [HttpGet]
+    [ProducesResponseType(typeof(PatientHealthRecordDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PatientHealthRecordDto>> GetAsync(CancellationToken ct) =>
+        Ok(await sender.Send(new GetPatientHealthRecordQuery(), ct));
+
+    [HttpGet("export/pdf")]
+    [ProducesResponseType(typeof(HealthRecordPdfExportDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<HealthRecordPdfExportDto>> ExportPdfAsync(CancellationToken ct) =>
+        Ok(await sender.Send(new ExportPatientHealthRecordPdfQuery(), ct));
+
     [HttpGet("entries")]
     [ProducesResponseType(typeof(IReadOnlyList<HealthRecordEntryDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<HealthRecordEntryDto>>> ListEntriesAsync(CancellationToken ct) =>

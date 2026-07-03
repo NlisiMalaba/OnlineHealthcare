@@ -269,10 +269,10 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 11.1, 11.2_
   - [x] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
     - _Requirements: 11.4, 11.7_
-  - [ ]* 16.3 Write property test for health record access control (Property 24)
+  - [x]* 16.3 Write property test for health record access control (Property 24)
     - **Property 24: Health Record Access Control**
     - **Validates: Requirements 11.4, 11.7**
-  - [ ] 16.4 Implement patient self-access endpoint and PDF export (generate PDF from record entries, store in S3, return signed URL)
+  - [x] 16.4 Implement patient self-access endpoint and PDF export (generate PDF from record entries, store in S3, return signed URL)
     - _Requirements: 11.3, 11.6_
   - [ ] 16.5 Implement access grant audit logging: every grant, revoke, and access attempt writes to AuditLog table with actor, timestamp, and action
     - _Requirements: 11.5, 17.5_
