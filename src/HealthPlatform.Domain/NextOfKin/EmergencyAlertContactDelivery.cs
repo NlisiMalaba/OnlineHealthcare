@@ -41,4 +41,14 @@ public sealed class EmergencyAlertContactDelivery
             PushStatus = pushStatus
         };
     }
+
+    public void RecordSmsStatus(EmergencyAlertChannelDeliveryStatus status)
+    {
+        SmsStatus = status;
+    }
+
+    public void RecordPushStatus(EmergencyAlertChannelDeliveryStatus status)
+    {
+        PushStatus = status;
+    }
 }
