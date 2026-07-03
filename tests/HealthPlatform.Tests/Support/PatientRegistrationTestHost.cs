@@ -351,6 +351,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public ISender Sender => _serviceProvider.GetRequiredService<ISender>();
 
+    public InMemoryHealthRecordEntryRepository HealthRecordEntryRepository =>
+        _serviceProvider.GetRequiredService<InMemoryHealthRecordEntryRepository>();
+
     public ApplicationDbContext DbContext => _serviceProvider.GetRequiredService<ApplicationDbContext>();
 
     public T GetRequiredService<T>() where T : notnull =>
