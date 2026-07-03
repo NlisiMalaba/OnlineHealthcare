@@ -10,7 +10,8 @@ public sealed class ListPatientHealthRecordEntriesQueryHandler(
     ICurrentUserAccessor currentUser,
     IPatientRepository patientRepository,
     IHealthRecordRepository healthRecordRepository,
-    IHealthRecordEntryRepository healthRecordEntryRepository)
+    IHealthRecordEntryRepository healthRecordEntryRepository,
+    IHealthRecordAccessAuditService healthRecordAccessAuditService)
     : IRequestHandler<ListPatientHealthRecordEntriesQuery, IReadOnlyList<HealthRecordEntryDto>>
 {
     public async Task<IReadOnlyList<HealthRecordEntryDto>> Handle(
@@ -23,10 +24,18 @@ public sealed class ListPatientHealthRecordEntriesQueryHandler(
                 HealthRecordErrorCodes.HealthRecordNotFound,
                 "Health record was not found.");
 
-        return await healthRecordEntryRepository.ListByHealthRecordIdAsync(
+        var entries = await healthRecordEntryRepository.ListByHealthRecordIdAsync(
             healthRecord.Id,
             patientVisibleOnly: true,
             ct);
+
+        await healthRecordAccessAuditService.LogPatientAccessAsync(
+            patient.Id,
+            healthRecord.Id,
+            HealthRecordAccessOperations.ListPatientEntries,
+            ct);
+
+        return entries;
     }
 
     private async Task<Patient> ResolvePatientAsync(CancellationToken ct)

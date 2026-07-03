@@ -1,9 +1,6 @@
-using System.Text.Json;
-using HealthPlatform.Application.Audit;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Security;
-using HealthPlatform.Domain.Audit;
 using HealthPlatform.Domain.Identity;
 using MediatR;
 
@@ -15,8 +12,7 @@ public sealed class RevokeHealthRecordAccessCommandHandler(
     IDoctorRepository doctorRepository,
     IHealthRecordRepository healthRecordRepository,
     IHealthRecordAccessRepository healthRecordAccessRepository,
-    IAuditLogRepository auditLogRepository,
-    IAuditContextAccessor auditContext,
+    IHealthRecordAccessAuditService healthRecordAccessAuditService,
     TimeProvider timeProvider)
     : IRequestHandler<RevokeHealthRecordAccessCommand, HealthRecordAccessDto>
 {
@@ -49,17 +45,10 @@ public sealed class RevokeHealthRecordAccessCommandHandler(
         activeGrant.Revoke(revokedAtUtc);
         await healthRecordAccessRepository.UpdateAsync(activeGrant, ct);
 
-        await auditLogRepository.AppendAsync(
-            AuditLog.Create(
-                patient.Id,
-                AuditActorType.Patient,
-                AuditActions.HealthRecordAccessRevoked,
-                "health_record",
-                healthRecord.Id,
-                revokedAtUtc,
-                auditContext.IpAddress,
-                auditContext.UserAgent,
-                JsonSerializer.Serialize(new { doctor_id = doctor.Id })),
+        await healthRecordAccessAuditService.LogRevokeAsync(
+            patient.Id,
+            healthRecord.Id,
+            doctor.Id,
             ct);
 
         return activeGrant.ToDto(doctor.FullName);

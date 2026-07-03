@@ -264,7 +264,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 15.6 Write unit tests for max 3 contacts enforcement, alert with no next-of-kin, and retry exhaustion
     - _Requirements: 10.1, 10.7_
 
-- [ ] 16. Health Records Module
+- [x] 16. Health Records Module
   - [x] 16.1 Implement HealthRecord creation (triggered by `PatientRegistered` domain event) and HealthRecordEntry CRUD in MongoDB (consultation notes, diagnoses, prescription refs, allergies, vitals, lab result refs, vaccinations)
     - _Requirements: 11.1, 11.2_
   - [x] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
@@ -274,9 +274,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 11.4, 11.7**
   - [x] 16.4 Implement patient self-access endpoint and PDF export (generate PDF from record entries, store in S3, return signed URL)
     - _Requirements: 11.3, 11.6_
-  - [ ] 16.5 Implement access grant audit logging: every grant, revoke, and access attempt writes to AuditLog table with actor, timestamp, and action
+  - [x] 16.5 Implement access grant audit logging: every grant, revoke, and access attempt writes to AuditLog table with actor, timestamp, and action
     - _Requirements: 11.5, 17.5_
-  - [ ]* 16.6 Write unit tests for PDF export, access revocation, and audit log completeness
+  - [x]* 16.6 Write unit tests for PDF export, access revocation, and audit log completeness
     - _Requirements: 11.5, 11.6, 11.7_
 
 - [ ] 17. Notifications Module

@@ -25,7 +25,11 @@ public sealed class ListHealthRecordEntriesQueryHandler(
                 HealthRecordErrorCodes.HealthRecordNotFound,
                 "Health record was not found.");
 
-        await healthRecordAccessGuard.EnsureDoctorCanReadAsync(request.HealthRecordId, doctor.Id, ct);
+        await healthRecordAccessGuard.EnsureDoctorCanReadAsync(
+            request.HealthRecordId,
+            doctor.Id,
+            HealthRecordAccessOperations.ListEntries,
+            ct);
 
         return await healthRecordEntryRepository.ListByHealthRecordIdAsync(
             request.HealthRecordId,

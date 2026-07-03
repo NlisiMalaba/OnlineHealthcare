@@ -1,10 +1,7 @@
 using HealthPlatform.Application.Audit;
-using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Domain.Audit;
 using HealthPlatform.Domain.HealthRecords;
-using HealthPlatform.Infrastructure.MongoDb;
-using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Tests.Support;
 using Moq;
 using Xunit;
@@ -14,40 +11,38 @@ namespace HealthPlatform.Tests.Unit.HealthRecords;
 public sealed class HealthRecordAccessGuardTests
 {
     [Fact]
-    public async Task EnsureDoctorCanReadAsync_writes_audit_log_and_throws_when_grant_missing()
+    public async Task EnsureDoctorCanReadAsync_logs_denied_attempt_and_throws_when_grant_missing()
     {
         var healthRecordId = Guid.CreateVersion7();
         var doctorId = Guid.CreateVersion7();
-        var auditLogs = new List<AuditLog>();
-        var auditRepository = new Mock<IAuditLogRepository>();
-        auditRepository
-            .Setup(repo => repo.AppendAsync(It.IsAny<AuditLog>(), It.IsAny<CancellationToken>()))
-            .Callback<AuditLog, CancellationToken>((log, _) => auditLogs.Add(log))
-            .Returns(Task.CompletedTask);
+        var auditService = new Mock<IHealthRecordAccessAuditService>();
 
         var accessRepository = new Mock<IHealthRecordAccessRepository>();
         accessRepository
             .Setup(repo => repo.GetActiveGrantAsync(healthRecordId, doctorId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((HealthRecordAccess?)null);
 
-        var guard = new HealthRecordAccessGuard(
-            accessRepository.Object,
-            auditRepository.Object,
-            new TestAuditContextAccessor(),
-            new FakeTimeProvider(new DateTime(2026, 7, 3, 9, 0, 0, DateTimeKind.Utc)));
+        var guard = new HealthRecordAccessGuard(accessRepository.Object, auditService.Object);
 
-        var exception = await Assert.ThrowsAsync<AccessDeniedException>(() =>
-            guard.EnsureDoctorCanReadAsync(healthRecordId, doctorId, CancellationToken.None));
+        await Assert.ThrowsAsync<Application.Exceptions.AccessDeniedException>(() =>
+            guard.EnsureDoctorCanReadAsync(
+                healthRecordId,
+                doctorId,
+                HealthRecordAccessOperations.ListEntries,
+                CancellationToken.None));
 
-        Assert.Equal("ACCESS_DENIED", exception.Code);
-        Assert.Single(auditLogs);
-        Assert.Equal(AuditActions.HealthRecordAccessDenied, auditLogs[0].Action);
-        Assert.Equal(doctorId, auditLogs[0].ActorId);
-        Assert.Equal(healthRecordId, auditLogs[0].ResourceId);
+        auditService.Verify(
+            service => service.LogDoctorAccessAttemptAsync(
+                doctorId,
+                healthRecordId,
+                HealthRecordAccessOperations.ListEntries,
+                false,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task EnsureDoctorCanReadAsync_succeeds_when_active_grant_exists()
+    public async Task EnsureDoctorCanReadAsync_logs_allowed_attempt_when_grant_exists()
     {
         var healthRecordId = Guid.CreateVersion7();
         var doctorId = Guid.CreateVersion7();
@@ -58,17 +53,27 @@ public sealed class HealthRecordAccessGuardTests
             sections: null,
             DateTime.UtcNow);
 
+        var auditService = new Mock<IHealthRecordAccessAuditService>();
         var accessRepository = new Mock<IHealthRecordAccessRepository>();
         accessRepository
             .Setup(repo => repo.GetActiveGrantAsync(healthRecordId, doctorId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(grant);
 
-        var guard = new HealthRecordAccessGuard(
-            accessRepository.Object,
-            Mock.Of<IAuditLogRepository>(),
-            new TestAuditContextAccessor(),
-            TimeProvider.System);
+        var guard = new HealthRecordAccessGuard(accessRepository.Object, auditService.Object);
 
-        await guard.EnsureDoctorCanReadAsync(healthRecordId, doctorId, CancellationToken.None);
+        await guard.EnsureDoctorCanReadAsync(
+            healthRecordId,
+            doctorId,
+            HealthRecordAccessOperations.GetEntry,
+            CancellationToken.None);
+
+        auditService.Verify(
+            service => service.LogDoctorAccessAttemptAsync(
+                doctorId,
+                healthRecordId,
+                HealthRecordAccessOperations.GetEntry,
+                true,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

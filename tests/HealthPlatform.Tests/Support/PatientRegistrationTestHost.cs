@@ -194,6 +194,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
         services.AddScoped<IHealthRecordAccessRepository, HealthRecordAccessRepository>();
         services.AddScoped<IHealthRecordAccessGuard, HealthRecordAccessGuard>();
+        services.AddScoped<IHealthRecordAccessAuditService, HealthRecordAccessAuditService>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddSingleton<IAuditContextAccessor>(new TestAuditContextAccessor());
         services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();

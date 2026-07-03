@@ -10,7 +10,8 @@ public sealed class GetPatientHealthRecordQueryHandler(
     ICurrentUserAccessor currentUser,
     IPatientRepository patientRepository,
     IHealthRecordRepository healthRecordRepository,
-    IHealthRecordEntryRepository healthRecordEntryRepository)
+    IHealthRecordEntryRepository healthRecordEntryRepository,
+    IHealthRecordAccessAuditService healthRecordAccessAuditService)
     : IRequestHandler<GetPatientHealthRecordQuery, PatientHealthRecordDto>
 {
     public async Task<PatientHealthRecordDto> Handle(GetPatientHealthRecordQuery request, CancellationToken ct)
@@ -24,6 +25,12 @@ public sealed class GetPatientHealthRecordQueryHandler(
         var entries = await healthRecordEntryRepository.ListByHealthRecordIdAsync(
             healthRecord.Id,
             patientVisibleOnly: true,
+            ct);
+
+        await healthRecordAccessAuditService.LogPatientAccessAsync(
+            patient.Id,
+            healthRecord.Id,
+            HealthRecordAccessOperations.GetRecord,
             ct);
 
         return new PatientHealthRecordDto(
