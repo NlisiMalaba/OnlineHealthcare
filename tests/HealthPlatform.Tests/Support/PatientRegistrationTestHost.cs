@@ -344,6 +344,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
+        services.AddSingleton<IHealthRecordPdfGenerator, HealthPlatform.Infrastructure.HealthRecords.QuestPdfHealthRecordPdfGenerator>();
         RegisterPaymentGateways(services);
         RegisterInsuranceServices(services);
         RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);

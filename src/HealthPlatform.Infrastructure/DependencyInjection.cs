@@ -23,6 +23,7 @@ using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.Wellness;
 using HealthPlatform.Infrastructure.PharmacyServices;
 using HealthPlatform.Infrastructure.Prescriptions;
+using HealthPlatform.Infrastructure.HealthRecords;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.MongoDb;
@@ -61,6 +62,7 @@ public static class DependencyInjection
         services.AddPaymentCompletionServices();
         services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
         services.AddHealthPlatformMongoDb(configuration);
+        services.AddHealthRecordServices();
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IAccountLockoutService, AccountLockoutService>();
         services.AddSingleton<IAccountLockoutNotifier, LoggingAccountLockoutNotifier>();

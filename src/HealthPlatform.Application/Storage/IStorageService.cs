@@ -46,4 +46,10 @@ public interface IStorageService
         Guid paymentId,
         Stream content,
         CancellationToken ct);
+
+    Task<StorageUploadResult> UploadHealthRecordExportAsync(
+        Guid patientId,
+        Guid healthRecordId,
+        Stream content,
+        CancellationToken ct);
 }
