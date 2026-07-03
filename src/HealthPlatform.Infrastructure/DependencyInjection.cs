@@ -1,5 +1,7 @@
+using HealthPlatform.Application.Audit;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
+using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.NextOfKin;
 using HealthPlatform.Application.PharmacyOrders;
@@ -13,6 +15,7 @@ using HealthPlatform.Infrastructure.Storage;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
+using HealthPlatform.Infrastructure.Audit;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Infrastructure.Appointments;
@@ -108,6 +111,10 @@ public static class DependencyInjection
         services.AddSingleton<IMfaSmsSender, LoggingMfaSmsSender>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
+        services.AddScoped<IHealthRecordAccessRepository, HealthRecordAccessRepository>();
+        services.AddScoped<IHealthRecordAccessGuard, HealthRecordAccessGuard>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        services.AddScoped<IAuditContextAccessor, HttpAuditContextAccessor>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();

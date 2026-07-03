@@ -9,17 +9,22 @@ namespace HealthPlatform.Application.HealthRecords.GetHealthRecordEntry;
 public sealed class GetHealthRecordEntryQueryHandler(
     ICurrentUserAccessor currentUser,
     IDoctorRepository doctorRepository,
-    IHealthRecordEntryRepository healthRecordEntryRepository)
+    IHealthRecordEntryRepository healthRecordEntryRepository,
+    IHealthRecordAccessGuard healthRecordAccessGuard)
     : IRequestHandler<GetHealthRecordEntryQuery, HealthRecordEntryDto>
 {
     public async Task<HealthRecordEntryDto> Handle(GetHealthRecordEntryQuery request, CancellationToken ct)
     {
-        await ResolveVerifiedDoctorAsync(ct);
+        var doctor = await ResolveVerifiedDoctorAsync(ct);
 
-        return await healthRecordEntryRepository.GetByIdAsync(request.EntryId, ct)
+        var entry = await healthRecordEntryRepository.GetByIdAsync(request.EntryId, ct)
             ?? throw new NotFoundException(
                 HealthRecordErrorCodes.HealthRecordEntryNotFound,
                 "Health record entry was not found.");
+
+        await healthRecordAccessGuard.EnsureDoctorCanReadAsync(entry.HealthRecordId, doctor.Id, ct);
+
+        return entry;
     }
 
     private async Task<Doctor> ResolveVerifiedDoctorAsync(CancellationToken ct)

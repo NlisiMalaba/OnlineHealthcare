@@ -267,7 +267,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [ ] 16. Health Records Module
   - [x] 16.1 Implement HealthRecord creation (triggered by `PatientRegistered` domain event) and HealthRecordEntry CRUD in MongoDB (consultation notes, diagnoses, prescription refs, allergies, vitals, lab result refs, vaccinations)
     - _Requirements: 11.1, 11.2_
-  - [ ] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
+  - [x] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
     - _Requirements: 11.4, 11.7_
   - [ ]* 16.3 Write property test for health record access control (Property 24)
     - **Property 24: Health Record Access Control**
