@@ -6,6 +6,7 @@ public sealed class NotificationDispatcher(
     INotificationPreferenceResolver preferenceResolver,
     INotificationRecipientResolver recipientResolver,
     INotificationChannelGatewayResolver gatewayResolver,
+    INotificationLogWriter notificationLogWriter,
     ILogger<NotificationDispatcher> logger) : INotificationDispatcher
 {
     public async Task<NotificationDispatchResult> DispatchAsync(
@@ -48,6 +49,8 @@ public sealed class NotificationDispatcher(
             request.RecipientType,
             channelResults.Count,
             channelResults.Any(result => result.Succeeded));
+
+        await notificationLogWriter.RecordDispatchAsync(request, recipient, channelResults, ct);
 
         return new NotificationDispatchResult(channelResults);
     }

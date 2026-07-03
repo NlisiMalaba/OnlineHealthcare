@@ -40,6 +40,7 @@ public static class NotificationServiceCollectionExtensions
         services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
         services.AddSingleton<INotificationPreferenceCache, RedisNotificationPreferenceCache>();
         services.AddScoped<INotificationPreferenceResolver, StoredNotificationPreferenceResolver>();
+        services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
 
         services.AddScoped<IAppointmentConfirmationNotifier, RoutingAppointmentConfirmationNotifier>();
         services.AddScoped<IAppointmentReminderNotifier, RoutingAppointmentReminderNotifier>();

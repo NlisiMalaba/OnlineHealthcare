@@ -284,9 +284,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 16.1, 16.4_
   - [x] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
     - _Requirements: 16.2_
-  - [ ] 17.3 Implement notification log: persist delivery status, timestamp, and channel for every sent notification
+  - [x] 17.3 Implement notification log: persist delivery status, timestamp, and channel for every sent notification
     - _Requirements: 16.3_
-  - [ ]* 17.4 Write property test for notification log completeness (Property 29)
+  - [x]* 17.4 Write property test for notification log completeness (Property 29)
     - **Property 29: Notification Log Completeness**
     - **Validates: Requirements 16.3**
   - [ ] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery via Hangfire retry job
