@@ -28,7 +28,10 @@ using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Prescriptions;
+using HealthPlatform.Application.Notifications;
 using HealthPlatform.Infrastructure.Identity;
+using HealthPlatform.Infrastructure.Notifications;
+using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
 using HealthPlatform.Application.HealthRecords;
@@ -344,6 +347,12 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);
         RegisterInstalmentServices(services, _instalmentDueReminderNotifier, _instalmentMissedPaymentNotifier);
         RegisterPaymentCompletionServices(services, _paymentFailedNotifier);
+        services.AddDistributedMemoryCache();
+        services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
+        services.AddSingleton<INotificationPreferenceCache, RedisNotificationPreferenceCache>();
+        services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
+        services.AddScoped<INotificationPreferenceResolver, StoredNotificationPreferenceResolver>();
+        services.AddScoped<IUserRoleResolver, IdentityUserRoleResolver>();
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();

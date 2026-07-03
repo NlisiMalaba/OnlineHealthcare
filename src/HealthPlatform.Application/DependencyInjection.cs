@@ -20,7 +20,7 @@ public static class DependencyInjection
         services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
         services.AddScoped<IPrescriptionDomainEventPublisher, PrescriptionDomainEventPublisher>();
         services.AddScoped<IPrescriptionDispensingGuard, PrescriptionDispensingGuard>();
-        services.AddSingleton<INotificationPreferenceResolver, DefaultNotificationPreferenceResolver>();
+        services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         return services;
     }

@@ -8,6 +8,7 @@ using HealthPlatform.Domain.Payments.CreditLine;
 using HealthPlatform.Domain.Payments.Instalments;
 using HealthPlatform.Domain.Prescriptions;
 using HealthPlatform.Domain.NextOfKin;
+using HealthPlatform.Domain.Notifications;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
 using HealthPlatform.Infrastructure.Identity;
@@ -81,6 +82,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<InstalmentPayment> InstalmentPayments => Set<InstalmentPayment>();
 
     public DbSet<Payment> Payments => Set<Payment>();
+
+    public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

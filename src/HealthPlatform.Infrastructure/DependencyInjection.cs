@@ -73,6 +73,7 @@ public static class DependencyInjection
         }
         else
         {
+            services.AddDistributedMemoryCache();
             services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         }
 
