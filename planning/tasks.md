@@ -225,7 +225,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [x] 13. Checkpoint — Prescription, Pharmacy, and Payment flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Medication Adherence Module
+- [x] 14. Medication Adherence Module
   - [x] 14.1 Implement medication schedule generation: on `PrescriptionDispensed` domain event, auto-generate MedicationSchedule with dose times derived from dosage and frequency
     - _Requirements: 9.1_
   - [x]* 14.2 Write property test for medication schedule generation (Property 18)
@@ -248,20 +248,20 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 14.9 Write unit tests for schedule completion, zero-dose-schedule edge case, and summary aggregation
     - _Requirements: 9.6, 9.7_
 
-- [ ] 15. Next of Kin Module
-  - [ ] 15.1 Implement next-of-kin CRUD: allow patient to add up to 3 contacts (name, relationship, phone, email, mental health contact flag); notify contact on addition
+- [x] 15. Next of Kin Module
+  - [x] 15.1 Implement next-of-kin CRUD: allow patient to add up to 3 contacts (name, relationship, phone, email, mental health contact flag); notify contact on addition
     - _Requirements: 10.1, 10.2, 22.8_
-  - [ ] 15.2 Implement emergency alert dispatch: doctor-triggered or system-triggered alert sends simultaneous SMS + push to all patient next-of-kin; log alert with timestamp, trigger reason, and delivery status
+  - [x] 15.2 Implement emergency alert dispatch: doctor-triggered or system-triggered alert sends simultaneous SMS + push to all patient next-of-kin; log alert with timestamp, trigger reason, and delivery status
     - _Requirements: 10.3, 10.4, 10.6_
-  - [ ]* 15.3 Write property test for emergency alert reaches all next of kin (Property 22)
+  - [x]* 15.3 Write property test for emergency alert reaches all next of kin (Property 22)
     - **Property 22: Emergency Alert Reaches All Next of Kin**
     - **Validates: Requirements 10.4**
-  - [ ] 15.4 Implement notification retry logic for next-of-kin: up to 3 retries at 5-minute intervals; log final delivery status
+  - [x] 15.4 Implement notification retry logic for next-of-kin: up to 3 retries at 5-minute intervals; log final delivery status
     - _Requirements: 10.7_
-  - [ ]* 15.5 Write property test for next of kin notification retry (Property 23)
+  - [x]* 15.5 Write property test for next of kin notification retry (Property 23)
     - **Property 23: Next of Kin Notification Retry**
     - **Validates: Requirements 10.7**
-  - [ ]* 15.6 Write unit tests for max 3 contacts enforcement, alert with no next-of-kin, and retry exhaustion
+  - [x]* 15.6 Write unit tests for max 3 contacts enforcement, alert with no next-of-kin, and retry exhaustion
     - _Requirements: 10.1, 10.7_
 
 - [ ] 16. Health Records Module

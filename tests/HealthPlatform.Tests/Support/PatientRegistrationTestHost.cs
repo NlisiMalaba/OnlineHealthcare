@@ -125,6 +125,20 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public CapturingConsecutiveMissedDosesNextOfKinNotifier ConsecutiveMissedDosesNextOfKinNotifier =>
         _consecutiveMissedDosesNextOfKinNotifier;
 
+    private readonly CapturingNextOfKinDesignationNotifier _nextOfKinDesignationNotifier = new();
+
+    public CapturingNextOfKinDesignationNotifier NextOfKinDesignationNotifier => _nextOfKinDesignationNotifier;
+
+    private readonly CapturingNextOfKinEmergencyAlertNotifier _nextOfKinEmergencyAlertNotifier = new();
+
+    public CapturingNextOfKinEmergencyAlertNotifier NextOfKinEmergencyAlertNotifier =>
+        _nextOfKinEmergencyAlertNotifier;
+
+    private readonly ControllableNextOfKinChannelDeliveryGateway _nextOfKinChannelDeliveryGateway = new();
+
+    public ControllableNextOfKinChannelDeliveryGateway NextOfKinChannelDeliveryGateway =>
+        _nextOfKinChannelDeliveryGateway;
+
     private readonly CapturingMedicationScheduleCompletionNotifier _medicationScheduleCompletionNotifier = new();
 
     public CapturingMedicationScheduleCompletionNotifier MedicationScheduleCompletionNotifier =>
@@ -138,6 +152,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         IDrugInteractionAlertNotifier? drugInteractionAlertNotifier = null,
         IMedicationDoseReminderNotifier? medicationDoseReminderNotifier = null,
         IConsecutiveMissedDosesNextOfKinNotifier? consecutiveMissedDosesNextOfKinNotifier = null,
+        INextOfKinEmergencyAlertNotifier? nextOfKinEmergencyAlertNotifier = null,
+        INextOfKinChannelDeliveryGateway? nextOfKinChannelDeliveryGateway = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -191,6 +207,30 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();
         services.AddSingleton<IMedicationScheduleCompletionNotifier>(_medicationScheduleCompletionNotifier);
         services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
+        services.AddSingleton<INextOfKinDesignationNotifier>(_nextOfKinDesignationNotifier);
+        if (nextOfKinEmergencyAlertNotifier is not null)
+        {
+            services.AddSingleton(nextOfKinEmergencyAlertNotifier);
+        }
+        else
+        {
+            services.AddSingleton<INextOfKinEmergencyAlertNotifier>(_nextOfKinEmergencyAlertNotifier);
+        }
+
+        if (nextOfKinChannelDeliveryGateway is not null)
+        {
+            services.AddSingleton(nextOfKinChannelDeliveryGateway);
+        }
+        else
+        {
+            services.AddSingleton<INextOfKinChannelDeliveryGateway>(_nextOfKinChannelDeliveryGateway);
+        }
+
+        services.AddScoped<IEmergencyAlertRepository, EmergencyAlertRepository>();
+        services.AddScoped<INextOfKinNotificationDeliveryRepository, NextOfKinNotificationDeliveryRepository>();
+        services.AddScoped<INextOfKinEmergencyAlertDeliveryCoordinator, NextOfKinEmergencyAlertDeliveryCoordinator>();
+        services.AddScoped<INextOfKinNotificationRetryService, NextOfKinNotificationRetryService>();
+        services.AddScoped<IEmergencyAlertDispatchService, EmergencyAlertDispatchService>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddSingleton<IDrugInteractionChecker, StaticDrugInteractionChecker>();
         if (prescriptionIssuedNotifier is not null)
