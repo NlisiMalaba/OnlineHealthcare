@@ -11,7 +11,6 @@ public static class PaymentCompletionServiceCollectionExtensions
         services.AddSingleton<IPaymentReceiptGenerator, TextPaymentReceiptGenerator>();
         services.AddScoped<IPaymentCompletionService, PaymentCompletionService>();
         services.AddScoped<IPaymentFailureService, PaymentFailureService>();
-        services.AddSingleton<IPaymentFailedNotifier, LoggingPaymentFailedNotifier>();
         return services;
     }
 }
