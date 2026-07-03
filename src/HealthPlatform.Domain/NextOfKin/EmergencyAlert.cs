@@ -83,6 +83,12 @@ public sealed class EmergencyAlert : Entity
         Touch();
     }
 
+    public void RefreshOverallStatus()
+    {
+        OverallStatus = ComputeOverallStatus(_contactDeliveries);
+        Touch();
+    }
+
     private static EmergencyAlertOverallStatus ComputeOverallStatus(
         IReadOnlyCollection<EmergencyAlertContactDelivery> deliveries)
     {

@@ -8,7 +8,7 @@ public sealed class EmergencyAlertDispatchService(
     TimeProvider timeProvider,
     IPatientRepository patientRepository,
     INextOfKinRepository nextOfKinRepository,
-    INextOfKinEmergencyAlertNotifier emergencyAlertNotifier,
+    INextOfKinEmergencyAlertDeliveryCoordinator deliveryCoordinator,
     IEmergencyAlertRepository emergencyAlertRepository,
     ILogger<EmergencyAlertDispatchService> logger) : IEmergencyAlertDispatchService
 {
@@ -43,21 +43,11 @@ public sealed class EmergencyAlertDispatchService(
         }
 
         var contactDtos = contacts.Select(contact => contact.ToDto()).ToList();
-        var deliveryResults = await emergencyAlertNotifier.NotifyAllContactsAsync(
-            alert.Id,
-            patient.Id,
-            patient.FullName,
-            alert.TriggerReason,
+        var contactDeliveries = await deliveryCoordinator.DispatchAsync(
+            alert,
+            patient,
             contactDtos,
             ct);
-
-        var contactDeliveries = deliveryResults
-            .Select(result => EmergencyAlertContactDelivery.Create(
-                alert.Id,
-                result.NextOfKinContactId,
-                result.SmsStatus,
-                result.PushStatus))
-            .ToList();
 
         alert.RecordContactDeliveries(contactDeliveries);
         await emergencyAlertRepository.AddAsync(alert, ct);
