@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using HealthPlatform.Application.Behaviors;
+using HealthPlatform.Application.Notifications;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.Dispensing;
@@ -19,6 +20,8 @@ public static class DependencyInjection
         services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
         services.AddScoped<IPrescriptionDomainEventPublisher, PrescriptionDomainEventPublisher>();
         services.AddScoped<IPrescriptionDispensingGuard, PrescriptionDispensingGuard>();
+        services.AddSingleton<INotificationPreferenceResolver, DefaultNotificationPreferenceResolver>();
+        services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         return services;
     }
 }
