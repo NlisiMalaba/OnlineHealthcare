@@ -8,8 +8,10 @@ using HealthPlatform.Application.Payments.Instalments;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Wellness;
+using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Notifications.Gateways;
 using HealthPlatform.Infrastructure.Notifications.Routing;
+using HealthPlatform.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,6 +36,10 @@ public static class NotificationServiceCollectionExtensions
         services.AddSingleton<IEmailNotificationGateway, SesEmailNotificationGateway>();
         services.AddSingleton<INotificationChannelGatewayResolver, NotificationChannelGatewayResolver>();
         services.AddScoped<INotificationRecipientResolver, IdentityNotificationRecipientResolver>();
+        services.AddScoped<IUserRoleResolver, IdentityUserRoleResolver>();
+        services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
+        services.AddSingleton<INotificationPreferenceCache, RedisNotificationPreferenceCache>();
+        services.AddScoped<INotificationPreferenceResolver, StoredNotificationPreferenceResolver>();
 
         services.AddScoped<IAppointmentConfirmationNotifier, RoutingAppointmentConfirmationNotifier>();
         services.AddScoped<IAppointmentReminderNotifier, RoutingAppointmentReminderNotifier>();

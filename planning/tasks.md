@@ -282,7 +282,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [ ] 17. Notifications Module
   - [x] 17.1 Implement MediatR domain event handlers for all notification-triggering events; route to FCM/APNs (push), Twilio/Africa's Talking (SMS), or SendGrid/SES (email) based on patient preferences
     - _Requirements: 16.1, 16.4_
-  - [ ] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
+  - [x] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
     - _Requirements: 16.2_
   - [ ] 17.3 Implement notification log: persist delivery status, timestamp, and channel for every sent notification
     - _Requirements: 16.3_
