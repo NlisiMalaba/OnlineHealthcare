@@ -13,4 +13,8 @@ public static class HealthRecordErrorCodes
     public const string DoctorNotVerified = "DOCTOR_NOT_VERIFIED";
 
     public const string PatientNotFound = "PATIENT_NOT_FOUND";
+
+    public const string HealthRecordAccessAlreadyGranted = "HEALTH_RECORD_ACCESS_ALREADY_GRANTED";
+
+    public const string HealthRecordAccessNotFound = "HEALTH_RECORD_ACCESS_NOT_FOUND";
 }

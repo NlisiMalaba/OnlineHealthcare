@@ -10,19 +10,22 @@ public sealed class ListHealthRecordEntriesQueryHandler(
     ICurrentUserAccessor currentUser,
     IDoctorRepository doctorRepository,
     IHealthRecordRepository healthRecordRepository,
-    IHealthRecordEntryRepository healthRecordEntryRepository)
+    IHealthRecordEntryRepository healthRecordEntryRepository,
+    IHealthRecordAccessGuard healthRecordAccessGuard)
     : IRequestHandler<ListHealthRecordEntriesQuery, IReadOnlyList<HealthRecordEntryDto>>
 {
     public async Task<IReadOnlyList<HealthRecordEntryDto>> Handle(
         ListHealthRecordEntriesQuery request,
         CancellationToken ct)
     {
-        await ResolveVerifiedDoctorAsync(ct);
+        var doctor = await ResolveVerifiedDoctorAsync(ct);
 
         _ = await healthRecordRepository.GetByIdAsync(request.HealthRecordId, ct)
             ?? throw new NotFoundException(
                 HealthRecordErrorCodes.HealthRecordNotFound,
                 "Health record was not found.");
+
+        await healthRecordAccessGuard.EnsureDoctorCanReadAsync(request.HealthRecordId, doctor.Id, ct);
 
         return await healthRecordEntryRepository.ListByHealthRecordIdAsync(
             request.HealthRecordId,
