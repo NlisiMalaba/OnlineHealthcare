@@ -66,9 +66,11 @@ public sealed class AttachTelemedicineSessionSummaryOnSessionEndedNotificationHa
         Assert.Equal(TelemedicineSessionMode.Audio, summaryRepository.Summaries[0].Mode);
         Assert.Single(entryRepository.Entries);
         Assert.Equal(healthRecord.Id, entryRepository.Entries[0].HealthRecordId);
-        Assert.Equal(session.Id, entryRepository.Entries[0].SessionId);
+        Assert.Equal(session.Id, entryRepository.Entries[0].Content.TelemedicineSessionSummary!.SessionId);
         Assert.NotNull(session.SessionSummaryRef);
-        Assert.Equal(entryRepository.Entries[0].SummaryDocumentId, session.SessionSummaryRef);
+        Assert.Equal(
+            entryRepository.Entries[0].Content.TelemedicineSessionSummary.SummaryDocumentId,
+            session.SessionSummaryRef);
 
         sessionRepository.Verify(
             repo => repo.UpdateAsync(session, It.IsAny<CancellationToken>()),

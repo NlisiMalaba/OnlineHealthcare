@@ -41,7 +41,9 @@ public sealed class EndTelemedicineSessionCommandHandlerTests : IAsyncLifetime
         var entryRepository = _host.GetRequiredService<InMemoryHealthRecordEntryRepository>();
         Assert.Single(summaryRepository.Summaries);
         Assert.Single(entryRepository.Entries);
-        Assert.Equal(session.SessionSummaryRef, entryRepository.Entries[0].SummaryDocumentId);
+        Assert.Equal(
+            session.SessionSummaryRef,
+            entryRepository.Entries[0].Content.TelemedicineSessionSummary!.SummaryDocumentId);
 
         var hasOutboxEvent = await _host.DbContext.DomainEventOutbox
             .AsNoTracking()
