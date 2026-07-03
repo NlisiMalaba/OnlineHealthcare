@@ -57,6 +57,13 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<NextOfKinContact> NextOfKinContacts => Set<NextOfKinContact>();
 
+    public DbSet<EmergencyAlert> EmergencyAlerts => Set<EmergencyAlert>();
+
+    public DbSet<EmergencyAlertContactDelivery> EmergencyAlertContactDeliveries => Set<EmergencyAlertContactDelivery>();
+
+    public DbSet<NextOfKinNotificationDelivery> NextOfKinNotificationDeliveries =>
+        Set<NextOfKinNotificationDelivery>();
+
     public DbSet<MedicationOrder> MedicationOrders => Set<MedicationOrder>();
 
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();

@@ -220,6 +220,11 @@ app.Lifetime.ApplicationStarted.Register(() =>
             job => job.Run(),
             Cron.MinuteInterval(15));
 
+        RecurringJob.AddOrUpdate<NextOfKinNotificationRetryJob>(
+            "next-of-kin-notification-retries",
+            job => job.Run(),
+            Cron.MinuteInterval(5));
+
         RecurringJob.AddOrUpdate<InsuranceClaimStatusPollingJob>(
             "insurance-claim-status-polling",
             job => job.Run(),
