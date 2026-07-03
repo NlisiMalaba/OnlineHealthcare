@@ -39,4 +39,46 @@ public sealed class HealthRecordPdfGeneratorTests
         Assert.Equal((byte)'D', pdfBytes[2]);
         Assert.Equal((byte)'F', pdfBytes[3]);
     }
+
+    [Fact]
+    public void Generate_includes_multiple_entry_types_in_pdf()
+    {
+        var generator = new QuestPdfHealthRecordPdfGenerator();
+        var healthRecordId = Guid.CreateVersion7();
+
+        var pdfBytes = generator.Generate(
+            new PatientHealthRecordExportModel(
+                healthRecordId,
+                Guid.CreateVersion7(),
+                "Test Patient",
+                DateTime.UtcNow,
+                [
+                    new HealthRecordEntryDto(
+                        "entry-1",
+                        healthRecordId,
+                        HealthRecordEntryType.Vital,
+                        new HealthRecordEntryContentPayload(
+                            Vital: new VitalContent("heart_rate", 72, "bpm", DateTime.UtcNow)),
+                        Guid.CreateVersion7(),
+                        DateTime.UtcNow,
+                        null,
+                        true),
+                    new HealthRecordEntryDto(
+                        "entry-2",
+                        healthRecordId,
+                        HealthRecordEntryType.Vaccination,
+                        new HealthRecordEntryContentPayload(
+                            Vaccination: new VaccinationContent(
+                                "Influenza",
+                                DateTime.UtcNow,
+                                "BATCH-1",
+                                "Clinic Nurse")),
+                        Guid.CreateVersion7(),
+                        DateTime.UtcNow,
+                        null,
+                        true)
+                ]));
+
+        Assert.True(pdfBytes.Length > 1000);
+    }
 }

@@ -22,7 +22,11 @@ public sealed class GetHealthRecordEntryQueryHandler(
                 HealthRecordErrorCodes.HealthRecordEntryNotFound,
                 "Health record entry was not found.");
 
-        await healthRecordAccessGuard.EnsureDoctorCanReadAsync(entry.HealthRecordId, doctor.Id, ct);
+        await healthRecordAccessGuard.EnsureDoctorCanReadAsync(
+            entry.HealthRecordId,
+            doctor.Id,
+            HealthRecordAccessOperations.GetEntry,
+            ct);
 
         return entry;
     }

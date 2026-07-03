@@ -13,6 +13,7 @@ public sealed class ExportPatientHealthRecordPdfQueryHandler(
     IHealthRecordRepository healthRecordRepository,
     IHealthRecordEntryRepository healthRecordEntryRepository,
     IHealthRecordPdfGenerator healthRecordPdfGenerator,
+    IHealthRecordAccessAuditService healthRecordAccessAuditService,
     IStorageService storageService,
     TimeProvider timeProvider)
     : IRequestHandler<ExportPatientHealthRecordPdfQuery, HealthRecordPdfExportDto>
@@ -47,6 +48,13 @@ public sealed class ExportPatientHealthRecordPdfQueryHandler(
             ct);
 
         var downloadUrl = await storageService.GetSignedReadUrlAsync(upload.StorageKey, ct);
+
+        await healthRecordAccessAuditService.LogPatientAccessAsync(
+            patient.Id,
+            healthRecord.Id,
+            HealthRecordAccessOperations.ExportPdf,
+            ct);
+
         return new HealthRecordPdfExportDto(healthRecord.Id, downloadUrl, generatedAtUtc);
     }
 

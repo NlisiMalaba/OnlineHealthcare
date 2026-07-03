@@ -10,7 +10,8 @@ public sealed class GetPatientHealthRecordEntryQueryHandler(
     ICurrentUserAccessor currentUser,
     IPatientRepository patientRepository,
     IHealthRecordRepository healthRecordRepository,
-    IHealthRecordEntryRepository healthRecordEntryRepository)
+    IHealthRecordEntryRepository healthRecordEntryRepository,
+    IHealthRecordAccessAuditService healthRecordAccessAuditService)
     : IRequestHandler<GetPatientHealthRecordEntryQuery, HealthRecordEntryDto>
 {
     public async Task<HealthRecordEntryDto> Handle(GetPatientHealthRecordEntryQuery request, CancellationToken ct)
@@ -26,7 +27,15 @@ public sealed class GetPatientHealthRecordEntryQueryHandler(
                 HealthRecordErrorCodes.HealthRecordEntryNotFound,
                 "Health record entry was not found.");
 
-        if (entry.HealthRecordId != healthRecord.Id || !entry.IsVisibleToPatient)
+        var allowed = entry.HealthRecordId == healthRecord.Id && entry.IsVisibleToPatient;
+        await healthRecordAccessAuditService.LogPatientAccessAttemptAsync(
+            patient.Id,
+            healthRecord.Id,
+            HealthRecordAccessOperations.GetPatientEntry,
+            allowed,
+            ct);
+
+        if (!allowed)
         {
             throw new AccessDeniedException(
                 "ACCESS_DENIED",

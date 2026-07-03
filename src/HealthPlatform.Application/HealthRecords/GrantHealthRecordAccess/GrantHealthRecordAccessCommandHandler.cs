@@ -1,9 +1,6 @@
-using System.Text.Json;
-using HealthPlatform.Application.Audit;
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Security;
-using HealthPlatform.Domain.Audit;
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Identity;
 using MediatR;
@@ -16,8 +13,7 @@ public sealed class GrantHealthRecordAccessCommandHandler(
     IDoctorRepository doctorRepository,
     IHealthRecordRepository healthRecordRepository,
     IHealthRecordAccessRepository healthRecordAccessRepository,
-    IAuditLogRepository auditLogRepository,
-    IAuditContextAccessor auditContext,
+    IHealthRecordAccessAuditService healthRecordAccessAuditService,
     TimeProvider timeProvider)
     : IRequestHandler<GrantHealthRecordAccessCommand, HealthRecordAccessDto>
 {
@@ -70,17 +66,11 @@ public sealed class GrantHealthRecordAccessCommandHandler(
             access = latestGrant;
         }
 
-        await auditLogRepository.AppendAsync(
-            AuditLog.Create(
-                patient.Id,
-                AuditActorType.Patient,
-                AuditActions.HealthRecordAccessGranted,
-                "health_record",
-                healthRecord.Id,
-                grantedAtUtc,
-                auditContext.IpAddress,
-                auditContext.UserAgent,
-                JsonSerializer.Serialize(new { doctor_id = doctor.Id, access_type = request.AccessType.ToString() })),
+        await healthRecordAccessAuditService.LogGrantAsync(
+            patient.Id,
+            healthRecord.Id,
+            doctor.Id,
+            request.AccessType,
             ct);
 
         return access.ToDto(doctor.FullName);

@@ -115,6 +115,7 @@ public static class DependencyInjection
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
         services.AddScoped<IHealthRecordAccessRepository, HealthRecordAccessRepository>();
         services.AddScoped<IHealthRecordAccessGuard, HealthRecordAccessGuard>();
+        services.AddScoped<IHealthRecordAccessAuditService, HealthRecordAccessAuditService>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<IAuditContextAccessor, HttpAuditContextAccessor>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
