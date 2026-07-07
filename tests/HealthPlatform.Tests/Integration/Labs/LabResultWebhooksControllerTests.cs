@@ -4,6 +4,7 @@ using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.VerifyDoctorLicense;
 using HealthPlatform.Application.Labs;
 using HealthPlatform.Application.Labs.Webhooks;
+using HealthPlatform.Application.Notifications;
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Domain.Labs;
@@ -94,5 +95,62 @@ public sealed class LabResultWebhooksControllerTests : IAsyncLifetime
             .ToListAsync();
         Assert.Contains(notificationLogs, log => log.RecipientId == patient.UserId);
         Assert.Contains(notificationLogs, log => log.RecipientId == doctor.UserId);
+    }
+
+    [Fact]
+    public async Task IngestAsync_with_critical_result_emits_immediate_alert_to_ordering_doctor()
+    {
+        var patientRegistration = await _host.Sender.Send(
+            new RegisterPatientCommand(
+                PatientAuthProvider.Email,
+                "Critical Lab Patient",
+                null,
+                $"critical-lab-{Guid.NewGuid():N}@example.com",
+                PatientRegistrationTestHost.ValidPassword,
+                null),
+            CancellationToken.None);
+
+        var patient = await _host.DbContext.Patients.SingleAsync(p => p.Id == patientRegistration.PatientId);
+        var doctorRegistration = await _host.Sender.Send(
+            DoctorRegistrationTestData.CreateValidCommand(),
+            CancellationToken.None);
+        await _host.Sender.Send(new VerifyDoctorLicenseCommand(doctorRegistration.DoctorId), CancellationToken.None);
+        var doctor = await _host.DbContext.Doctors.SingleAsync(d => d.Id == doctorRegistration.DoctorId);
+
+        var labOrder = LabOrder.CreateDoctorOrdered(
+            patient.Id,
+            patientRegistration.HealthRecordId,
+            doctor.Id,
+            "LABX",
+            "TROPONIN",
+            "Urgent panel",
+            DateTime.UtcNow);
+        labOrder.MarkSubmitted("LABX-ORDER-CRIT-1");
+        await _host.GetRequiredService<ILabOrderRepository>().AddAsync(labOrder, CancellationToken.None);
+        await _host.GetRequiredService<ILabOrderRepository>().SaveChangesAsync(CancellationToken.None);
+
+        var payload = new byte[] { 0x25, 0x50, 0x44, 0x46 };
+        var formFile = new FormFile(new MemoryStream(payload), 0, payload.Length, "result", "critical-result.pdf")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "application/pdf"
+        };
+
+        var controller = new LabResultWebhooksController(_host.Sender);
+        var action = await controller.IngestAsync(
+            "LABX",
+            new IngestLabResultWebhookRequest("LABX-ORDER-CRIT-1", "TROPONIN", true, formFile),
+            CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(action.Result);
+        var result = Assert.IsType<IngestLabResultWebhookResultDto>(ok.Value);
+        Assert.True(result.Accepted);
+
+        var doctorAlertLogs = await _host.DbContext.NotificationLogs
+            .Where(log =>
+                log.RecipientId == doctor.UserId
+                && log.EventType == NotificationEventTypes.CriticalLabResultAlert)
+            .ToListAsync();
+        Assert.NotEmpty(doctorAlertLogs);
     }
 }

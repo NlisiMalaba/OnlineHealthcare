@@ -310,9 +310,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 21.3_
   - [x] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
     - _Requirements: 21.4, 21.5, 21.6_
-  - [ ] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
+  - [x] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
     - _Requirements: 21.9_
-  - [ ]* 19.6 Write property test for critical lab result alert (Property 33)
+  - [x]* 19.6 Write property test for critical lab result alert (Property 33)
     - **Property 33: Critical Lab Result Alert**
     - **Validates: Requirements 21.9**
   - [ ] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
