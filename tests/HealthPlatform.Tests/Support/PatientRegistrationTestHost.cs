@@ -356,6 +356,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IUserRoleResolver, IdentityUserRoleResolver>();
         services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
         services.AddScoped<INotificationLogWriter, NotificationLogWriter>();
+        services.AddScoped<ICriticalNotificationSmsFallbackRepository, CriticalNotificationSmsFallbackRepository>();
+        services.AddSingleton<ICriticalNotificationSmsFallbackScheduler, CapturingCriticalNotificationSmsFallbackScheduler>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         services.AddScoped<INotificationChannelGatewayResolver, NotificationChannelGatewayResolver>();
         services.AddSingleton<IPushNotificationGateway, Infrastructure.Notifications.Gateways.LoggingPushNotificationGateway>();

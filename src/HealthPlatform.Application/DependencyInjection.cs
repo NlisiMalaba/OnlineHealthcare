@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IPrescriptionDispensingGuard, PrescriptionDispensingGuard>();
         services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         services.AddScoped<INotificationLogWriter, NotificationLogWriter>();
+        services.AddScoped<ICriticalNotificationSmsFallbackService, CriticalNotificationSmsFallbackService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         return services;
     }

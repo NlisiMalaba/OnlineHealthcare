@@ -6,6 +6,7 @@ using HealthPlatform.Tests.Arbitraries;
 using HealthPlatform.Tests.Support;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace HealthPlatform.Tests.Properties;
 
@@ -41,6 +42,7 @@ public sealed class NotificationLogCompletenessPropertyTests
         services.AddSingleton<INotificationRecipientResolver>(new FixedNotificationRecipientResolver());
         services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
         services.AddScoped<INotificationLogWriter, NotificationLogWriter>();
+        services.AddSingleton<ICriticalNotificationSmsFallbackService>(new Mock<ICriticalNotificationSmsFallbackService>().Object);
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
         await using var provider = services.BuildServiceProvider();

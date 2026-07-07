@@ -41,6 +41,9 @@ public static class NotificationServiceCollectionExtensions
         services.AddSingleton<INotificationPreferenceCache, RedisNotificationPreferenceCache>();
         services.AddScoped<INotificationPreferenceResolver, StoredNotificationPreferenceResolver>();
         services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
+        services.AddScoped<ICriticalNotificationSmsFallbackRepository, CriticalNotificationSmsFallbackRepository>();
+        services.AddScoped<ICriticalNotificationSmsFallbackService, CriticalNotificationSmsFallbackService>();
+        services.AddSingleton<ICriticalNotificationSmsFallbackScheduler, HangfireCriticalNotificationSmsFallbackScheduler>();
 
         services.AddScoped<IAppointmentConfirmationNotifier, RoutingAppointmentConfirmationNotifier>();
         services.AddScoped<IAppointmentReminderNotifier, RoutingAppointmentReminderNotifier>();

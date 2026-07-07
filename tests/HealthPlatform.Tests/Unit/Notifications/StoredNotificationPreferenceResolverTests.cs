@@ -46,4 +46,41 @@ public sealed class StoredNotificationPreferenceResolverTests
 
         Assert.Equal(NotificationPreferenceDefaults.AllChannels, channels);
     }
+
+    [Fact]
+    public async Task ResolveEnabledChannelsAsync_Filters_disabled_channels_for_requested_event_only()
+    {
+        var preferenceService = new Mock<INotificationPreferenceService>();
+        preferenceService
+            .Setup(service => service.GetStoredPreferencesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new StoredNotificationChannelPreference(
+                    NotificationEventTypes.MedicationDoseReminder,
+                    "push",
+                    false),
+                new StoredNotificationChannelPreference(
+                    NotificationEventTypes.AppointmentConfirmed,
+                    "sms",
+                    false)
+            ]);
+
+        var resolver = new StoredNotificationPreferenceResolver(preferenceService.Object);
+        var userId = Guid.CreateVersion7();
+
+        var medicationChannels = await resolver.ResolveEnabledChannelsAsync(
+            userId,
+            NotificationEventTypes.MedicationDoseReminder,
+            NotificationCriticality.Critical,
+            CancellationToken.None);
+
+        var appointmentChannels = await resolver.ResolveEnabledChannelsAsync(
+            userId,
+            NotificationEventTypes.AppointmentConfirmed,
+            NotificationCriticality.Standard,
+            CancellationToken.None);
+
+        Assert.Equal([NotificationChannel.Email, NotificationChannel.Sms], medicationChannels);
+        Assert.Equal([NotificationChannel.Push, NotificationChannel.Email], appointmentChannels);
+    }
 }

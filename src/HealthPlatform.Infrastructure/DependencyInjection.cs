@@ -201,6 +201,8 @@ public static class DependencyInjection
         services.AddTransient<CreditRepaymentReminderJob>();
         services.AddTransient<InstalmentDueReminderJob>();
         services.AddTransient<InstalmentMissedPaymentJob>();
+        services.AddTransient<NextOfKinNotificationRetryJob>();
+        services.AddTransient<CriticalNotificationSmsFallbackJob>();
         return services;
     }
 
