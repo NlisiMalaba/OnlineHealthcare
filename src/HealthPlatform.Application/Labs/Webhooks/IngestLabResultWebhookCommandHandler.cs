@@ -77,7 +77,12 @@ public sealed class IngestLabResultWebhookCommandHandler(
             var doctor = await doctorRepository.GetByIdAsync(order.OrderingDoctorId.Value, ct);
             if (doctor is not null)
             {
-                await NotifyDoctorAsync(doctor.UserId, order.Id, result.Id, ct);
+                await NotifyDoctorAsync(
+                    doctor.UserId,
+                    order.Id,
+                    result.Id,
+                    request.IsCritical,
+                    ct);
             }
         }
 
@@ -102,16 +107,23 @@ public sealed class IngestLabResultWebhookCommandHandler(
                 }),
             ct);
 
-    private Task NotifyDoctorAsync(Guid doctorUserId, Guid labOrderId, Guid labResultId, CancellationToken ct) =>
+    private Task NotifyDoctorAsync(
+        Guid doctorUserId,
+        Guid labOrderId,
+        Guid labResultId,
+        bool isCritical,
+        CancellationToken ct) =>
         notificationDispatcher.DispatchAsync(
             new NotificationDispatchRequest(
                 doctorUserId,
                 NotificationRecipientType.Doctor,
-                NotificationEventTypes.LabResultUploaded,
-                NotificationCriticality.Standard,
+                isCritical ? NotificationEventTypes.CriticalLabResultAlert : NotificationEventTypes.LabResultUploaded,
+                isCritical ? NotificationCriticality.Critical : NotificationCriticality.Standard,
                 new NotificationContent(
-                    "Lab result uploaded",
-                    "A lab result you ordered is now available."),
+                    isCritical ? "Critical lab result alert" : "Lab result uploaded",
+                    isCritical
+                        ? "A critical lab result you ordered needs immediate attention."
+                        : "A lab result you ordered is now available."),
                 Metadata: new Dictionary<string, string>
                 {
                     ["lab_order_id"] = labOrderId.ToString(),
