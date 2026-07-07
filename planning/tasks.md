@@ -315,7 +315,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 19.6 Write property test for critical lab result alert (Property 33)
     - **Property 33: Critical Lab Result Alert**
     - **Validates: Requirements 21.9**
-  - [ ] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
+  - [x] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
     - _Requirements: 21.7_
   - [ ] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
     - _Requirements: 21.8_

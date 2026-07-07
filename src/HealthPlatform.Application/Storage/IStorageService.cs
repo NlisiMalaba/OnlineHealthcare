@@ -60,4 +60,20 @@ public interface IStorageService
         string contentType,
         string fileName,
         CancellationToken ct);
+
+    Task<StorageUploadResult> UploadRadiologyReportAsync(
+        Guid patientId,
+        Guid labOrderId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct);
+
+    Task<StorageUploadResult> UploadRadiologyImagingFileAsync(
+        Guid patientId,
+        Guid labOrderId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct);
 }

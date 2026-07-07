@@ -15,6 +15,7 @@ public static class HealthRecordEntryFormatter
             HealthRecordEntryType.Vital => "Vital sign",
             HealthRecordEntryType.LabResultRef => "Lab result reference",
             HealthRecordEntryType.LabOrderRef => "Lab order reference",
+            HealthRecordEntryType.RadiologyReportRef => "Radiology report reference",
             HealthRecordEntryType.Vaccination => "Vaccination",
             HealthRecordEntryType.TelemedicineSessionSummary => "Telemedicine session summary",
             _ => entryType.ToString()
@@ -75,6 +76,11 @@ public static class HealthRecordEntryFormatter
             lines.Add($"Lab order: {labOrderRef.LabOrderId}");
             lines.Add($"Test code: {labOrderRef.TestCode}");
             lines.Add($"Lab partner: {labOrderRef.LabPartnerCode}");
+        }
+
+        if (entry.Content.RadiologyReportRef is { } radiologyRef)
+        {
+            lines.Add($"Radiology report: {radiologyRef.RadiologyReportId}");
         }
 
         if (entry.Content.Vaccination is { } vaccination)

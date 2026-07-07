@@ -325,6 +325,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<ILabOrderRepository, LabOrderRepository>();
         services.AddScoped<ILabResultRepository, LabResultRepository>();
+        services.AddScoped<IRadiologyReportRepository, RadiologyReportRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);

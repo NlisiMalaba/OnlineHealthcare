@@ -104,6 +104,7 @@ public static class HealthRecordEntryCommandMapper
             "allergy" => HealthRecordEntryType.Allergy,
             "vital" => HealthRecordEntryType.Vital,
             "lab_result_ref" => HealthRecordEntryType.LabResultRef,
+            "radiology_report_ref" => HealthRecordEntryType.RadiologyReportRef,
             "lab_order_ref" => HealthRecordEntryType.LabOrderRef,
             "vaccination" => HealthRecordEntryType.Vaccination,
             _ => throw new ArgumentException($"Unsupported entry type '{entryType}'.", nameof(entryType))
