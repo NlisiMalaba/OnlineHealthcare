@@ -79,6 +79,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<LabOrder> LabOrders => Set<LabOrder>();
 
+    public DbSet<LabResult> LabResults => Set<LabResult>();
+
     public DbSet<PatientInsurancePolicy> PatientInsurancePolicies => Set<PatientInsurancePolicy>();
 
     public DbSet<PatientCreditLine> PatientCreditLines => Set<PatientCreditLine>();

@@ -147,6 +147,7 @@ public static class DependencyInjection
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<ILabOrderRepository, LabOrderRepository>();
+        services.AddScoped<ILabResultRepository, LabResultRepository>();
         services.AddScoped<ILabPartnerOrderClient, LoggingLabPartnerOrderClient>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();

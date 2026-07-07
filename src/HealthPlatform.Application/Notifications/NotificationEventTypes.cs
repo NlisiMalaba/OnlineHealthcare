@@ -25,4 +25,5 @@ public static class NotificationEventTypes
     public const string DoctorLicenseRejected = "identity.doctor_license_rejected";
     public const string NextOfKinDesignated = "next_of_kin.designated";
     public const string EmergencyAlert = "next_of_kin.emergency_alert";
+    public const string LabResultUploaded = "labs.result_uploaded";
 }

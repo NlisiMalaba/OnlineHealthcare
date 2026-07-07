@@ -306,9 +306,9 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 19.2 Write property test for lab order attached to health record (Property 32)
     - **Property 32: Lab Order Attached to Health Record**
     - **Validates: Requirements 21.1**
-  - [ ] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch
+  - [x] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch
     - _Requirements: 21.3_
-  - [ ] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
+  - [x] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
     - _Requirements: 21.4, 21.5, 21.6_
   - [ ] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
     - _Requirements: 21.9_
