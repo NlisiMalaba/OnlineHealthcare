@@ -1,3 +1,4 @@
+using HealthPlatform.Domain.Audit;
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Domain.Identity;
@@ -31,6 +32,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Patient> Patients => Set<Patient>();
 
     public DbSet<HealthRecord> HealthRecords => Set<HealthRecord>();
+
+    public DbSet<HealthRecordAccess> HealthRecordAccesses => Set<HealthRecordAccess>();
+
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     public DbSet<HealthRecordProfileChange> HealthRecordProfileChanges => Set<HealthRecordProfileChange>();
 

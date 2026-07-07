@@ -10,6 +10,9 @@ public sealed class HealthRecordRepository(ApplicationDbContext db) : IHealthRec
     public Task<bool> ExistsForPatientAsync(Guid patientId, CancellationToken ct) =>
         db.HealthRecords.AnyAsync(r => r.PatientId == patientId, ct);
 
+    public Task<HealthRecord?> GetByIdAsync(Guid healthRecordId, CancellationToken ct) =>
+        db.HealthRecords.FirstOrDefaultAsync(r => r.Id == healthRecordId, ct);
+
     public Task<HealthRecord?> GetByPatientIdAsync(Guid patientId, CancellationToken ct) =>
         db.HealthRecords.FirstOrDefaultAsync(r => r.PatientId == patientId, ct);
 
