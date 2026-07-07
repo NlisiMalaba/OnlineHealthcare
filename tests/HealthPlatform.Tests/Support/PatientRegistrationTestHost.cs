@@ -31,6 +31,7 @@ using HealthPlatform.Infrastructure.Prescriptions;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
+using HealthPlatform.Application.Audit;
 using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.Realtime;
@@ -191,6 +192,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
+        services.AddScoped<IHealthRecordAccessRepository, HealthRecordAccessRepository>();
+        services.AddScoped<IHealthRecordAccessGuard, HealthRecordAccessGuard>();
+        services.AddScoped<IHealthRecordAccessAuditService, HealthRecordAccessAuditService>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        services.AddSingleton<IAuditContextAccessor>(new TestAuditContextAccessor());
         services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
@@ -339,6 +345,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
+        services.AddSingleton<IHealthRecordPdfGenerator, HealthPlatform.Infrastructure.HealthRecords.QuestPdfHealthRecordPdfGenerator>();
         RegisterPaymentGateways(services);
         RegisterInsuranceServices(services);
         RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);
@@ -350,6 +357,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     }
 
     public ISender Sender => _serviceProvider.GetRequiredService<ISender>();
+
+    public InMemoryHealthRecordEntryRepository HealthRecordEntryRepository =>
+        _serviceProvider.GetRequiredService<InMemoryHealthRecordEntryRepository>();
 
     public ApplicationDbContext DbContext => _serviceProvider.GetRequiredService<ApplicationDbContext>();
 
