@@ -14,6 +14,7 @@ public static class HealthRecordEntryFormatter
             HealthRecordEntryType.Allergy => "Allergy",
             HealthRecordEntryType.Vital => "Vital sign",
             HealthRecordEntryType.LabResultRef => "Lab result reference",
+            HealthRecordEntryType.LabOrderRef => "Lab order reference",
             HealthRecordEntryType.Vaccination => "Vaccination",
             HealthRecordEntryType.TelemedicineSessionSummary => "Telemedicine session summary",
             _ => entryType.ToString()
@@ -67,6 +68,13 @@ public static class HealthRecordEntryFormatter
         if (entry.Content.LabResultRef is { } labResultRef)
         {
             lines.Add($"Lab result: {labResultRef.LabResultId}");
+        }
+
+        if (entry.Content.LabOrderRef is { } labOrderRef)
+        {
+            lines.Add($"Lab order: {labOrderRef.LabOrderId}");
+            lines.Add($"Test code: {labOrderRef.TestCode}");
+            lines.Add($"Lab partner: {labOrderRef.LabPartnerCode}");
         }
 
         if (entry.Content.Vaccination is { } vaccination)

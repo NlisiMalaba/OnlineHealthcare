@@ -297,13 +297,13 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 17.7 Write unit tests for preference-based channel routing, retry queue, and dead-letter handling
     - _Requirements: 16.2, 16.5_
 
-- [ ] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
+- [x] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 19. Lab & Diagnostics Module
-  - [ ] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
+  - [x] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
     - _Requirements: 21.1, 21.2_
-  - [ ]* 19.2 Write property test for lab order attached to health record (Property 32)
+  - [x]* 19.2 Write property test for lab order attached to health record (Property 32)
     - **Property 32: Lab Order Attached to Health Record**
     - **Validates: Requirements 21.1**
   - [ ] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch

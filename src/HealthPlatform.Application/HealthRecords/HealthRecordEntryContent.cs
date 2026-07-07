@@ -12,6 +12,8 @@ public sealed record VitalContent(string VitalType, decimal Value, string Unit, 
 
 public sealed record LabResultRefContent(Guid LabResultId);
 
+public sealed record LabOrderRefContent(Guid LabOrderId, string TestCode, string LabPartnerCode);
+
 public sealed record VaccinationContent(
     string VaccineName,
     DateTime AdministeredAtUtc,
@@ -31,5 +33,6 @@ public sealed record HealthRecordEntryContentPayload(
     AllergyContent? Allergy = null,
     VitalContent? Vital = null,
     LabResultRefContent? LabResultRef = null,
+    LabOrderRefContent? LabOrderRef = null,
     VaccinationContent? Vaccination = null,
     TelemedicineSessionSummaryContent? TelemedicineSessionSummary = null);
