@@ -10,5 +10,6 @@ public enum HealthRecordEntryType
     LabResultRef = 5,
     Vaccination = 6,
     TelemedicineSessionSummary = 7,
-    LabOrderRef = 8
+    LabOrderRef = 8,
+    RadiologyReportRef = 9
 }

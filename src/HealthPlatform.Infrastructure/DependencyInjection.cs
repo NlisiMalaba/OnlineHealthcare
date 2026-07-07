@@ -148,6 +148,7 @@ public static class DependencyInjection
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<ILabOrderRepository, LabOrderRepository>();
         services.AddScoped<ILabResultRepository, LabResultRepository>();
+        services.AddScoped<IRadiologyReportRepository, RadiologyReportRepository>();
         services.AddScoped<ILabPartnerOrderClient, LoggingLabPartnerOrderClient>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();

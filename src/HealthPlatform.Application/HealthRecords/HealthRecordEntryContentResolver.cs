@@ -25,6 +25,8 @@ public static class HealthRecordEntryContentResolver
                 new HealthRecordEntryContentPayload(LabResultRef: payload.LabResultRef),
             HealthRecordEntryType.LabOrderRef when payload.LabOrderRef is not null =>
                 new HealthRecordEntryContentPayload(LabOrderRef: payload.LabOrderRef),
+            HealthRecordEntryType.RadiologyReportRef when payload.RadiologyReportRef is not null =>
+                new HealthRecordEntryContentPayload(RadiologyReportRef: payload.RadiologyReportRef),
             HealthRecordEntryType.Vaccination when payload.Vaccination is not null =>
                 new HealthRecordEntryContentPayload(Vaccination: payload.Vaccination),
             HealthRecordEntryType.TelemedicineSessionSummary when payload.TelemedicineSessionSummary is not null =>
@@ -56,6 +58,8 @@ public static class HealthRecordEntryContentResolver
                 LabResultRef: update.LabResultRef ?? existing.LabResultRef),
             HealthRecordEntryType.LabOrderRef => new HealthRecordEntryContentPayload(
                 LabOrderRef: update.LabOrderRef ?? existing.LabOrderRef),
+            HealthRecordEntryType.RadiologyReportRef => new HealthRecordEntryContentPayload(
+                RadiologyReportRef: update.RadiologyReportRef ?? existing.RadiologyReportRef),
             HealthRecordEntryType.Vaccination => new HealthRecordEntryContentPayload(
                 Vaccination: update.Vaccination ?? existing.Vaccination),
             HealthRecordEntryType.TelemedicineSessionSummary => new HealthRecordEntryContentPayload(

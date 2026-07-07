@@ -191,6 +191,56 @@ public sealed class LocalFileStorageService(
         return await StoreAsync(storageKey, content, contentType, ct);
     }
 
+    public async Task<StorageUploadResult> UploadRadiologyReportAsync(
+        Guid patientId,
+        Guid labOrderId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct)
+    {
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            extension = contentType switch
+            {
+                "application/pdf" => ".pdf",
+                "text/plain" => ".txt",
+                _ => ".bin"
+            };
+        }
+
+        var storageKey =
+            $"patients/{patientId:N}/labs/{labOrderId:N}/radiology/reports/{Guid.CreateVersion7():N}{extension}";
+        return await StoreAsync(storageKey, content, contentType, ct);
+    }
+
+    public async Task<StorageUploadResult> UploadRadiologyImagingFileAsync(
+        Guid patientId,
+        Guid labOrderId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct)
+    {
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            extension = contentType switch
+            {
+                "image/png" => ".png",
+                "image/jpeg" => ".jpg",
+                "image/webp" => ".webp",
+                "application/dicom" => ".dcm",
+                _ => ".bin"
+            };
+        }
+
+        var storageKey =
+            $"patients/{patientId:N}/labs/{labOrderId:N}/radiology/images/{Guid.CreateVersion7():N}{extension}";
+        return await StoreAsync(storageKey, content, contentType, ct);
+    }
+
     private async Task<StorageUploadResult> StoreAsync(
         string storageKey,
         Stream content,
