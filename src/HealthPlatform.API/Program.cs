@@ -225,6 +225,11 @@ app.Lifetime.ApplicationStarted.Register(() =>
             job => job.Run(),
             Cron.MinuteInterval(5));
 
+        RecurringJob.AddOrUpdate<CriticalNotificationSmsFallbackJob>(
+            "critical-notification-sms-fallbacks",
+            job => job.Run(),
+            Cron.MinuteInterval(1));
+
         RecurringJob.AddOrUpdate<InsuranceClaimStatusPollingJob>(
             "insurance-claim-status-polling",
             job => job.Run(),

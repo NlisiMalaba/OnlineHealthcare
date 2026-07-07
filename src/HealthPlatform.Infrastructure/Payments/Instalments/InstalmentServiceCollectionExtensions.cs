@@ -17,8 +17,6 @@ public static class InstalmentServiceCollectionExtensions
         services.AddScoped<IInstalmentPaymentRepository, Persistence.Repositories.InstalmentPaymentRepository>();
         services.AddScoped<IInstalmentDueReminderDispatcher, InstalmentDueReminderDispatcher>();
         services.AddScoped<IInstalmentMissedPaymentProcessor, InstalmentMissedPaymentProcessor>();
-        services.AddSingleton<IInstalmentDueReminderNotifier, LoggingInstalmentDueReminderNotifier>();
-        services.AddSingleton<IInstalmentMissedPaymentNotifier, LoggingInstalmentMissedPaymentNotifier>();
 
         return services;
     }
