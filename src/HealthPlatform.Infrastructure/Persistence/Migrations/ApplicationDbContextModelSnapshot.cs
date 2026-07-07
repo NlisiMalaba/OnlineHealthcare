@@ -78,6 +78,58 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("appointments", (string)null);
                 });
 
+            modelBuilder.Entity("HealthPlatform.Domain.Audit.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("ActorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActorType")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResourceType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("TimestampUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResourceType");
+
+                    b.HasIndex("TimestampUtc");
+
+                    b.HasIndex("ActorId", "TimestampUtc");
+
+                    b.ToTable("audit_logs", (string)null);
+                });
+
             modelBuilder.Entity("HealthPlatform.Domain.HealthRecords.HealthRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -105,6 +157,48 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("health_records", (string)null);
+                });
+
+            modelBuilder.Entity("HealthPlatform.Domain.HealthRecords.HealthRecordAccess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AccessType")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("GrantedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GrantedToDoctorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("HealthRecordId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Sections")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HealthRecordId");
+
+                    b.HasIndex("HealthRecordId", "GrantedToDoctorId", "RevokedAtUtc");
+
+                    b.ToTable("health_record_accesses", (string)null);
                 });
 
             modelBuilder.Entity("HealthPlatform.Domain.HealthRecords.HealthRecordProfileChange", b =>

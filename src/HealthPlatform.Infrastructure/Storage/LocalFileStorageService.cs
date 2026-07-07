@@ -147,6 +147,17 @@ public sealed class LocalFileStorageService(
         return await StoreAsync(storageKey, content, "text/plain", ct);
     }
 
+    public async Task<StorageUploadResult> UploadHealthRecordExportAsync(
+        Guid patientId,
+        Guid healthRecordId,
+        Stream content,
+        CancellationToken ct)
+    {
+        var storageKey =
+            $"patients/{patientId:N}/health-records/{healthRecordId:N}/exports/{Guid.CreateVersion7():N}.pdf";
+        return await StoreAsync(storageKey, content, "application/pdf", ct);
+    }
+
     public Task<string> GetSignedReadUrlAsync(string storageKey, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
