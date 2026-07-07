@@ -87,6 +87,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
 
+    public DbSet<CriticalNotificationSmsFallback> CriticalNotificationSmsFallbacks =>
+        Set<CriticalNotificationSmsFallback>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

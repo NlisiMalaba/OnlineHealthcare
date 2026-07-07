@@ -279,7 +279,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [ ]* 16.6 Write unit tests for PDF export, access revocation, and audit log completeness
     - _Requirements: 11.5, 11.6, 11.7_
 
-- [ ] 17. Notifications Module
+- [x] 17. Notifications Module
   - [x] 17.1 Implement MediatR domain event handlers for all notification-triggering events; route to FCM/APNs (push), Twilio/Africa's Talking (SMS), or SendGrid/SES (email) based on patient preferences
     - _Requirements: 16.1, 16.4_
   - [x] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
@@ -289,12 +289,12 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 17.4 Write property test for notification log completeness (Property 29)
     - **Property 29: Notification Log Completeness**
     - **Validates: Requirements 16.3**
-  - [ ] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery via Hangfire retry job
+  - [x] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery via Hangfire retry job
     - _Requirements: 16.5_
-  - [ ]* 17.6 Write property test for critical notification SMS fallback (Property 30)
+  - [x]* 17.6 Write property test for critical notification SMS fallback (Property 30)
     - **Property 30: Critical Notification SMS Fallback**
     - **Validates: Requirements 16.5**
-  - [ ]* 17.7 Write unit tests for preference-based channel routing, retry queue, and dead-letter handling
+  - [x]* 17.7 Write unit tests for preference-based channel routing, retry queue, and dead-letter handling
     - _Requirements: 16.2, 16.5_
 
 - [ ] 18. Checkpoint — Health Records, Adherence, and Notification flows complete

@@ -7,6 +7,7 @@ public sealed class NotificationDispatcher(
     INotificationRecipientResolver recipientResolver,
     INotificationChannelGatewayResolver gatewayResolver,
     INotificationLogWriter notificationLogWriter,
+    ICriticalNotificationSmsFallbackService criticalSmsFallbackService,
     ILogger<NotificationDispatcher> logger) : INotificationDispatcher
 {
     public async Task<NotificationDispatchResult> DispatchAsync(
@@ -30,17 +31,9 @@ public sealed class NotificationDispatcher(
             channelResults.Add(result);
         }
 
-        if (request.Criticality == NotificationCriticality.Critical
-            && channelResults.Any(result => result.Channel == NotificationChannel.Push && !result.Succeeded)
-            && enabledChannels.All(channel => channel != NotificationChannel.Sms)
-            && channelResults.All(result => result.Channel != NotificationChannel.Sms))
+        if (ShouldScheduleCriticalSmsFallback(request, channelResults))
         {
-            var smsFallback = await DeliverOnChannelAsync(
-                request,
-                recipient,
-                NotificationChannel.Sms,
-                ct);
-            channelResults.Add(smsFallback);
+            await criticalSmsFallbackService.ScheduleAsync(request, recipient, ct);
         }
 
         logger.LogInformation(
@@ -54,6 +47,14 @@ public sealed class NotificationDispatcher(
 
         return new NotificationDispatchResult(channelResults);
     }
+
+    private static bool ShouldScheduleCriticalSmsFallback(
+        NotificationDispatchRequest request,
+        IReadOnlyList<ChannelDeliveryResult> channelResults) =>
+        request.Criticality == NotificationCriticality.Critical
+        && NotificationPolicies.RequiresSmsFallbackOnPushFailure(request.EventType)
+        && channelResults.Any(result => result.Channel == NotificationChannel.Push && !result.Succeeded)
+        && !channelResults.Any(result => result.Channel == NotificationChannel.Sms && result.Succeeded);
 
     private async Task<ResolvedNotificationRecipient> ResolveRecipientAsync(
         NotificationDispatchRequest request,
