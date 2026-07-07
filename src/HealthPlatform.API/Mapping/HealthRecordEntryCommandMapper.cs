@@ -106,6 +106,7 @@ public static class HealthRecordEntryCommandMapper
             "lab_result_ref" => HealthRecordEntryType.LabResultRef,
             "radiology_report_ref" => HealthRecordEntryType.RadiologyReportRef,
             "lab_order_ref" => HealthRecordEntryType.LabOrderRef,
+            "diagnostic_report_annotation" => HealthRecordEntryType.DiagnosticReportAnnotation,
             "vaccination" => HealthRecordEntryType.Vaccination,
             _ => throw new ArgumentException($"Unsupported entry type '{entryType}'.", nameof(entryType))
         };

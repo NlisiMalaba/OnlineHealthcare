@@ -13,4 +13,8 @@ public static class HealthRecordAccessOperations
     public const string GetPatientEntry = "get_patient_entry";
 
     public const string ExportPdf = "export_pdf";
+
+    public const string AnnotateDiagnosticReport = "annotate_diagnostic_report";
+
+    public const string DownloadLabResult = "download_lab_result";
 }

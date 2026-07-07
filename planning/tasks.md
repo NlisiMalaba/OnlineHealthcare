@@ -317,9 +317,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 21.9**
   - [x] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
     - _Requirements: 21.7_
-  - [ ] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
+  - [x] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
     - _Requirements: 21.8_
-  - [ ]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
+  - [x]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
     - _Requirements: 21.2, 21.6, 21.8_
 
 - [ ] 20. Referrals Module
