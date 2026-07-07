@@ -61,6 +61,7 @@ internal static class HealthRecordEntryDocumentMapper
             HealthRecordEntryType.Allergy => "allergy",
             HealthRecordEntryType.Vital => "vital",
             HealthRecordEntryType.LabResultRef => "lab_result_ref",
+            HealthRecordEntryType.LabOrderRef => "lab_order_ref",
             HealthRecordEntryType.Vaccination => "vaccination",
             HealthRecordEntryType.TelemedicineSessionSummary => "telemedicine_session_summary",
             _ => throw new ArgumentOutOfRangeException(nameof(entryType), entryType, "Unsupported entry type.")
@@ -75,6 +76,7 @@ internal static class HealthRecordEntryDocumentMapper
             "allergy" => HealthRecordEntryType.Allergy,
             "vital" => HealthRecordEntryType.Vital,
             "lab_result_ref" => HealthRecordEntryType.LabResultRef,
+            "lab_order_ref" => HealthRecordEntryType.LabOrderRef,
             "vaccination" => HealthRecordEntryType.Vaccination,
             "telemedicine_session_summary" => HealthRecordEntryType.TelemedicineSessionSummary,
             _ => throw new ArgumentOutOfRangeException(nameof(entryType), entryType, "Unsupported entry type.")

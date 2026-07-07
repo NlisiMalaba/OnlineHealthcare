@@ -27,32 +27,32 @@ public static class HealthRecordEntryCommandMapper
 
     private static HealthRecordEntryContentPayload ToContentPayload(ApiRequests.CreateHealthRecordEntryRequest request) =>
         new(
-            request.ConsultationNote is null
+            ConsultationNote: request.ConsultationNote is null
                 ? null
                 : new ConsultationNoteContent(request.ConsultationNote.Notes, request.ConsultationNote.AppointmentId),
-            request.Diagnosis is null
+            Diagnosis: request.Diagnosis is null
                 ? null
                 : new DiagnosisContent(request.Diagnosis.DiagnosisCodes, request.Diagnosis.Description),
-            request.PrescriptionRef is null
+            PrescriptionRef: request.PrescriptionRef is null
                 ? null
                 : new PrescriptionRefContent(request.PrescriptionRef.PrescriptionId),
-            request.Allergy is null
+            Allergy: request.Allergy is null
                 ? null
                 : new AllergyContent(
                     request.Allergy.Allergen,
                     request.Allergy.Severity,
                     request.Allergy.Reaction),
-            request.Vital is null
+            Vital: request.Vital is null
                 ? null
                 : new VitalContent(
                     request.Vital.VitalType,
                     request.Vital.Value,
                     request.Vital.Unit,
                     request.Vital.MeasuredAtUtc),
-            request.LabResultRef is null
+            LabResultRef: request.LabResultRef is null
                 ? null
                 : new LabResultRefContent(request.LabResultRef.LabResultId),
-            request.Vaccination is null
+            Vaccination: request.Vaccination is null
                 ? null
                 : new VaccinationContent(
                     request.Vaccination.VaccineName,
@@ -62,32 +62,32 @@ public static class HealthRecordEntryCommandMapper
 
     private static HealthRecordEntryContentPayload ToContentPayload(ApiRequests.UpdateHealthRecordEntryRequest request) =>
         new(
-            request.ConsultationNote is null
+            ConsultationNote: request.ConsultationNote is null
                 ? null
                 : new ConsultationNoteContent(request.ConsultationNote.Notes, request.ConsultationNote.AppointmentId),
-            request.Diagnosis is null
+            Diagnosis: request.Diagnosis is null
                 ? null
                 : new DiagnosisContent(request.Diagnosis.DiagnosisCodes, request.Diagnosis.Description),
-            request.PrescriptionRef is null
+            PrescriptionRef: request.PrescriptionRef is null
                 ? null
                 : new PrescriptionRefContent(request.PrescriptionRef.PrescriptionId),
-            request.Allergy is null
+            Allergy: request.Allergy is null
                 ? null
                 : new AllergyContent(
                     request.Allergy.Allergen,
                     request.Allergy.Severity,
                     request.Allergy.Reaction),
-            request.Vital is null
+            Vital: request.Vital is null
                 ? null
                 : new VitalContent(
                     request.Vital.VitalType,
                     request.Vital.Value,
                     request.Vital.Unit,
                     request.Vital.MeasuredAtUtc),
-            request.LabResultRef is null
+            LabResultRef: request.LabResultRef is null
                 ? null
                 : new LabResultRefContent(request.LabResultRef.LabResultId),
-            request.Vaccination is null
+            Vaccination: request.Vaccination is null
                 ? null
                 : new VaccinationContent(
                     request.Vaccination.VaccineName,
@@ -104,6 +104,7 @@ public static class HealthRecordEntryCommandMapper
             "allergy" => HealthRecordEntryType.Allergy,
             "vital" => HealthRecordEntryType.Vital,
             "lab_result_ref" => HealthRecordEntryType.LabResultRef,
+            "lab_order_ref" => HealthRecordEntryType.LabOrderRef,
             "vaccination" => HealthRecordEntryType.Vaccination,
             _ => throw new ArgumentException($"Unsupported entry type '{entryType}'.", nameof(entryType))
         };
