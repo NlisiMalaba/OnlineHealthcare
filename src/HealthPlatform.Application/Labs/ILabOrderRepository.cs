@@ -8,5 +8,10 @@ public interface ILabOrderRepository
 
     Task<LabOrder?> GetByIdAsync(Guid labOrderId, CancellationToken ct);
 
+    Task<LabOrder?> GetByPartnerReferenceAsync(
+        string labPartnerCode,
+        string labPartnerOrderReference,
+        CancellationToken ct);
+
     Task SaveChangesAsync(CancellationToken ct);
 }

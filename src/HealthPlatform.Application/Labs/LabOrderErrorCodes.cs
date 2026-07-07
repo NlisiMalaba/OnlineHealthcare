@@ -8,4 +8,5 @@ public static class LabOrderErrorCodes
     public const string DoctorNotFound = "DOCTOR_NOT_FOUND";
     public const string DoctorNotVerified = "DOCTOR_NOT_VERIFIED";
     public const string HealthRecordOwnershipMismatch = "HEALTH_RECORD_OWNERSHIP_MISMATCH";
+    public const string LabOrderReferenceNotFound = "LAB_ORDER_REFERENCE_NOT_FOUND";
 }

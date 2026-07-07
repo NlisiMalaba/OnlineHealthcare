@@ -13,6 +13,15 @@ public sealed class LabOrderRepository(ApplicationDbContext db) : ILabOrderRepos
     public Task<LabOrder?> GetByIdAsync(Guid labOrderId, CancellationToken ct) =>
         db.LabOrders.FirstOrDefaultAsync(x => x.Id == labOrderId, ct);
 
+    public Task<LabOrder?> GetByPartnerReferenceAsync(
+        string labPartnerCode,
+        string labPartnerOrderReference,
+        CancellationToken ct) =>
+        db.LabOrders.FirstOrDefaultAsync(
+            x => x.LabPartnerCode == labPartnerCode.Trim().ToUpperInvariant()
+                 && x.LabPartnerOrderReference == labPartnerOrderReference.Trim(),
+            ct);
+
     public Task SaveChangesAsync(CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 }

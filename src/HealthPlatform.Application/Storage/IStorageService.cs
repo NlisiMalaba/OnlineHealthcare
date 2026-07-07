@@ -52,4 +52,12 @@ public interface IStorageService
         Guid healthRecordId,
         Stream content,
         CancellationToken ct);
+
+    Task<StorageUploadResult> UploadLabResultAsync(
+        Guid patientId,
+        Guid labOrderId,
+        Stream content,
+        string contentType,
+        string fileName,
+        CancellationToken ct);
 }

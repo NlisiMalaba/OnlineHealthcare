@@ -142,6 +142,17 @@ public sealed class LabOrderAttachedToHealthRecordPropertyTests
             return Task.FromResult(order);
         }
 
+        public Task<LabOrder?> GetByPartnerReferenceAsync(
+            string labPartnerCode,
+            string labPartnerOrderReference,
+            CancellationToken ct)
+        {
+            var order = _orders.Values.FirstOrDefault(x =>
+                x.LabPartnerCode == labPartnerCode.Trim().ToUpperInvariant()
+                && x.LabPartnerOrderReference == labPartnerOrderReference.Trim());
+            return Task.FromResult(order);
+        }
+
         public Task SaveChangesAsync(CancellationToken ct) => Task.CompletedTask;
     }
 }
