@@ -63,6 +63,7 @@ internal static class HealthRecordEntryDocumentMapper
             HealthRecordEntryType.LabResultRef => "lab_result_ref",
             HealthRecordEntryType.LabOrderRef => "lab_order_ref",
             HealthRecordEntryType.RadiologyReportRef => "radiology_report_ref",
+            HealthRecordEntryType.DiagnosticReportAnnotation => "diagnostic_report_annotation",
             HealthRecordEntryType.Vaccination => "vaccination",
             HealthRecordEntryType.TelemedicineSessionSummary => "telemedicine_session_summary",
             _ => throw new ArgumentOutOfRangeException(nameof(entryType), entryType, "Unsupported entry type.")
@@ -79,6 +80,7 @@ internal static class HealthRecordEntryDocumentMapper
             "lab_result_ref" => HealthRecordEntryType.LabResultRef,
             "lab_order_ref" => HealthRecordEntryType.LabOrderRef,
             "radiology_report_ref" => HealthRecordEntryType.RadiologyReportRef,
+            "diagnostic_report_annotation" => HealthRecordEntryType.DiagnosticReportAnnotation,
             "vaccination" => HealthRecordEntryType.Vaccination,
             "telemedicine_session_summary" => HealthRecordEntryType.TelemedicineSessionSummary,
             _ => throw new ArgumentOutOfRangeException(nameof(entryType), entryType, "Unsupported entry type.")

@@ -16,6 +16,12 @@ public sealed record LabOrderRefContent(Guid LabOrderId, string TestCode, string
 
 public sealed record RadiologyReportRefContent(Guid RadiologyReportId);
 
+public sealed record DiagnosticReportAnnotationContent(
+    string TargetType,
+    Guid TargetId,
+    string Note,
+    DateTime AnnotatedAtUtc);
+
 public sealed record VaccinationContent(
     string VaccineName,
     DateTime AdministeredAtUtc,
@@ -37,5 +43,6 @@ public sealed record HealthRecordEntryContentPayload(
     LabResultRefContent? LabResultRef = null,
     LabOrderRefContent? LabOrderRef = null,
     RadiologyReportRefContent? RadiologyReportRef = null,
+    DiagnosticReportAnnotationContent? DiagnosticReportAnnotation = null,
     VaccinationContent? Vaccination = null,
     TelemedicineSessionSummaryContent? TelemedicineSessionSummary = null);

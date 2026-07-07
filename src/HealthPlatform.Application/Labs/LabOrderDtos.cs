@@ -2,6 +2,12 @@ using HealthPlatform.Domain.Labs;
 
 namespace HealthPlatform.Application.Labs;
 
+public sealed record LabResultDownloadDto(
+    Guid LabResultId,
+    string FileName,
+    string ContentType,
+    string DownloadUrl);
+
 public sealed record LabOrderDto(
     Guid Id,
     Guid PatientId,
