@@ -143,6 +143,7 @@ public static class DependencyInjection
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
+        services.AddScoped<IReferralTimeoutReminderDispatcher, ReferralTimeoutReminderDispatcher>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
         services.AddSingleton<ILowStockAlertNotifier, LoggingLowStockAlertNotifier>();
         services.AddSingleton<IMedicationOrderPatientNotifier, LoggingMedicationOrderPatientNotifier>();
@@ -158,6 +159,7 @@ public static class DependencyInjection
         services.AddSingleton<IAppointmentReminderNotifier, LoggingAppointmentReminderNotifier>();
         services.AddSingleton<IReferralCreatedNotifier, LoggingReferralCreatedNotifier>();
         services.AddSingleton<IReferralStatusChangedNotifier, LoggingReferralStatusChangedNotifier>();
+        services.AddSingleton<IReferralTimeoutReminderNotifier, LoggingReferralTimeoutReminderNotifier>();
         services.AddScoped<IAppointmentReminderDispatcher, AppointmentReminderDispatcher>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();

@@ -35,6 +35,8 @@ public sealed class Referral : Entity
 
     public string? ConsultationSummaryEntryId { get; private set; }
 
+    public DateTime? TimeoutReminderSentAtUtc { get; private set; }
+
     public static Referral Create(
         Guid patientId,
         Guid referringDoctorId,
@@ -248,5 +250,18 @@ public sealed class Referral : Entity
             Status,
             null,
             completedAtUtc));
+    }
+
+    public bool MarkTimeoutReminderSent(DateTime sentAtUtc)
+    {
+        EnsureUtcTimestamp(sentAtUtc, nameof(sentAtUtc));
+        if (Status != ReferralStatus.Pending || TimeoutReminderSentAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        TimeoutReminderSentAtUtc = sentAtUtc;
+        Touch();
+        return true;
     }
 }

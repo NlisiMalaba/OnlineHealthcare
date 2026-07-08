@@ -153,6 +153,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingReferralStatusChangedNotifier ReferralStatusChangedNotifier => _referralStatusChangedNotifier;
 
+    private readonly CapturingReferralTimeoutReminderNotifier _referralTimeoutReminderNotifier = new();
+
+    public CapturingReferralTimeoutReminderNotifier ReferralTimeoutReminderNotifier => _referralTimeoutReminderNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -165,6 +169,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         INextOfKinChannelDeliveryGateway? nextOfKinChannelDeliveryGateway = null,
         IReferralCreatedNotifier? referralCreatedNotifier = null,
         IReferralStatusChangedNotifier? referralStatusChangedNotifier = null,
+        IReferralTimeoutReminderNotifier? referralTimeoutReminderNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -354,6 +359,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         else
         {
             services.AddSingleton<IReferralStatusChangedNotifier>(_referralStatusChangedNotifier);
+        }
+
+        if (referralTimeoutReminderNotifier is not null)
+        {
+            services.AddSingleton(referralTimeoutReminderNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IReferralTimeoutReminderNotifier>(_referralTimeoutReminderNotifier);
         }
 
         if (timeProvider is not null)

@@ -334,12 +334,12 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 26.4, 26.5, 30.4, 30.5, 30.6_
   - [x] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
     - _Requirements: 26.6, 30.7, 30.8_
-  - [ ] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
+  - [x] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
     - _Requirements: 26.7_
-  - [ ]* 20.6 Write property test for referral timeout reminder (Property 36)
+  - [x]* 20.6 Write property test for referral timeout reminder (Property 36)
     - **Property 36: Referral Timeout Reminder**
     - **Validates: Requirements 26.7**
-  - [ ]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
+  - [x]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
     - _Requirements: 26.4, 30.2, 30.8_
 
 - [ ] 21. Queue Management Module

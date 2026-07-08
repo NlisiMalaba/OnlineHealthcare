@@ -1,4 +1,5 @@
 using HealthPlatform.Application.Appointments;
+using HealthPlatform.Application.Referrals;
 using Microsoft.Extensions.Logging;
 
 namespace HealthPlatform.Infrastructure.Jobs;
@@ -8,18 +9,24 @@ namespace HealthPlatform.Infrastructure.Jobs;
 /// </summary>
 public sealed class ScheduledRemindersJob(
     IAppointmentReminderDispatcher appointmentReminderDispatcher,
+    IReferralTimeoutReminderDispatcher referralTimeoutReminderDispatcher,
     ILogger<ScheduledRemindersJob> logger)
 {
     public async Task RunAsync(CancellationToken ct = default)
     {
-        var dispatched = await appointmentReminderDispatcher.DispatchDueRemindersAsync(ct);
-        if (dispatched > 0)
+        var appointmentDispatched = await appointmentReminderDispatcher.DispatchDueRemindersAsync(ct);
+        var referralDispatched = await referralTimeoutReminderDispatcher.DispatchDueRemindersAsync(ct);
+        var totalDispatched = appointmentDispatched + referralDispatched;
+        if (totalDispatched > 0)
         {
-            logger.LogInformation("Scheduled reminders dispatched {Count} appointment reminder(s).", dispatched);
+            logger.LogInformation(
+                "Scheduled reminders dispatched {AppointmentCount} appointment and {ReferralCount} referral timeout reminder(s).",
+                appointmentDispatched,
+                referralDispatched);
         }
         else
         {
-            logger.LogDebug("Scheduled reminders tick — no appointment reminders due.");
+            logger.LogDebug("Scheduled reminders tick — no appointment or referral timeout reminders due.");
         }
     }
 

@@ -32,6 +32,8 @@ public sealed class ReferralConfiguration : IEntityTypeConfiguration<Referral>
         builder.Property(r => r.ConsultationSummaryEntryId)
             .HasMaxLength(200);
 
+        builder.Property(r => r.TimeoutReminderSentAtUtc);
+
         builder.Property(r => r.Status)
             .HasConversion<string>()
             .HasMaxLength(32)

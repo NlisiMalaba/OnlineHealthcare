@@ -18,6 +18,21 @@ public sealed class ReferralRepository(ApplicationDbContext db) : IReferralRepos
     public Task UpdateAsync(Referral referral, CancellationToken ct) =>
         db.SaveChangesAsync(ct);
 
+    public async Task<IReadOnlyList<Referral>> ListPendingForTimeoutReminderAsync(
+        DateTime asOfUtc,
+        TimeSpan pendingThreshold,
+        CancellationToken ct)
+    {
+        var latestCreatedAtUtc = asOfUtc - pendingThreshold;
+        return await db.Referrals
+            .Where(r =>
+                r.Status == ReferralStatus.Pending
+                && r.TimeoutReminderSentAtUtc == null
+                && r.CreatedAtUtc <= latestCreatedAtUtc)
+            .OrderBy(r => r.CreatedAtUtc)
+            .ToListAsync(ct);
+    }
+
     public async Task AddAccessGrantAsync(ReferralHealthRecordAccessGrant accessGrant, CancellationToken ct)
     {
         await db.ReferralHealthRecordAccessGrants.AddAsync(accessGrant, ct);
