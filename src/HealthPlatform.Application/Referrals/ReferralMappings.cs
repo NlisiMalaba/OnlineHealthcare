@@ -18,5 +18,6 @@ public static class ReferralMappings
             referral.Status.ToString().ToLowerInvariant(),
             referral.ResponseReason,
             referral.RespondedAtUtc,
+            referral.ConsultationSummaryEntryId,
             referral.CreatedAtUtc);
 }

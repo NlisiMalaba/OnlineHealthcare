@@ -32,4 +32,27 @@ public sealed class MongoHealthRecordEntryRepository(IMongoDatabase database)
 
         return new HealthRecordEntryReference(document.Id.ToString());
     }
+
+    public async Task<HealthRecordEntryReference> AddReferralConsultationSummaryEntryAsync(
+        HealthRecordReferralConsultationSummaryEntry entry,
+        CancellationToken ct)
+    {
+        var document = new HealthRecordEntryDocument
+        {
+            HealthRecordId = entry.HealthRecordId,
+            EntryType = "referral_consultation_summary",
+            PatientId = entry.PatientId,
+            DoctorId = entry.DoctorId,
+            ReferralId = entry.ReferralId,
+            ConsultationSummary = entry.Summary,
+            CreatedAtUtc = entry.CreatedAtUtc,
+            IsVisibleToPatient = true
+        };
+
+        await database
+            .GetCollection<HealthRecordEntryDocument>(CollectionName)
+            .InsertOneAsync(document, cancellationToken: ct);
+
+        return new HealthRecordEntryReference(document.Id.ToString());
+    }
 }

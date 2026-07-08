@@ -1,4 +1,5 @@
 using HealthPlatform.API.Requests.Referrals;
+using HealthPlatform.Application.Referrals.CompleteReferral;
 using HealthPlatform.Application.Referrals.CreateReferral;
 using HealthPlatform.Application.Referrals.RespondToReferral;
 
@@ -21,4 +22,7 @@ public static class ReferralCommandMapper
             referralId,
             request.Action,
             request.Reason);
+
+    public static CompleteReferralCommand ToCompleteCommand(Guid referralId, CompleteReferralRequest request) =>
+        new(referralId, request.ConsultationSummary);
 }

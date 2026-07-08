@@ -13,4 +13,5 @@ public sealed record ReferralDto(
     string Status,
     string? ResponseReason,
     DateTime? RespondedAtUtc,
+    string? ConsultationSummaryEntryId,
     DateTime CreatedAtUtc);

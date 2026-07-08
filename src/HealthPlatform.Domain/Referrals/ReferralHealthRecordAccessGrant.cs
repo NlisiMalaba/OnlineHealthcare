@@ -19,6 +19,8 @@ public sealed class ReferralHealthRecordAccessGrant : Entity
 
     public DateTime GrantedAtUtc { get; private set; }
 
+    public DateTime? RevokedAtUtc { get; private set; }
+
     public static ReferralHealthRecordAccessGrant Create(
         Guid referralId,
         Guid patientId,
@@ -70,5 +72,21 @@ public sealed class ReferralHealthRecordAccessGrant : Entity
             CreatedAtUtc = grantedAtUtc,
             UpdatedAtUtc = grantedAtUtc
         };
+    }
+
+    public void Revoke(DateTime revokedAtUtc)
+    {
+        if (revokedAtUtc == default || revokedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Revoked timestamp must be UTC.", nameof(revokedAtUtc));
+        }
+
+        if (RevokedAtUtc.HasValue)
+        {
+            return;
+        }
+
+        RevokedAtUtc = revokedAtUtc;
+        Touch();
     }
 }
