@@ -6,6 +6,7 @@ namespace HealthPlatform.Infrastructure.MongoDb;
 public sealed class InMemoryHealthRecordEntryRepository : IHealthRecordEntryRepository
 {
     private readonly List<StoredEntry> _entries = [];
+    public List<HealthRecordReferralConsultationSummaryEntry> ReferralSummaries { get; } = [];
 
     public IReadOnlyList<HealthRecordEntryDto> Entries =>
         _entries
@@ -108,6 +109,14 @@ public sealed class InMemoryHealthRecordEntryRepository : IHealthRecordEntryRepo
 
         _entries[index] = _entries[index] with { IsDeleted = true };
         return Task.FromResult(true);
+    }
+
+    public Task<HealthRecordEntryReference> AddReferralConsultationSummaryEntryAsync(
+        HealthRecordReferralConsultationSummaryEntry entry,
+        CancellationToken ct)
+    {
+        ReferralSummaries.Add(entry);
+        return Task.FromResult(new HealthRecordEntryReference(Guid.CreateVersion7().ToString("N")));
     }
 
     private sealed record StoredEntry(HealthRecordEntryDto Dto, bool IsDeleted);

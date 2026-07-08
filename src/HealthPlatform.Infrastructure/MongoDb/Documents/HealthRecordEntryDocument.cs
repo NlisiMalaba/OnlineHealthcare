@@ -14,7 +14,19 @@ public sealed class HealthRecordEntryDocument
 
     public BsonDocument Content { get; set; } = [];
 
+    public Guid PatientId { get; set; }
+
+    public Guid DoctorId { get; set; }
+
     public Guid AuthoredBy { get; set; }
+
+    public Guid AppointmentId { get; set; }
+
+    public string? SummaryDocumentId { get; set; }
+
+    public Guid? ReferralId { get; set; }
+
+    public string? ConsultationSummary { get; set; }
 
     public DateTime CreatedAtUtc { get; set; }
 

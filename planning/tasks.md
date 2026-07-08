@@ -323,23 +323,23 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 21.2, 21.6, 21.8_
 
 - [ ] 20. Referrals Module
-  - [ ] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
+  - [x] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
     - Notify receiving doctor and patient; publish `ReferralCreated` domain event
     - _Requirements: 26.1, 26.2, 30.1, 30.2_
-  - [ ]* 20.2 Write property test for referral requires patient consent (Property 39)
+  - [x]* 20.2 Write property test for referral requires patient consent (Property 39)
     - **Property 39: Referral Requires Patient Consent**
     - **Validates: Requirements 30.2**
-  - [ ] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
+  - [x] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
     - Notify referring doctor and patient on status change
     - _Requirements: 26.4, 26.5, 30.4, 30.5, 30.6_
-  - [ ] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
+  - [x] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
     - _Requirements: 26.6, 30.7, 30.8_
-  - [ ] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
+  - [x] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
     - _Requirements: 26.7_
-  - [ ]* 20.6 Write property test for referral timeout reminder (Property 36)
+  - [x]* 20.6 Write property test for referral timeout reminder (Property 36)
     - **Property 36: Referral Timeout Reminder**
     - **Validates: Requirements 26.7**
-  - [ ]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
+  - [x]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
     - _Requirements: 26.4, 30.2, 30.8_
 
 - [ ] 21. Queue Management Module

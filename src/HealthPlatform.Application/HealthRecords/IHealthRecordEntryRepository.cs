@@ -27,6 +27,14 @@ public sealed record HealthRecordEntryUpdateModel(
     DateTime UpdatedAtUtc,
     bool? IsVisibleToPatient);
 
+public sealed record HealthRecordReferralConsultationSummaryEntry(
+    Guid HealthRecordId,
+    Guid PatientId,
+    Guid DoctorId,
+    Guid ReferralId,
+    string Summary,
+    DateTime CreatedAtUtc);
+
 public interface IHealthRecordEntryRepository
 {
     Task<HealthRecordEntryDto> AddAsync(HealthRecordEntryCreateModel entry, CancellationToken ct);
@@ -45,4 +53,8 @@ public interface IHealthRecordEntryRepository
     Task<bool> UpdateAsync(HealthRecordEntryUpdateModel entry, CancellationToken ct);
 
     Task<bool> DeleteAsync(string entryId, DateTime deletedAtUtc, CancellationToken ct);
+
+    Task<HealthRecordEntryReference> AddReferralConsultationSummaryEntryAsync(
+        HealthRecordReferralConsultationSummaryEntry entry,
+        CancellationToken ct);
 }

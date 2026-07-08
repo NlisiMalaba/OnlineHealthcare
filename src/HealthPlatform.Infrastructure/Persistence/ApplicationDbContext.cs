@@ -13,6 +13,7 @@ using HealthPlatform.Domain.NextOfKin;
 using HealthPlatform.Domain.Notifications;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
+using HealthPlatform.Domain.Referrals;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -101,6 +102,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<CriticalNotificationSmsFallback> CriticalNotificationSmsFallbacks =>
         Set<CriticalNotificationSmsFallback>();
+
+    public DbSet<Referral> Referrals => Set<Referral>();
+
+    public DbSet<ReferralHealthRecordAccessGrant> ReferralHealthRecordAccessGrants =>
+        Set<ReferralHealthRecordAccessGrant>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
