@@ -12,11 +12,13 @@ public sealed class HealthRecordEntryDocument
 
     public string EntryType { get; set; } = string.Empty;
 
+    public BsonDocument Content { get; set; } = [];
+
     public Guid PatientId { get; set; }
 
     public Guid DoctorId { get; set; }
 
-    public Guid SessionId { get; set; }
+    public Guid AuthoredBy { get; set; }
 
     public Guid AppointmentId { get; set; }
 
@@ -28,5 +30,11 @@ public sealed class HealthRecordEntryDocument
 
     public DateTime CreatedAtUtc { get; set; }
 
+    public DateTime? UpdatedAtUtc { get; set; }
+
     public bool IsVisibleToPatient { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public DateTime? DeletedAt { get; set; }
 }

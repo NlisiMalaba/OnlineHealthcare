@@ -1,0 +1,48 @@
+namespace HealthPlatform.Application.HealthRecords;
+
+public sealed record ConsultationNoteContent(string Notes, Guid? AppointmentId);
+
+public sealed record DiagnosisContent(IReadOnlyList<string> DiagnosisCodes, string Description);
+
+public sealed record PrescriptionRefContent(Guid PrescriptionId);
+
+public sealed record AllergyContent(string Allergen, string Severity, string? Reaction);
+
+public sealed record VitalContent(string VitalType, decimal Value, string Unit, DateTime MeasuredAtUtc);
+
+public sealed record LabResultRefContent(Guid LabResultId);
+
+public sealed record LabOrderRefContent(Guid LabOrderId, string TestCode, string LabPartnerCode);
+
+public sealed record RadiologyReportRefContent(Guid RadiologyReportId);
+
+public sealed record DiagnosticReportAnnotationContent(
+    string TargetType,
+    Guid TargetId,
+    string Note,
+    DateTime AnnotatedAtUtc);
+
+public sealed record VaccinationContent(
+    string VaccineName,
+    DateTime AdministeredAtUtc,
+    string? BatchNumber,
+    string? AdministeredBy);
+
+public sealed record TelemedicineSessionSummaryContent(
+    Guid SessionId,
+    Guid AppointmentId,
+    Guid DoctorId,
+    string SummaryDocumentId);
+
+public sealed record HealthRecordEntryContentPayload(
+    ConsultationNoteContent? ConsultationNote = null,
+    DiagnosisContent? Diagnosis = null,
+    PrescriptionRefContent? PrescriptionRef = null,
+    AllergyContent? Allergy = null,
+    VitalContent? Vital = null,
+    LabResultRefContent? LabResultRef = null,
+    LabOrderRefContent? LabOrderRef = null,
+    RadiologyReportRefContent? RadiologyReportRef = null,
+    DiagnosticReportAnnotationContent? DiagnosticReportAnnotation = null,
+    VaccinationContent? Vaccination = null,
+    TelemedicineSessionSummaryContent? TelemedicineSessionSummary = null);

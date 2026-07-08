@@ -6,6 +6,7 @@ using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.NextOfKin;
+using HealthPlatform.Application.Labs;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -29,9 +30,14 @@ using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
 using HealthPlatform.Infrastructure.Prescriptions;
+using HealthPlatform.Application.Notifications;
 using HealthPlatform.Infrastructure.Identity;
+using HealthPlatform.Infrastructure.Notifications;
+using HealthPlatform.Infrastructure.Notifications.Routing;
+using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Outbox;
 using HealthPlatform.Infrastructure.Persistence;
+using HealthPlatform.Application.Audit;
 using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.Realtime;
@@ -207,6 +213,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
+        services.AddScoped<IHealthRecordAccessRepository, HealthRecordAccessRepository>();
+        services.AddScoped<IHealthRecordAccessGuard, HealthRecordAccessGuard>();
+        services.AddScoped<IHealthRecordAccessAuditService, HealthRecordAccessAuditService>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        services.AddSingleton<IAuditContextAccessor>(new TestAuditContextAccessor());
         services.AddScoped<IHealthRecordProfileChangeRepository, HealthRecordProfileChangeRepository>();
         services.AddScoped<ISocialIdentityVerifier, SocialIdentityVerifier>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
@@ -328,6 +339,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
         services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddScoped<ILabOrderRepository, LabOrderRepository>();
+        services.AddScoped<ILabResultRepository, LabResultRepository>();
+        services.AddScoped<IRadiologyReportRepository, RadiologyReportRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
@@ -383,17 +397,38 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         services.AddSingleton<ICurrentUserAccessor>(_currentUser);
         services.AddSingleton<IStorageService, LocalFileStorageService>();
+        services.AddSingleton<IHealthRecordPdfGenerator, HealthPlatform.Infrastructure.HealthRecords.QuestPdfHealthRecordPdfGenerator>();
         RegisterPaymentGateways(services);
         RegisterInsuranceServices(services);
         RegisterCreditLineServices(services, _creditBalanceWarningNotifier, _creditRepaymentReminderNotifier);
         RegisterInstalmentServices(services, _instalmentDueReminderNotifier, _instalmentMissedPaymentNotifier);
         RegisterPaymentCompletionServices(services, _paymentFailedNotifier);
+        services.AddDistributedMemoryCache();
+        services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
+        services.AddSingleton<INotificationPreferenceCache, RedisNotificationPreferenceCache>();
+        services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
+        services.AddScoped<INotificationPreferenceResolver, StoredNotificationPreferenceResolver>();
+        services.AddScoped<IUserRoleResolver, IdentityUserRoleResolver>();
+        services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
+        services.AddScoped<INotificationLogWriter, NotificationLogWriter>();
+        services.AddScoped<ICriticalNotificationSmsFallbackRepository, CriticalNotificationSmsFallbackRepository>();
+        services.AddSingleton<ICriticalNotificationSmsFallbackScheduler, CapturingCriticalNotificationSmsFallbackScheduler>();
+        services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
+        services.AddScoped<INotificationChannelGatewayResolver, NotificationChannelGatewayResolver>();
+        services.AddSingleton<IPushNotificationGateway, Infrastructure.Notifications.Gateways.LoggingPushNotificationGateway>();
+        services.AddSingleton<ISmsNotificationGateway, Infrastructure.Notifications.Gateways.LoggingSmsNotificationGateway>();
+        services.AddSingleton<IEmailNotificationGateway, Infrastructure.Notifications.Gateways.LoggingEmailNotificationGateway>();
+        services.AddScoped<INotificationRecipientResolver, IdentityNotificationRecipientResolver>();
+        services.AddScoped<IAppointmentConfirmationNotifier, RoutingAppointmentConfirmationNotifier>();
 
         _serviceProvider = services.BuildServiceProvider();
         SeedRolesAsync().GetAwaiter().GetResult();
     }
 
     public ISender Sender => _serviceProvider.GetRequiredService<ISender>();
+
+    public InMemoryHealthRecordEntryRepository HealthRecordEntryRepository =>
+        _serviceProvider.GetRequiredService<InMemoryHealthRecordEntryRepository>();
 
     public ApplicationDbContext DbContext => _serviceProvider.GetRequiredService<ApplicationDbContext>();
 

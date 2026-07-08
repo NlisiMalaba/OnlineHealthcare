@@ -1,3 +1,4 @@
+using HealthPlatform.Domain.Audit;
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Domain.Identity;
@@ -7,7 +8,9 @@ using HealthPlatform.Domain.Payments;
 using HealthPlatform.Domain.Payments.CreditLine;
 using HealthPlatform.Domain.Payments.Instalments;
 using HealthPlatform.Domain.Prescriptions;
+using HealthPlatform.Domain.Labs;
 using HealthPlatform.Domain.NextOfKin;
+using HealthPlatform.Domain.Notifications;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
 using HealthPlatform.Domain.Referrals;
@@ -31,6 +34,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Patient> Patients => Set<Patient>();
 
     public DbSet<HealthRecord> HealthRecords => Set<HealthRecord>();
+
+    public DbSet<HealthRecordAccess> HealthRecordAccesses => Set<HealthRecordAccess>();
+
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     public DbSet<HealthRecordProfileChange> HealthRecordProfileChanges => Set<HealthRecordProfileChange>();
 
@@ -71,6 +78,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<InsuranceClaim> InsuranceClaims => Set<InsuranceClaim>();
 
+    public DbSet<LabOrder> LabOrders => Set<LabOrder>();
+
+    public DbSet<LabResult> LabResults => Set<LabResult>();
+
+    public DbSet<RadiologyReport> RadiologyReports => Set<RadiologyReport>();
+
     public DbSet<PatientInsurancePolicy> PatientInsurancePolicies => Set<PatientInsurancePolicy>();
 
     public DbSet<PatientCreditLine> PatientCreditLines => Set<PatientCreditLine>();
@@ -82,6 +95,13 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<InstalmentPayment> InstalmentPayments => Set<InstalmentPayment>();
 
     public DbSet<Payment> Payments => Set<Payment>();
+
+    public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
+
+    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+
+    public DbSet<CriticalNotificationSmsFallback> CriticalNotificationSmsFallbacks =>
+        Set<CriticalNotificationSmsFallback>();
 
     public DbSet<Referral> Referrals => Set<Referral>();
 
