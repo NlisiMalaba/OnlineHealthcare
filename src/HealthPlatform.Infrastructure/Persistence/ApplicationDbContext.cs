@@ -85,6 +85,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<Referral> Referrals => Set<Referral>();
 
+    public DbSet<ReferralHealthRecordAccessGrant> ReferralHealthRecordAccessGrants =>
+        Set<ReferralHealthRecordAccessGrant>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

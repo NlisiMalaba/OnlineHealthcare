@@ -157,6 +157,7 @@ public static class DependencyInjection
         services.AddSingleton<IAppointmentRescheduleNotifier, LoggingAppointmentRescheduleNotifier>();
         services.AddSingleton<IAppointmentReminderNotifier, LoggingAppointmentReminderNotifier>();
         services.AddSingleton<IReferralCreatedNotifier, LoggingReferralCreatedNotifier>();
+        services.AddSingleton<IReferralStatusChangedNotifier, LoggingReferralStatusChangedNotifier>();
         services.AddScoped<IAppointmentReminderDispatcher, AppointmentReminderDispatcher>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();

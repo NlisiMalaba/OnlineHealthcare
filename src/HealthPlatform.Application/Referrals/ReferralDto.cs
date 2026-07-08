@@ -11,4 +11,6 @@ public sealed record ReferralDto(
     IReadOnlyList<string> SharedHealthRecordSections,
     DateTime PatientConsentAtUtc,
     string Status,
+    string? ResponseReason,
+    DateTime? RespondedAtUtc,
     DateTime CreatedAtUtc);

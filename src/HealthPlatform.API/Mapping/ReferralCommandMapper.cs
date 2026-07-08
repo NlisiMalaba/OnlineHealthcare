@@ -1,5 +1,6 @@
 using HealthPlatform.API.Requests.Referrals;
 using HealthPlatform.Application.Referrals.CreateReferral;
+using HealthPlatform.Application.Referrals.RespondToReferral;
 
 namespace HealthPlatform.API.Mapping;
 
@@ -14,4 +15,10 @@ public static class ReferralCommandMapper
             request.ClinicalNotes,
             request.SharedHealthRecordSections,
             request.PatientConsentAtUtc);
+
+    public static RespondToReferralCommand ToRespondCommand(Guid referralId, RespondToReferralRequest request) =>
+        new(
+            referralId,
+            request.Action,
+            request.Reason);
 }

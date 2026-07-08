@@ -329,7 +329,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 20.2 Write property test for referral requires patient consent (Property 39)
     - **Property 39: Referral Requires Patient Consent**
     - **Validates: Requirements 30.2**
-  - [ ] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
+  - [x] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
     - Notify referring doctor and patient on status change
     - _Requirements: 26.4, 26.5, 30.4, 30.5, 30.6_
   - [ ] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status

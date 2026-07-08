@@ -22,4 +22,12 @@ public sealed class ReferralsController(ISender sender) : ControllerBase
         var referral = await sender.Send(ReferralCommandMapper.ToCreateCommand(request), ct);
         return Created($"/api/v1/referrals/{referral.Id}", referral);
     }
+
+    [HttpPost("{referralId:guid}/respond")]
+    [ProducesResponseType(typeof(ReferralDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ReferralDto>> RespondAsync(
+        Guid referralId,
+        [FromBody] RespondToReferralRequest request,
+        CancellationToken ct) =>
+        Ok(await sender.Send(ReferralCommandMapper.ToRespondCommand(referralId, request), ct));
 }
