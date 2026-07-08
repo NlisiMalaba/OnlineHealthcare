@@ -10,6 +10,7 @@ using HealthPlatform.Domain.Prescriptions;
 using HealthPlatform.Domain.NextOfKin;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
+using HealthPlatform.Domain.Referrals;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -81,6 +82,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<InstalmentPayment> InstalmentPayments => Set<InstalmentPayment>();
 
     public DbSet<Payment> Payments => Set<Payment>();
+
+    public DbSet<Referral> Referrals => Set<Referral>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

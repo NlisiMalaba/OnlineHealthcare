@@ -24,6 +24,7 @@ using HealthPlatform.Application.Payments.Instalments;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
+using HealthPlatform.Application.Referrals;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
@@ -144,6 +145,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public CapturingMedicationScheduleCompletionNotifier MedicationScheduleCompletionNotifier =>
         _medicationScheduleCompletionNotifier;
 
+    private readonly CapturingReferralCreatedNotifier _referralCreatedNotifier = new();
+
+    public CapturingReferralCreatedNotifier ReferralCreatedNotifier => _referralCreatedNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -154,6 +159,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         IConsecutiveMissedDosesNextOfKinNotifier? consecutiveMissedDosesNextOfKinNotifier = null,
         INextOfKinEmergencyAlertNotifier? nextOfKinEmergencyAlertNotifier = null,
         INextOfKinChannelDeliveryGateway? nextOfKinChannelDeliveryGateway = null,
+        IReferralCreatedNotifier? referralCreatedNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -314,6 +320,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
+        services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
         services.AddSingleton<IPharmacyOrderReceivedNotifier>(_pharmacyOrderReceivedNotifier);
@@ -326,6 +333,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
         services.AddSingleton<ISearchService>(_searchService);
+        if (referralCreatedNotifier is not null)
+        {
+            services.AddSingleton(referralCreatedNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IReferralCreatedNotifier>(_referralCreatedNotifier);
+        }
+
         if (timeProvider is not null)
         {
             services.AddSingleton<TimeProvider>(timeProvider);

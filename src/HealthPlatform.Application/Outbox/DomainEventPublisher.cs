@@ -9,6 +9,7 @@ using HealthPlatform.Application.PharmacyOrders.Notifications;
 using HealthPlatform.Application.Search.Notifications;
 using HealthPlatform.Application.Telemedicine.Notifications;
 using HealthPlatform.Application.Wellness.Notifications;
+using HealthPlatform.Application.Referrals.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
@@ -20,6 +21,7 @@ using HealthPlatform.Domain.Payments.CreditLine.Events;
 using HealthPlatform.Domain.Payments.Events;
 using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
+using HealthPlatform.Domain.Referrals.Events;
 using MediatR;
 
 namespace HealthPlatform.Application.Outbox;
@@ -237,6 +239,17 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.PatientId,
                     e.MedicationName,
                     e.CompletedAtUtc),
+                ct),
+            ReferralCreatedDomainEvent e => mediator.Publish(
+                new ReferralCreatedNotification(
+                    e.ReferralId,
+                    e.PatientId,
+                    e.ReferringDoctorId,
+                    e.ReceivingDoctorId,
+                    e.Reason,
+                    e.PatientConsentAtUtc,
+                    e.CreatedAtUtc,
+                    e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask
         };
