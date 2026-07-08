@@ -6,6 +6,7 @@ namespace HealthPlatform.Infrastructure.MongoDb;
 public sealed class InMemoryHealthRecordEntryRepository : IHealthRecordEntryRepository
 {
     private readonly List<StoredEntry> _entries = [];
+    public List<HealthRecordReferralConsultationSummaryEntry> ReferralSummaries { get; } = [];
 
     public IReadOnlyList<HealthRecordEntryDto> Entries =>
         _entries
@@ -110,25 +111,12 @@ public sealed class InMemoryHealthRecordEntryRepository : IHealthRecordEntryRepo
         return Task.FromResult(true);
     }
 
-    public async Task<HealthRecordEntryReference> AddReferralConsultationSummaryEntryAsync(
+    public Task<HealthRecordEntryReference> AddReferralConsultationSummaryEntryAsync(
         HealthRecordReferralConsultationSummaryEntry entry,
         CancellationToken ct)
     {
-        var created = await AddAsync(
-            new HealthRecordEntryCreateModel(
-                entry.HealthRecordId,
-                HealthRecordEntryType.ReferralConsultationSummary,
-                new HealthRecordEntryContentPayload(
-                    ReferralConsultationSummary: new ReferralConsultationSummaryContent(
-                        entry.ReferralId,
-                        entry.Summary,
-                        entry.DoctorId)),
-                entry.DoctorId,
-                entry.CreatedAtUtc,
-                IsVisibleToPatient: true),
-            ct);
-
-        return new HealthRecordEntryReference(created.Id);
+        ReferralSummaries.Add(entry);
+        return Task.FromResult(new HealthRecordEntryReference(Guid.CreateVersion7().ToString("N")));
     }
 
     private sealed record StoredEntry(HealthRecordEntryDto Dto, bool IsDeleted);
