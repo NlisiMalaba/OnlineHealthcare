@@ -323,10 +323,10 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 21.2, 21.6, 21.8_
 
 - [ ] 20. Referrals Module
-  - [ ] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
+  - [x] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
     - Notify receiving doctor and patient; publish `ReferralCreated` domain event
     - _Requirements: 26.1, 26.2, 30.1, 30.2_
-  - [ ]* 20.2 Write property test for referral requires patient consent (Property 39)
+  - [x]* 20.2 Write property test for referral requires patient consent (Property 39)
     - **Property 39: Referral Requires Patient Consent**
     - **Validates: Requirements 30.2**
   - [ ] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant

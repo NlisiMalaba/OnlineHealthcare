@@ -1,0 +1,25 @@
+using HealthPlatform.API.Mapping;
+using HealthPlatform.API.Requests.Referrals;
+using HealthPlatform.Application.Referrals;
+using HealthPlatform.Application.Security;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace HealthPlatform.API.Controllers;
+
+[ApiController]
+[Route("api/v1/referrals")]
+[Authorize(Policy = AuthorizationPolicies.Doctor)]
+public sealed class ReferralsController(ISender sender) : ControllerBase
+{
+    [HttpPost]
+    [ProducesResponseType(typeof(ReferralDto), StatusCodes.Status201Created)]
+    public async Task<ActionResult<ReferralDto>> CreateAsync(
+        [FromBody] CreateReferralRequest request,
+        CancellationToken ct)
+    {
+        var referral = await sender.Send(ReferralCommandMapper.ToCreateCommand(request), ct);
+        return Created($"/api/v1/referrals/{referral.Id}", referral);
+    }
+}
