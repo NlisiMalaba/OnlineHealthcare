@@ -264,62 +264,62 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 15.6 Write unit tests for max 3 contacts enforcement, alert with no next-of-kin, and retry exhaustion
     - _Requirements: 10.1, 10.7_
 
-- [ ] 16. Health Records Module
-  - [ ] 16.1 Implement HealthRecord creation (triggered by `PatientRegistered` domain event) and HealthRecordEntry CRUD in MongoDB (consultation notes, diagnoses, prescription refs, allergies, vitals, lab result refs, vaccinations)
+- [x] 16. Health Records Module
+  - [x] 16.1 Implement HealthRecord creation (triggered by `PatientRegistered` domain event) and HealthRecordEntry CRUD in MongoDB (consultation notes, diagnoses, prescription refs, allergies, vitals, lab result refs, vaccinations)
     - _Requirements: 11.1, 11.2_
-  - [ ] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
+  - [x] 16.2 Implement health record access control: grant/revoke doctor access; enforce access check on every read; deny with 403 + audit log on unauthorized attempt
     - _Requirements: 11.4, 11.7_
-  - [ ]* 16.3 Write property test for health record access control (Property 24)
+  - [x]* 16.3 Write property test for health record access control (Property 24)
     - **Property 24: Health Record Access Control**
     - **Validates: Requirements 11.4, 11.7**
-  - [ ] 16.4 Implement patient self-access endpoint and PDF export (generate PDF from record entries, store in S3, return signed URL)
+  - [x] 16.4 Implement patient self-access endpoint and PDF export (generate PDF from record entries, store in S3, return signed URL)
     - _Requirements: 11.3, 11.6_
-  - [ ] 16.5 Implement access grant audit logging: every grant, revoke, and access attempt writes to AuditLog table with actor, timestamp, and action
+  - [x] 16.5 Implement access grant audit logging: every grant, revoke, and access attempt writes to AuditLog table with actor, timestamp, and action
     - _Requirements: 11.5, 17.5_
-  - [ ]* 16.6 Write unit tests for PDF export, access revocation, and audit log completeness
+  - [x]* 16.6 Write unit tests for PDF export, access revocation, and audit log completeness
     - _Requirements: 11.5, 11.6, 11.7_
 
-- [ ] 17. Notifications Module
-  - [ ] 17.1 Implement MediatR domain event handlers for all notification-triggering events; route to FCM/APNs (push), Twilio/Africa's Talking (SMS), or SendGrid/SES (email) based on patient preferences
+- [x] 17. Notifications Module
+  - [x] 17.1 Implement MediatR domain event handlers for all notification-triggering events; route to FCM/APNs (push), Twilio/Africa's Talking (SMS), or SendGrid/SES (email) based on patient preferences
     - _Requirements: 16.1, 16.4_
-  - [ ] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
+  - [x] 17.2 Implement per-user notification preference store (PostgreSQL + Redis cache); expose preference management endpoints
     - _Requirements: 16.2_
-  - [ ] 17.3 Implement notification log: persist delivery status, timestamp, and channel for every sent notification
+  - [x] 17.3 Implement notification log: persist delivery status, timestamp, and channel for every sent notification
     - _Requirements: 16.3_
-  - [ ]* 17.4 Write property test for notification log completeness (Property 29)
+  - [x]* 17.4 Write property test for notification log completeness (Property 29)
     - **Property 29: Notification Log Completeness**
     - **Validates: Requirements 16.3**
-  - [ ] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery via Hangfire retry job
+  - [x] 17.5 Implement critical notification SMS fallback: if push delivery fails for emergency alert or medication reminder, immediately attempt SMS delivery via Hangfire retry job
     - _Requirements: 16.5_
-  - [ ]* 17.6 Write property test for critical notification SMS fallback (Property 30)
+  - [x]* 17.6 Write property test for critical notification SMS fallback (Property 30)
     - **Property 30: Critical Notification SMS Fallback**
     - **Validates: Requirements 16.5**
-  - [ ]* 17.7 Write unit tests for preference-based channel routing, retry queue, and dead-letter handling
+  - [x]* 17.7 Write unit tests for preference-based channel routing, retry queue, and dead-letter handling
     - _Requirements: 16.2, 16.5_
 
-- [ ] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
+- [x] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 19. Lab & Diagnostics Module
-  - [ ] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
+  - [x] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
     - _Requirements: 21.1, 21.2_
-  - [ ]* 19.2 Write property test for lab order attached to health record (Property 32)
+  - [x]* 19.2 Write property test for lab order attached to health record (Property 32)
     - **Property 32: Lab Order Attached to Health Record**
     - **Validates: Requirements 21.1**
-  - [ ] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch
+  - [x] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch
     - _Requirements: 21.3_
-  - [ ] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
+  - [x] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
     - _Requirements: 21.4, 21.5, 21.6_
-  - [ ] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
+  - [x] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
     - _Requirements: 21.9_
-  - [ ]* 19.6 Write property test for critical lab result alert (Property 33)
+  - [x]* 19.6 Write property test for critical lab result alert (Property 33)
     - **Property 33: Critical Lab Result Alert**
     - **Validates: Requirements 21.9**
-  - [ ] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
+  - [x] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
     - _Requirements: 21.7_
-  - [ ] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
+  - [x] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
     - _Requirements: 21.8_
-  - [ ]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
+  - [x]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
     - _Requirements: 21.2, 21.6, 21.8_
 
 - [ ] 20. Referrals Module

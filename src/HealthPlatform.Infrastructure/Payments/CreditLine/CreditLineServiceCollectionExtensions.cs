@@ -10,8 +10,6 @@ public static class CreditLineServiceCollectionExtensions
         services.AddScoped<IPatientCreditLineRepository, Persistence.Repositories.PatientCreditLineRepository>();
         services.AddScoped<ICreditLineTransactionRepository, Persistence.Repositories.CreditLineTransactionRepository>();
         services.AddScoped<ICreditRepaymentReminderDispatcher, CreditRepaymentReminderDispatcher>();
-        services.AddSingleton<ICreditRepaymentReminderNotifier, LoggingCreditRepaymentReminderNotifier>();
-        services.AddSingleton<ICreditBalanceWarningNotifier, LoggingCreditBalanceWarningNotifier>();
         return services;
     }
 }

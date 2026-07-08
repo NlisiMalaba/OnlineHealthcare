@@ -1,7 +1,10 @@
+using HealthPlatform.Application.Audit;
 using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
+using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.NextOfKin;
+using HealthPlatform.Application.Labs;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -14,6 +17,7 @@ using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Referrals;
+using HealthPlatform.Infrastructure.Audit;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Infrastructure.Appointments;
@@ -21,10 +25,13 @@ using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.Wellness;
 using HealthPlatform.Infrastructure.PharmacyServices;
 using HealthPlatform.Infrastructure.Prescriptions;
+using HealthPlatform.Infrastructure.Labs;
+using HealthPlatform.Infrastructure.HealthRecords;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.NextOfKin;
+using HealthPlatform.Infrastructure.Notifications;
 using HealthPlatform.Infrastructure.Insurance;
 using HealthPlatform.Infrastructure.Jobs;
 using HealthPlatform.Infrastructure.Outbox;
@@ -60,9 +67,10 @@ public static class DependencyInjection
         services.AddPaymentCompletionServices();
         services.AddScoped<IOutboxDomainEventDispatcher, OutboxDomainEventDispatcher>();
         services.AddHealthPlatformMongoDb(configuration);
+        services.AddHealthRecordServices();
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IAccountLockoutService, AccountLockoutService>();
-        services.AddSingleton<IAccountLockoutNotifier, LoggingAccountLockoutNotifier>();
+        services.AddNotificationServices(configuration);
         services.AddSingleton(TimeProvider.System);
 
         var redis = configuration.GetConnectionString("Redis");
@@ -74,6 +82,7 @@ public static class DependencyInjection
         }
         else
         {
+            services.AddDistributedMemoryCache();
             services.AddSingleton<ISlotHoldService, InMemorySlotHoldService>();
         }
 
@@ -110,6 +119,11 @@ public static class DependencyInjection
         services.AddSingleton<IMfaSmsSender, LoggingMfaSmsSender>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IHealthRecordRepository, HealthRecordRepository>();
+        services.AddScoped<IHealthRecordAccessRepository, HealthRecordAccessRepository>();
+        services.AddScoped<IHealthRecordAccessGuard, HealthRecordAccessGuard>();
+        services.AddScoped<IHealthRecordAccessAuditService, HealthRecordAccessAuditService>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        services.AddScoped<IAuditContextAccessor, HttpAuditContextAccessor>();
         services.AddScoped<IPatientRegistrationWorkflow, PatientRegistrationWorkflow>();
         services.AddScoped<IPatientProfileUpdateWorkflow, PatientProfileUpdateWorkflow>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
@@ -121,25 +135,23 @@ public static class DependencyInjection
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
         services.AddScoped<IMedicationScheduleRepository, MedicationScheduleRepository>();
         services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
-        services.AddSingleton<IMedicationDoseReminderNotifier, LoggingMedicationDoseReminderNotifier>();
         services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
         services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
         services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();
-        services.AddSingleton<IMedicationScheduleCompletionNotifier, LoggingMedicationScheduleCompletionNotifier>();
-        services.AddSingleton<IConsecutiveMissedDosesNextOfKinNotifier, LoggingConsecutiveMissedDosesNextOfKinNotifier>();
-        services.AddSingleton<INextOfKinDesignationNotifier, LoggingNextOfKinDesignationNotifier>();
-        services.AddSingleton<INextOfKinEmergencyAlertNotifier, LoggingNextOfKinEmergencyAlertNotifier>();
         services.AddScoped<INextOfKinRepository, NextOfKinRepository>();
         services.AddScoped<IEmergencyAlertRepository, EmergencyAlertRepository>();
         services.AddScoped<IEmergencyAlertDispatchService, EmergencyAlertDispatchService>();
         services.AddScoped<INextOfKinEmergencyAlertDeliveryCoordinator, NextOfKinEmergencyAlertDeliveryCoordinator>();
         services.AddScoped<INextOfKinNotificationDeliveryRepository, NextOfKinNotificationDeliveryRepository>();
         services.AddScoped<INextOfKinNotificationRetryService, NextOfKinNotificationRetryService>();
-        services.AddSingleton<INextOfKinChannelDeliveryGateway, LoggingNextOfKinChannelDeliveryGateway>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddScoped<ILabOrderRepository, LabOrderRepository>();
+        services.AddScoped<ILabResultRepository, LabResultRepository>();
+        services.AddScoped<IRadiologyReportRepository, RadiologyReportRepository>();
+        services.AddScoped<ILabPartnerOrderClient, LoggingLabPartnerOrderClient>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
@@ -164,7 +176,6 @@ public static class DependencyInjection
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
-        services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IPharmacyRegistrationWorkflow, PharmacyRegistrationWorkflow>();
@@ -222,6 +233,8 @@ public static class DependencyInjection
         services.AddTransient<CreditRepaymentReminderJob>();
         services.AddTransient<InstalmentDueReminderJob>();
         services.AddTransient<InstalmentMissedPaymentJob>();
+        services.AddTransient<NextOfKinNotificationRetryJob>();
+        services.AddTransient<CriticalNotificationSmsFallbackJob>();
         return services;
     }
 
