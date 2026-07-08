@@ -23,4 +23,10 @@ public sealed class ReferralRepository(ApplicationDbContext db) : IReferralRepos
         await db.ReferralHealthRecordAccessGrants.AddAsync(accessGrant, ct);
         await db.SaveChangesAsync(ct);
     }
+
+    public Task<ReferralHealthRecordAccessGrant?> GetAccessGrantByReferralIdAsync(Guid referralId, CancellationToken ct) =>
+        db.ReferralHealthRecordAccessGrants.SingleOrDefaultAsync(g => g.ReferralId == referralId, ct);
+
+    public Task UpdateAccessGrantAsync(ReferralHealthRecordAccessGrant accessGrant, CancellationToken ct) =>
+        db.SaveChangesAsync(ct);
 }

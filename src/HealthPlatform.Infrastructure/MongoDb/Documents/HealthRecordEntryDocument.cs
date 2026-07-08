@@ -20,7 +20,11 @@ public sealed class HealthRecordEntryDocument
 
     public Guid AppointmentId { get; set; }
 
-    public string SummaryDocumentId { get; set; } = string.Empty;
+    public string? SummaryDocumentId { get; set; }
+
+    public Guid? ReferralId { get; set; }
+
+    public string? ConsultationSummary { get; set; }
 
     public DateTime CreatedAtUtc { get; set; }
 

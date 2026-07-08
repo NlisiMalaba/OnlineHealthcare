@@ -30,4 +30,12 @@ public sealed class ReferralsController(ISender sender) : ControllerBase
         [FromBody] RespondToReferralRequest request,
         CancellationToken ct) =>
         Ok(await sender.Send(ReferralCommandMapper.ToRespondCommand(referralId, request), ct));
+
+    [HttpPost("{referralId:guid}/complete")]
+    [ProducesResponseType(typeof(ReferralDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ReferralDto>> CompleteAsync(
+        Guid referralId,
+        [FromBody] CompleteReferralRequest request,
+        CancellationToken ct) =>
+        Ok(await sender.Send(ReferralCommandMapper.ToCompleteCommand(referralId, request), ct));
 }

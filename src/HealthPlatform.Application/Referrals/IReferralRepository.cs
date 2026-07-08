@@ -11,4 +11,8 @@ public interface IReferralRepository
     Task UpdateAsync(Referral referral, CancellationToken ct);
 
     Task AddAccessGrantAsync(ReferralHealthRecordAccessGrant accessGrant, CancellationToken ct);
+
+    Task<ReferralHealthRecordAccessGrant?> GetAccessGrantByReferralIdAsync(Guid referralId, CancellationToken ct);
+
+    Task UpdateAccessGrantAsync(ReferralHealthRecordAccessGrant accessGrant, CancellationToken ct);
 }

@@ -332,7 +332,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
     - Notify referring doctor and patient on status change
     - _Requirements: 26.4, 26.5, 30.4, 30.5, 30.6_
-  - [ ] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
+  - [x] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
     - _Requirements: 26.6, 30.7, 30.8_
   - [ ] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
     - _Requirements: 26.7_

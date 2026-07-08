@@ -33,6 +33,8 @@ public sealed class Referral : Entity
 
     public string? ResponseReason { get; private set; }
 
+    public string? ConsultationSummaryEntryId { get; private set; }
+
     public static Referral Create(
         Guid patientId,
         Guid referringDoctorId,
@@ -216,5 +218,35 @@ public sealed class Referral : Entity
         {
             throw new ArgumentException("Timestamp must be UTC.", parameterName);
         }
+    }
+
+    public void Complete(string consultationSummaryEntryId, DateTime completedAtUtc)
+    {
+        if (Status != ReferralStatus.Accepted)
+        {
+            throw new ReferralCompletionNotAllowedException(Id, Status);
+        }
+
+        if (string.IsNullOrWhiteSpace(consultationSummaryEntryId))
+        {
+            throw new ArgumentException("Consultation summary entry id is required.", nameof(consultationSummaryEntryId));
+        }
+
+        EnsureUtcTimestamp(completedAtUtc, nameof(completedAtUtc));
+
+        ConsultationSummaryEntryId = consultationSummaryEntryId.Trim();
+        Status = ReferralStatus.Completed;
+        RespondedAtUtc = completedAtUtc;
+        ResponseReason = null;
+        Touch();
+
+        RaiseDomainEvent(new ReferralStatusChangedDomainEvent(
+            Id,
+            PatientId,
+            ReferringDoctorId,
+            ReceivingDoctorId,
+            Status,
+            null,
+            completedAtUtc));
     }
 }

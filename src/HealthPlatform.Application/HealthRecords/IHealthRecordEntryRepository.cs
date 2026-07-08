@@ -11,9 +11,21 @@ public sealed record HealthRecordTelemedicineSummaryEntry(
 
 public sealed record HealthRecordEntryReference(string EntryDocumentId);
 
+public sealed record HealthRecordReferralConsultationSummaryEntry(
+    Guid HealthRecordId,
+    Guid PatientId,
+    Guid DoctorId,
+    Guid ReferralId,
+    string Summary,
+    DateTime CreatedAtUtc);
+
 public interface IHealthRecordEntryRepository
 {
     Task<HealthRecordEntryReference> AddTelemedicineSessionSummaryEntryAsync(
         HealthRecordTelemedicineSummaryEntry entry,
+        CancellationToken ct);
+
+    Task<HealthRecordEntryReference> AddReferralConsultationSummaryEntryAsync(
+        HealthRecordReferralConsultationSummaryEntry entry,
         CancellationToken ct);
 }
