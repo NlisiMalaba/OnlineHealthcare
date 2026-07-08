@@ -29,6 +29,10 @@ public sealed class Referral : Entity
 
     public ReferralStatus Status { get; private set; }
 
+    public DateTime? RespondedAtUtc { get; private set; }
+
+    public string? ResponseReason { get; private set; }
+
     public static Referral Create(
         Guid patientId,
         Guid referringDoctorId,
@@ -126,5 +130,91 @@ public sealed class Referral : Entity
             createdAtUtc));
 
         return referral;
+    }
+
+    public void Accept(DateTime respondedAtUtc)
+    {
+        EnsurePendingForResponse();
+        EnsureUtcTimestamp(respondedAtUtc, nameof(respondedAtUtc));
+
+        Status = ReferralStatus.Accepted;
+        RespondedAtUtc = respondedAtUtc;
+        ResponseReason = null;
+        Touch();
+
+        RaiseDomainEvent(new ReferralStatusChangedDomainEvent(
+            Id,
+            PatientId,
+            ReferringDoctorId,
+            ReceivingDoctorId,
+            Status,
+            null,
+            respondedAtUtc));
+    }
+
+    public void Decline(string reason, DateTime respondedAtUtc)
+    {
+        EnsurePendingForResponse();
+        EnsureUtcTimestamp(respondedAtUtc, nameof(respondedAtUtc));
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new ArgumentException("Decline reason is required.", nameof(reason));
+        }
+
+        Status = ReferralStatus.Declined;
+        RespondedAtUtc = respondedAtUtc;
+        ResponseReason = reason.Trim();
+        Touch();
+
+        RaiseDomainEvent(new ReferralStatusChangedDomainEvent(
+            Id,
+            PatientId,
+            ReferringDoctorId,
+            ReceivingDoctorId,
+            Status,
+            ResponseReason,
+            respondedAtUtc));
+    }
+
+    public void RequestAdditionalInformation(string message, DateTime respondedAtUtc)
+    {
+        EnsurePendingForResponse();
+        EnsureUtcTimestamp(respondedAtUtc, nameof(respondedAtUtc));
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            throw new ArgumentException("Additional information request message is required.", nameof(message));
+        }
+
+        Status = ReferralStatus.NeedsAdditionalInformation;
+        RespondedAtUtc = respondedAtUtc;
+        ResponseReason = message.Trim();
+        Touch();
+
+        RaiseDomainEvent(new ReferralStatusChangedDomainEvent(
+            Id,
+            PatientId,
+            ReferringDoctorId,
+            ReceivingDoctorId,
+            Status,
+            ResponseReason,
+            respondedAtUtc));
+    }
+
+    private void EnsurePendingForResponse()
+    {
+        if (Status is not (ReferralStatus.Pending or ReferralStatus.NeedsAdditionalInformation))
+        {
+            throw new ReferralResponseNotAllowedException(Id, Status);
+        }
+    }
+
+    private static void EnsureUtcTimestamp(DateTime value, string parameterName)
+    {
+        if (value == default || value.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Timestamp must be UTC.", parameterName);
+        }
     }
 }

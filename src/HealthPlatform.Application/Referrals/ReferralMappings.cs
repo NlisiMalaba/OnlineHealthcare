@@ -16,5 +16,7 @@ public static class ReferralMappings
             referral.SharedHealthRecordSections,
             referral.PatientConsentAtUtc,
             referral.Status.ToString().ToLowerInvariant(),
+            referral.ResponseReason,
+            referral.RespondedAtUtc,
             referral.CreatedAtUtc);
 }

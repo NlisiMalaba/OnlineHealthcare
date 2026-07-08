@@ -3,7 +3,8 @@ namespace HealthPlatform.Domain.Referrals;
 public enum ReferralStatus
 {
     Pending = 0,
-    Accepted = 1,
-    Declined = 2,
-    Completed = 3
+    NeedsAdditionalInformation = 1,
+    Accepted = 2,
+    Declined = 3,
+    Completed = 4
 }

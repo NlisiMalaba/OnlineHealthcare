@@ -251,6 +251,17 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.CreatedAtUtc,
                     e.OccurredAtUtc),
                 ct),
+            ReferralStatusChangedDomainEvent e => mediator.Publish(
+                new ReferralStatusChangedNotification(
+                    e.ReferralId,
+                    e.PatientId,
+                    e.ReferringDoctorId,
+                    e.ReceivingDoctorId,
+                    e.Status.ToString().ToLowerInvariant(),
+                    e.Reason,
+                    e.RespondedAtUtc,
+                    e.OccurredAtUtc),
+                ct),
             _ => Task.CompletedTask
         };
 }

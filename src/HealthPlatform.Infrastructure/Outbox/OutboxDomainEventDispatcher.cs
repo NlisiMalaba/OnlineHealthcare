@@ -132,6 +132,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<MedicationScheduleCompletedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Referrals.Events.ReferralCreatedDomainEvent" =>
                 JsonSerializer.Deserialize<ReferralCreatedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Referrals.Events.ReferralStatusChangedDomainEvent" =>
+                JsonSerializer.Deserialize<ReferralStatusChangedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }
