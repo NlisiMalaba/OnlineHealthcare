@@ -4,6 +4,7 @@ using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.NextOfKin;
+using HealthPlatform.Application.Labs;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -23,6 +24,7 @@ using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.Wellness;
 using HealthPlatform.Infrastructure.PharmacyServices;
 using HealthPlatform.Infrastructure.Prescriptions;
+using HealthPlatform.Infrastructure.Labs;
 using HealthPlatform.Infrastructure.HealthRecords;
 using HealthPlatform.Infrastructure.Hosting;
 using HealthPlatform.Infrastructure.Identity;
@@ -144,6 +146,10 @@ public static class DependencyInjection
         services.AddScoped<INextOfKinNotificationRetryService, NextOfKinNotificationRetryService>();
         services.AddScoped<IMissedDoseDetectionDispatcher, MissedDoseDetectionDispatcher>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddScoped<ILabOrderRepository, LabOrderRepository>();
+        services.AddScoped<ILabResultRepository, LabResultRepository>();
+        services.AddScoped<IRadiologyReportRepository, RadiologyReportRepository>();
+        services.AddScoped<ILabPartnerOrderClient, LoggingLabPartnerOrderClient>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
         services.Configure<DeliveryAgentAssignmentOptions>(

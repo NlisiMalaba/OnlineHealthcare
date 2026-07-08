@@ -8,6 +8,7 @@ using HealthPlatform.Domain.Payments;
 using HealthPlatform.Domain.Payments.CreditLine;
 using HealthPlatform.Domain.Payments.Instalments;
 using HealthPlatform.Domain.Prescriptions;
+using HealthPlatform.Domain.Labs;
 using HealthPlatform.Domain.NextOfKin;
 using HealthPlatform.Domain.Notifications;
 using HealthPlatform.Domain.Wellness;
@@ -75,6 +76,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
 
     public DbSet<InsuranceClaim> InsuranceClaims => Set<InsuranceClaim>();
+
+    public DbSet<LabOrder> LabOrders => Set<LabOrder>();
+
+    public DbSet<LabResult> LabResults => Set<LabResult>();
+
+    public DbSet<RadiologyReport> RadiologyReports => Set<RadiologyReport>();
 
     public DbSet<PatientInsurancePolicy> PatientInsurancePolicies => Set<PatientInsurancePolicy>();
 
