@@ -10,6 +10,11 @@ public interface IReferralRepository
 
     Task UpdateAsync(Referral referral, CancellationToken ct);
 
+    Task<IReadOnlyList<Referral>> ListPendingForTimeoutReminderAsync(
+        DateTime asOfUtc,
+        TimeSpan pendingThreshold,
+        CancellationToken ct);
+
     Task AddAccessGrantAsync(ReferralHealthRecordAccessGrant accessGrant, CancellationToken ct);
 
     Task<ReferralHealthRecordAccessGrant?> GetAccessGrantByReferralIdAsync(Guid referralId, CancellationToken ct);
