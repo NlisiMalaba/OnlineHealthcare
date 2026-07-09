@@ -350,7 +350,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - **Validates: Requirements 31.2**
   - [x] 21.3 Implement real-time queue position display via SignalR; update at least every 2 minutes; push position-2 notification to patient
     - _Requirements: 31.3, 31.4_
-  - [ ] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
+  - [x] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
     - _Requirements: 31.5, 31.6, 31.7_
   - [ ] 21.5 Implement delay recalculation: if doctor schedule delayed >15 minutes, recalculate all estimated wait times in queue and notify all affected patients
     - _Requirements: 31.8_

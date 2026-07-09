@@ -50,6 +50,7 @@ public static class NotificationServiceCollectionExtensions
         services.AddScoped<IAppointmentReminderNotifier, RoutingAppointmentReminderNotifier>();
         services.AddScoped<IAppointmentRescheduleNotifier, RoutingAppointmentRescheduleNotifier>();
         services.AddScoped<IQueuePositionNotifier, RoutingQueuePositionNotifier>();
+        services.AddScoped<IQueueStatusNotifier, RoutingQueueStatusNotifier>();
         services.AddScoped<IPrescriptionIssuedNotifier, RoutingPrescriptionIssuedNotifier>();
         services.AddScoped<IPrescriptionCancelledNotifier, RoutingPrescriptionCancelledNotifier>();
         services.AddScoped<IDrugInteractionAlertNotifier, RoutingDrugInteractionAlertNotifier>();

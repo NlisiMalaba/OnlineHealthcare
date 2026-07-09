@@ -128,4 +128,62 @@ public sealed class QueueEntry : Entity
         Touch();
         return true;
     }
+
+    public bool MarkCalled()
+    {
+        if (ArrivalStatus is QueueArrivalStatus.Seen or QueueArrivalStatus.Absent)
+        {
+            return false;
+        }
+
+        if (ArrivalStatus == QueueArrivalStatus.Called)
+        {
+            return false;
+        }
+
+        ArrivalStatus = QueueArrivalStatus.Called;
+        Touch();
+        return true;
+    }
+
+    public bool MarkSeen(DateTime seenAtUtc)
+    {
+        if (seenAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Seen time must be UTC.", nameof(seenAtUtc));
+        }
+
+        if (ArrivalStatus is QueueArrivalStatus.Seen or QueueArrivalStatus.Absent)
+        {
+            return false;
+        }
+
+        ArrivalStatus = QueueArrivalStatus.Seen;
+        ActualWaitMinutes = Math.Max(0, (int)Math.Round((seenAtUtc - JoinedAtUtc).TotalMinutes));
+        Touch();
+        return true;
+    }
+
+    public bool SetQueueProjection(int queuePosition, int estimatedWaitMinutes)
+    {
+        if (queuePosition <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(queuePosition));
+        }
+
+        if (estimatedWaitMinutes < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(estimatedWaitMinutes));
+        }
+
+        if (QueuePosition == queuePosition && EstimatedWaitMinutes == estimatedWaitMinutes)
+        {
+            return false;
+        }
+
+        QueuePosition = queuePosition;
+        EstimatedWaitMinutes = estimatedWaitMinutes;
+        Touch();
+        return true;
+    }
 }
