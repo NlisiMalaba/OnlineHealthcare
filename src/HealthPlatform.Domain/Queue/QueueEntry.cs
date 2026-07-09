@@ -30,6 +30,8 @@ public sealed class QueueEntry : Entity
 
     public DateTime JoinedAtUtc { get; private set; }
 
+    public DateTime? PositionTwoNotifiedAtUtc { get; private set; }
+
     public static QueueEntry Create(
         Guid appointmentId,
         Guid patientId,
@@ -108,5 +110,22 @@ public sealed class QueueEntry : Entity
             entry.JoinedAtUtc));
 
         return entry;
+    }
+
+    public bool MarkPositionTwoNotified(DateTime notifiedAtUtc)
+    {
+        if (notifiedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Notification time must be UTC.", nameof(notifiedAtUtc));
+        }
+
+        if (QueuePosition != 2 || PositionTwoNotifiedAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        PositionTwoNotifiedAtUtc = notifiedAtUtc;
+        Touch();
+        return true;
     }
 }

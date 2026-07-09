@@ -5,6 +5,7 @@ public static class NotificationEventTypes
     public const string AppointmentConfirmed = "appointment.confirmed";
     public const string AppointmentReminder = "appointment.reminder";
     public const string AppointmentRescheduled = "appointment.rescheduled";
+    public const string QueuePositionTwoReached = "queue.position_two_reached";
     public const string PrescriptionIssued = "prescription.issued";
     public const string PrescriptionCancelled = "prescription.cancelled";
     public const string DrugInteractionAlert = "prescription.drug_interaction_alert";

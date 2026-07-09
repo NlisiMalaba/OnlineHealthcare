@@ -26,6 +26,7 @@ using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Application.Queue;
+using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
@@ -44,6 +45,7 @@ using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.Realtime;
 using HealthPlatform.Infrastructure.Insurance;
 using HealthPlatform.Infrastructure.Payments;
+using HealthPlatform.Infrastructure.Queue;
 using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
@@ -87,6 +89,14 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingPharmacyOrderRealtimeNotifier _pharmacyOrderRealtimeNotifier = new();
 
     public CapturingPharmacyOrderRealtimeNotifier PharmacyOrderRealtimeNotifier => _pharmacyOrderRealtimeNotifier;
+
+    private readonly CapturingQueueRealtimeNotifier _queueRealtimeNotifier = new();
+
+    public CapturingQueueRealtimeNotifier QueueRealtimeNotifier => _queueRealtimeNotifier;
+
+    private readonly CapturingQueuePositionNotifier _queuePositionNotifier = new();
+
+    public CapturingQueuePositionNotifier QueuePositionNotifier => _queuePositionNotifier;
 
     private readonly CapturingPharmacyOrderReceivedNotifier _pharmacyOrderReceivedNotifier = new();
 
@@ -346,9 +356,12 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
         services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
+        services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
+        services.AddSingleton<IQueueRealtimeNotifier>(_queueRealtimeNotifier);
+        services.AddSingleton<IQueuePositionNotifier>(_queuePositionNotifier);
         services.AddSingleton<IPharmacyOrderReceivedNotifier>(_pharmacyOrderReceivedNotifier);
         services.AddSingleton<IMedicationOrderPatientNotifier>(_medicationOrderPatientNotifier);
         services.AddSingleton<ILowStockAlertNotifier>(_lowStockAlertNotifier);

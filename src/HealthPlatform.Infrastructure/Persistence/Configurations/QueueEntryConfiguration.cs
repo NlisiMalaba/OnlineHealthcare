@@ -21,6 +21,8 @@ public sealed class QueueEntryConfiguration : IEntityTypeConfiguration<QueueEntr
             .HasMaxLength(32)
             .IsRequired();
 
+        builder.Property(entry => entry.PositionTwoNotifiedAtUtc);
+
         builder.HasIndex(entry => entry.AppointmentId);
         builder.HasIndex(entry => new { entry.DoctorId, entry.ArrivalStatus });
         builder.HasIndex(entry => entry.PatientId);

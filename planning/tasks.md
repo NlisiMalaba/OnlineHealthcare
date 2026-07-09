@@ -348,7 +348,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 21.2 Write property test for queue position and wait time assignment (Property 40)
     - **Property 40: Queue Position and Wait Time Assignment**
     - **Validates: Requirements 31.2**
-  - [ ] 21.3 Implement real-time queue position display via SignalR; update at least every 2 minutes; push position-2 notification to patient
+  - [x] 21.3 Implement real-time queue position display via SignalR; update at least every 2 minutes; push position-2 notification to patient
     - _Requirements: 31.3, 31.4_
   - [ ] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
     - _Requirements: 31.5, 31.6, 31.7_
