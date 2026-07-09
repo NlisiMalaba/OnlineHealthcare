@@ -13,6 +13,7 @@ using HealthPlatform.Domain.NextOfKin;
 using HealthPlatform.Domain.Notifications;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
+using HealthPlatform.Domain.Queue;
 using HealthPlatform.Domain.Referrals;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
@@ -102,6 +103,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<CriticalNotificationSmsFallback> CriticalNotificationSmsFallbacks =>
         Set<CriticalNotificationSmsFallback>();
+
+    public DbSet<QueueEntry> QueueEntries => Set<QueueEntry>();
 
     public DbSet<Referral> Referrals => Set<Referral>();
 

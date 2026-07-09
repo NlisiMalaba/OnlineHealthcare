@@ -300,7 +300,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [x] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 19. Lab & Diagnostics Module
+- [x] 19. Lab & Diagnostics Module
   - [x] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
     - _Requirements: 21.1, 21.2_
   - [x]* 19.2 Write property test for lab order attached to health record (Property 32)
@@ -322,7 +322,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
     - _Requirements: 21.2, 21.6, 21.8_
 
-- [ ] 20. Referrals Module
+- [x] 20. Referrals Module
   - [x] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
     - Notify receiving doctor and patient; publish `ReferralCreated` domain event
     - _Requirements: 26.1, 26.2, 30.1, 30.2_
@@ -343,9 +343,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 26.4, 30.2, 30.8_
 
 - [ ] 21. Queue Management Module
-  - [ ] 21.1 Implement queue entry creation: patient with confirmed physical appointment joins virtual queue; assign queue position and compute estimated wait time based on patients ahead and doctor's average consultation duration
+  - [x] 21.1 Implement queue entry creation: patient with confirmed physical appointment joins virtual queue; assign queue position and compute estimated wait time based on patients ahead and doctor's average consultation duration
     - _Requirements: 31.1, 31.2_
-  - [ ]* 21.2 Write property test for queue position and wait time assignment (Property 40)
+  - [x]* 21.2 Write property test for queue position and wait time assignment (Property 40)
     - **Property 40: Queue Position and Wait Time Assignment**
     - **Validates: Requirements 31.2**
   - [ ] 21.3 Implement real-time queue position display via SignalR; update at least every 2 minutes; push position-2 notification to patient

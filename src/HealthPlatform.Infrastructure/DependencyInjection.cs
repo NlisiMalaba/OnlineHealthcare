@@ -16,6 +16,7 @@ using HealthPlatform.Infrastructure.Storage;
 using HealthPlatform.Application.Outbox;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
+using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Referrals;
 using HealthPlatform.Infrastructure.Audit;
 using HealthPlatform.Infrastructure.Auth;
@@ -154,6 +155,7 @@ public static class DependencyInjection
         services.AddScoped<ILabPartnerOrderClient, LoggingLabPartnerOrderClient>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
+        services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddScoped<IReferralTimeoutReminderDispatcher, ReferralTimeoutReminderDispatcher>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();

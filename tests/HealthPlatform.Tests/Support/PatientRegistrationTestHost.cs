@@ -25,6 +25,7 @@ using HealthPlatform.Application.Payments.Instalments;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
+using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Referrals;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
@@ -344,6 +345,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IRadiologyReportRepository, RadiologyReportRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
+        services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
