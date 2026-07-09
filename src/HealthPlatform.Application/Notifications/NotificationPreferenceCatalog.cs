@@ -14,6 +14,7 @@ public static class NotificationPreferenceCatalog
               NotificationEventTypes.AppointmentRescheduled,
               NotificationEventTypes.QueuePositionTwoReached,
               NotificationEventTypes.QueueMarkedAbsent,
+              NotificationEventTypes.QueueDelayRecalculated,
               NotificationEventTypes.PrescriptionIssued,
               NotificationEventTypes.PrescriptionCancelled,
               NotificationEventTypes.MedicationDoseReminder,

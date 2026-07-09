@@ -25,6 +25,17 @@ public sealed class QueueManagementCommandHandlerTests : IAsyncLifetime
     public async Task DisposeAsync() => await _host.DisposeAsync();
 
     [Fact]
+    public async Task Advance_on_zero_length_queue_returns_empty_result()
+    {
+        var doctor = await SeedVerifiedDoctorAsync();
+        _host.CurrentUser.UserId = doctor.UserId;
+
+        var queue = await _host.Sender.Send(new AdvanceQueueCommand(), CancellationToken.None);
+
+        Assert.Empty(queue);
+    }
+
+    [Fact]
     public async Task Advance_marks_head_as_called_and_keeps_positions_consistent()
     {
         var doctor = await SeedVerifiedDoctorAsync();
@@ -53,6 +64,9 @@ public sealed class QueueManagementCommandHandlerTests : IAsyncLifetime
         var seen = await _host.Sender.Send(new MarkQueueEntrySeenCommand(firstEntry.Id), CancellationToken.None);
 
         Assert.Equal("seen", seen.ArrivalStatus);
+        var storedSeen = await _host.DbContext.QueueEntries.SingleAsync(entry => entry.Id == firstEntry.Id);
+        Assert.True(storedSeen.ActualWaitMinutes.HasValue);
+        Assert.True(storedSeen.ActualWaitMinutes.Value >= 0);
 
         var updatedSecond = await _host.DbContext.QueueEntries.SingleAsync(entry => entry.Id == secondEntry.Id);
         Assert.Equal(1, updatedSecond.QueuePosition);

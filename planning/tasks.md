@@ -342,7 +342,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
     - _Requirements: 26.4, 30.2, 30.8_
 
-- [ ] 21. Queue Management Module
+- [x] 21. Queue Management Module
   - [x] 21.1 Implement queue entry creation: patient with confirmed physical appointment joins virtual queue; assign queue position and compute estimated wait time based on patients ahead and doctor's average consultation duration
     - _Requirements: 31.1, 31.2_
   - [x]* 21.2 Write property test for queue position and wait time assignment (Property 40)
@@ -352,12 +352,12 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 31.3, 31.4_
   - [x] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
     - _Requirements: 31.5, 31.6, 31.7_
-  - [ ] 21.5 Implement delay recalculation: if doctor schedule delayed >15 minutes, recalculate all estimated wait times in queue and notify all affected patients
+  - [x] 21.5 Implement delay recalculation: if doctor schedule delayed >15 minutes, recalculate all estimated wait times in queue and notify all affected patients
     - _Requirements: 31.8_
-  - [ ]* 21.6 Write property test for queue recalculation on delay (Property 41)
+  - [x]* 21.6 Write property test for queue recalculation on delay (Property 41)
     - **Property 41: Queue Recalculation on Delay**
     - **Validates: Requirements 31.8**
-  - [ ]* 21.7 Write unit tests for zero-length queue, absent patient removal, and wait time analytics recording
+  - [x]* 21.7 Write unit tests for zero-length queue, absent patient removal, and wait time analytics recording
     - _Requirements: 31.6, 31.7_
 
 - [ ] 22. Checkpoint — Lab, Referral, and Queue flows complete

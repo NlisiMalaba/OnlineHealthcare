@@ -14,4 +14,7 @@ public static class QueueCommandMapper
     public static MarkQueueEntrySeenCommand ToMarkSeenCommand(Guid queueEntryId) => new(queueEntryId);
 
     public static MarkQueueEntryAbsentCommand ToMarkAbsentCommand(Guid queueEntryId) => new(queueEntryId);
+
+    public static RecalculateQueueOnDelayCommand ToRecalculateOnDelayCommand(RecalculateQueueOnDelayRequest request) =>
+        new(request.DelayMinutes);
 }

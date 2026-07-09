@@ -12,4 +12,5 @@ public static class QueueErrorCodes
     public const string QueueEntryNotFound = "QUEUE_ENTRY_NOT_FOUND";
     public const string QueueActionAccessDenied = "QUEUE_ACTION_ACCESS_DENIED";
     public const string QueueEntryAlreadyClosed = "QUEUE_ENTRY_ALREADY_CLOSED";
+    public const string QueueDelayBelowThreshold = "QUEUE_DELAY_BELOW_THRESHOLD";
 }

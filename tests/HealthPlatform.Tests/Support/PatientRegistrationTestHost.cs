@@ -102,6 +102,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingQueueStatusNotifier QueueStatusNotifier => _queueStatusNotifier;
 
+    private readonly CapturingQueueDelayNotifier _queueDelayNotifier = new();
+
+    public CapturingQueueDelayNotifier QueueDelayNotifier => _queueDelayNotifier;
+
     private readonly CapturingPharmacyOrderReceivedNotifier _pharmacyOrderReceivedNotifier = new();
 
     public CapturingPharmacyOrderReceivedNotifier PharmacyOrderReceivedNotifier => _pharmacyOrderReceivedNotifier;
@@ -367,6 +371,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<IQueueRealtimeNotifier>(_queueRealtimeNotifier);
         services.AddSingleton<IQueuePositionNotifier>(_queuePositionNotifier);
         services.AddSingleton<IQueueStatusNotifier>(_queueStatusNotifier);
+        services.AddSingleton<IQueueDelayNotifier>(_queueDelayNotifier);
         services.AddSingleton<IPharmacyOrderReceivedNotifier>(_pharmacyOrderReceivedNotifier);
         services.AddSingleton<IMedicationOrderPatientNotifier>(_medicationOrderPatientNotifier);
         services.AddSingleton<ILowStockAlertNotifier>(_lowStockAlertNotifier);

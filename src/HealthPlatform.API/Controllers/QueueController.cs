@@ -43,4 +43,12 @@ public sealed class QueueController(ISender sender) : ControllerBase
         await sender.Send(QueueCommandMapper.ToMarkAbsentCommand(queueEntryId), ct);
         return NoContent();
     }
+
+    [HttpPost("recalculate-delay")]
+    [Authorize(Roles = $"{ApplicationRoles.Doctor},{ApplicationRoles.Admin}")]
+    [ProducesResponseType(typeof(IReadOnlyList<QueueEntryDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<QueueEntryDto>>> RecalculateOnDelayAsync(
+        [FromBody] RecalculateQueueOnDelayRequest request,
+        CancellationToken ct) =>
+        Ok(await sender.Send(QueueCommandMapper.ToRecalculateOnDelayCommand(request), ct));
 }

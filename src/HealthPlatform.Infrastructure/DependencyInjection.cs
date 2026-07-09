@@ -176,6 +176,7 @@ public static class DependencyInjection
         services.AddSingleton<IAppointmentReminderNotifier, LoggingAppointmentReminderNotifier>();
         services.AddSingleton<IQueuePositionNotifier, LoggingQueuePositionNotifier>();
         services.AddSingleton<IQueueStatusNotifier, LoggingQueueStatusNotifier>();
+        services.AddSingleton<IQueueDelayNotifier, LoggingQueueDelayNotifier>();
         services.AddSingleton<IReferralCreatedNotifier, LoggingReferralCreatedNotifier>();
         services.AddSingleton<IReferralStatusChangedNotifier, LoggingReferralStatusChangedNotifier>();
         services.AddSingleton<IReferralTimeoutReminderNotifier, LoggingReferralTimeoutReminderNotifier>();
