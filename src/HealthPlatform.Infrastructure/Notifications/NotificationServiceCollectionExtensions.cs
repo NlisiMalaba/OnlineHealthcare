@@ -7,6 +7,7 @@ using HealthPlatform.Application.Payments.CreditLine;
 using HealthPlatform.Application.Payments.Instalments;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.Prescriptions;
+using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Wellness;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Notifications.Gateways;
@@ -48,6 +49,9 @@ public static class NotificationServiceCollectionExtensions
         services.AddScoped<IAppointmentConfirmationNotifier, RoutingAppointmentConfirmationNotifier>();
         services.AddScoped<IAppointmentReminderNotifier, RoutingAppointmentReminderNotifier>();
         services.AddScoped<IAppointmentRescheduleNotifier, RoutingAppointmentRescheduleNotifier>();
+        services.AddScoped<IQueuePositionNotifier, RoutingQueuePositionNotifier>();
+        services.AddScoped<IQueueStatusNotifier, RoutingQueueStatusNotifier>();
+        services.AddScoped<IQueueDelayNotifier, RoutingQueueDelayNotifier>();
         services.AddScoped<IPrescriptionIssuedNotifier, RoutingPrescriptionIssuedNotifier>();
         services.AddScoped<IPrescriptionCancelledNotifier, RoutingPrescriptionCancelledNotifier>();
         services.AddScoped<IDrugInteractionAlertNotifier, RoutingDrugInteractionAlertNotifier>();

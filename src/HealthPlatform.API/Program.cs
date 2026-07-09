@@ -148,6 +148,7 @@ if (builder.Configuration.GetValue("OpenTelemetry:Enabled", true))
 
 builder.Services.AddTelemedicineRealtime(builder.Configuration);
 builder.Services.AddPharmacyRealtime();
+builder.Services.AddQueueRealtime();
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -190,6 +191,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<HealthPlatform.API.Hubs.TelemedicineHub>("/hubs/telemedicine");
 app.MapHub<HealthPlatform.API.Hubs.PharmacyHub>("/hubs/pharmacy");
+app.MapHub<HealthPlatform.API.Hubs.QueueHub>("/hubs/queue");
 
 if (app.Environment.IsDevelopment())
 {
