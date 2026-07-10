@@ -30,7 +30,8 @@ public static class NotificationPreferenceCatalog
               NotificationEventTypes.AntenatalRecordCreated,
               NotificationEventTypes.AntenatalCheckupReminder,
               NotificationEventTypes.FetalMonitoringReminder,
-              NotificationEventTypes.VaccinationDueReminder
+              NotificationEventTypes.VaccinationDueReminder,
+              NotificationEventTypes.ChildGrowthOutOfRangeAlert
           ],
           [ApplicationRoles.Doctor] =
           [

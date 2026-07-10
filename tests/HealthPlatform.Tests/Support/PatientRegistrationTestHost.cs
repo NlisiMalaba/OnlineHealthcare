@@ -31,6 +31,7 @@ using HealthPlatform.Application.Referrals;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.Maternal.BirthPlans;
 using HealthPlatform.Application.Maternal.ChildProfiles;
+using HealthPlatform.Application.Maternal.GrowthEntries;
 using HealthPlatform.Application.Vaccinations;
 using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
@@ -212,6 +213,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingBirthPlanUpdatedNotifier _birthPlanUpdatedNotifier = new();
 
     public CapturingBirthPlanUpdatedNotifier BirthPlanUpdatedNotifier => _birthPlanUpdatedNotifier;
+
+    private readonly CapturingChildGrowthOutOfRangeNotifier _childGrowthOutOfRangeNotifier = new();
+
+    public CapturingChildGrowthOutOfRangeNotifier ChildGrowthOutOfRangeNotifier => _childGrowthOutOfRangeNotifier;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -409,6 +414,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IVaccinationRecordRepository, VaccinationRecordRepository>();
         services.AddScoped<IVaccinationScheduleInitializer, VaccinationScheduleInitializer>();
         services.AddScoped<IVaccinationReminderDispatcher, VaccinationReminderDispatcher>();
+        services.AddScoped<IGrowthEntryRepository, GrowthEntryRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
@@ -468,6 +474,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddSingleton<IAntenatalCheckupReminderNotifier>(_antenatalCheckupReminderNotifier);
         services.AddSingleton<IFetalMonitoringReminderNotifier>(_fetalMonitoringReminderNotifier);
         services.AddSingleton<IBirthPlanUpdatedNotifier>(_birthPlanUpdatedNotifier);
+        services.AddSingleton<IChildGrowthOutOfRangeNotifier>(_childGrowthOutOfRangeNotifier);
 
         if (timeProvider is not null)
         {

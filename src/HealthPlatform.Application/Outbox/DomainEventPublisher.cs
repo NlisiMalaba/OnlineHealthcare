@@ -13,6 +13,7 @@ using HealthPlatform.Application.MentalHealth.MoodLogs.Notifications;
 using HealthPlatform.Application.Referrals.Notifications;
 using HealthPlatform.Application.Maternal.AntenatalRecords.Notifications;
 using HealthPlatform.Application.Maternal.BirthPlans.Notifications;
+using HealthPlatform.Application.Maternal.GrowthEntries.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
@@ -291,6 +292,17 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.PatientId,
                     e.ObstetricDoctorId,
                     e.UpdatedAtUtc,
+                    e.OccurredAtUtc),
+                ct),
+            ChildGrowthOutOfRangeDetectedDomainEvent e => mediator.Publish(
+                new ChildGrowthOutOfRangeDetectedNotification(
+                    e.GrowthEntryId,
+                    e.ChildProfileId,
+                    e.GuardianId,
+                    e.AgeMonths,
+                    e.HeightStatus,
+                    e.WeightStatus,
+                    e.RecordedAtUtc,
                     e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask

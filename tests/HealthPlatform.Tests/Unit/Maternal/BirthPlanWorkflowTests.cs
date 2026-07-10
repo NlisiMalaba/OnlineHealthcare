@@ -6,6 +6,7 @@ using HealthPlatform.Application.Maternal.BirthPlans;
 using HealthPlatform.Application.Maternal.BirthPlans.CreateBirthPlan;
 using HealthPlatform.Application.Maternal.BirthPlans.GetBirthPlan;
 using HealthPlatform.Application.Maternal.BirthPlans.GrantMaternalCareAccess;
+using HealthPlatform.Application.Maternal.BirthPlans.RevokeMaternalCareAccess;
 using HealthPlatform.Application.Maternal.BirthPlans.UpdateBirthPlan;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Tests.Support;
@@ -95,6 +96,59 @@ public sealed class BirthPlanWorkflowTests : IAsyncLifetime
 
         var outsider = await SeedVerifiedDoctorAsync("outsider");
         _host.CurrentUser.UserId = outsider.UserId;
+
+        var ex = await Assert.ThrowsAsync<AccessDeniedException>(() =>
+            _host.Sender.Send(new GetBirthPlanQuery(recordId), CancellationToken.None));
+
+        Assert.Equal(BirthPlanErrorCodes.AccessDenied, ex.Code);
+    }
+
+    [Fact]
+    public async Task Grant_without_birth_plan_share_denies_birth_plan_read()
+    {
+        var (recordId, _, patient) = await SeedAntenatalRecordAsync();
+        _host.CurrentUser.UserId = patient.UserId;
+
+        await _host.Sender.Send(
+            new CreateBirthPlanCommand(
+                recordId,
+                new BirthPlanContentDto("Delayed cord clamping", null, null, null)),
+            CancellationToken.None);
+
+        var sharedDoctor = await SeedVerifiedDoctorAsync("record-only");
+        await _host.Sender.Send(
+            new GrantMaternalCareAccessCommand(recordId, sharedDoctor.Id, true, false),
+            CancellationToken.None);
+
+        _host.CurrentUser.UserId = sharedDoctor.UserId;
+
+        var ex = await Assert.ThrowsAsync<AccessDeniedException>(() =>
+            _host.Sender.Send(new GetBirthPlanQuery(recordId), CancellationToken.None));
+
+        Assert.Equal(BirthPlanErrorCodes.AccessDenied, ex.Code);
+    }
+
+    [Fact]
+    public async Task Revoked_doctor_cannot_read_birth_plan()
+    {
+        var (recordId, _, patient) = await SeedAntenatalRecordAsync();
+        _host.CurrentUser.UserId = patient.UserId;
+
+        await _host.Sender.Send(
+            new CreateBirthPlanCommand(
+                recordId,
+                new BirthPlanContentDto("Home birth plan", null, null, null)),
+            CancellationToken.None);
+
+        var sharedDoctor = await SeedVerifiedDoctorAsync("revoke");
+        await _host.Sender.Send(
+            new GrantMaternalCareAccessCommand(recordId, sharedDoctor.Id, false, true),
+            CancellationToken.None);
+
+        _host.CurrentUser.UserId = patient.UserId;
+        await _host.Sender.Send(new RevokeMaternalCareAccessCommand(recordId, sharedDoctor.Id), CancellationToken.None);
+
+        _host.CurrentUser.UserId = sharedDoctor.UserId;
 
         var ex = await Assert.ThrowsAsync<AccessDeniedException>(() =>
             _host.Sender.Send(new GetBirthPlanQuery(recordId), CancellationToken.None));

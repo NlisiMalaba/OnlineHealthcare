@@ -25,6 +25,7 @@ using HealthPlatform.Application.Referrals;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.Maternal.BirthPlans;
 using HealthPlatform.Application.Maternal.ChildProfiles;
+using HealthPlatform.Application.Maternal.GrowthEntries;
 using HealthPlatform.Application.Vaccinations;
 using HealthPlatform.Infrastructure.Audit;
 using HealthPlatform.Infrastructure.Auth;
@@ -178,6 +179,8 @@ public static class DependencyInjection
         services.AddScoped<IVaccinationRecordRepository, VaccinationRecordRepository>();
         services.AddScoped<IVaccinationScheduleInitializer, VaccinationScheduleInitializer>();
         services.AddScoped<IVaccinationReminderDispatcher, VaccinationReminderDispatcher>();
+        services.AddScoped<IGrowthEntryRepository, GrowthEntryRepository>();
+        services.AddScoped<IGrowthEntryRepository, GrowthEntryRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
@@ -211,6 +214,8 @@ public static class DependencyInjection
         services.AddSingleton<IFetalMonitoringReminderNotifier, LoggingFetalMonitoringReminderNotifier>();
         services.AddSingleton<IBirthPlanUpdatedNotifier, LoggingBirthPlanUpdatedNotifier>();
         services.AddSingleton<IVaccinationReminderNotifier, LoggingVaccinationReminderNotifier>();
+        services.AddSingleton<IChildGrowthOutOfRangeNotifier, LoggingChildGrowthOutOfRangeNotifier>();
+        services.AddSingleton<IChildGrowthOutOfRangeNotifier, LoggingChildGrowthOutOfRangeNotifier>();
         services.AddScoped<IAppointmentReminderDispatcher, AppointmentReminderDispatcher>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();

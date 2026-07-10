@@ -5,6 +5,10 @@ using HealthPlatform.Application.Vaccinations;
 using HealthPlatform.Application.Maternal.ChildProfiles.CreateChildProfile;
 using HealthPlatform.Application.Maternal.ChildProfiles.GetChildProfile;
 using HealthPlatform.Application.Maternal.ChildProfiles.ListChildProfiles;
+using HealthPlatform.Application.Vaccinations.RecordChildVaccination;
+using HealthPlatform.Application.Maternal.GrowthEntries;
+using HealthPlatform.Application.Maternal.GrowthEntries.GetChildGrowthChart;
+using HealthPlatform.Application.Maternal.GrowthEntries.ListGrowthEntries;
 using HealthPlatform.Application.Vaccinations.ListChildVaccinationRecords;
 using HealthPlatform.Application.Vaccinations.ListChildVaccinationSchedule;
 using HealthPlatform.Application.Security;
@@ -76,5 +80,38 @@ public sealed class ChildProfilesController(ISender sender) : ControllerBase
             MaternalCommandMapper.ToRecordChildVaccinationCommand(childProfileId, request),
             ct);
         return Created($"/api/v1/maternal/child-profiles/{childProfileId}/vaccination-records/{record.Id}", record);
+    }
+
+    [HttpPost("{childProfileId:guid}/growth-entries")]
+    [ProducesResponseType(typeof(GrowthEntryDto), StatusCodes.Status201Created)]
+    public async Task<ActionResult<GrowthEntryDto>> RecordGrowthEntryAsync(
+        Guid childProfileId,
+        [FromBody] RecordGrowthEntryRequest request,
+        CancellationToken ct)
+    {
+        var entry = await sender.Send(
+            MaternalCommandMapper.ToRecordGrowthEntryCommand(childProfileId, request),
+            ct);
+        return Created($"/api/v1/maternal/child-profiles/{childProfileId}/growth-entries/{entry.Id}", entry);
+    }
+
+    [HttpGet("{childProfileId:guid}/growth-entries")]
+    [ProducesResponseType(typeof(IReadOnlyList<GrowthEntryDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<GrowthEntryDto>>> ListGrowthEntriesAsync(
+        Guid childProfileId,
+        CancellationToken ct)
+    {
+        var entries = await sender.Send(new ListGrowthEntriesQuery(childProfileId), ct);
+        return Ok(entries);
+    }
+
+    [HttpGet("{childProfileId:guid}/growth-chart")]
+    [ProducesResponseType(typeof(GrowthChartDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<GrowthChartDto>> GetGrowthChartAsync(
+        Guid childProfileId,
+        CancellationToken ct)
+    {
+        var chart = await sender.Send(new GetChildGrowthChartQuery(childProfileId), ct);
+        return Ok(chart);
     }
 }

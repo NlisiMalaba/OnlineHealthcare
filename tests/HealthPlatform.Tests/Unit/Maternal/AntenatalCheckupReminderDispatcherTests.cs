@@ -50,6 +50,28 @@ public sealed class AntenatalCheckupReminderDispatcherTests : IAsyncLifetime
         Assert.Equal(obstetricDoctor.UserId, _host.AntenatalCheckupReminderNotifier.Calls[0].ObstetricDoctorUserId);
     }
 
+    [Fact]
+    public async Task DispatchDueReminders_sends_standard_frequency_when_due_date_beyond_four_weeks()
+    {
+        var obstetricDoctor = await SeedVerifiedObstetricDoctorAsync("standard");
+        var patient = await SeedPatientAsync("standard");
+        _host.CurrentUser.UserId = patient.UserId;
+        var dueDate = new DateOnly(2026, 12, 1);
+
+        var record = await _host.Sender.Send(
+            new CreateAntenatalRecordCommand(dueDate, 12, obstetricDoctor.Id),
+            CancellationToken.None);
+
+        await BackdateNextReminderAsync(record.Id, _clock.GetUtcNow().UtcDateTime.AddMinutes(-1));
+        var dispatcher = CreateDispatcher();
+
+        var dispatched = await dispatcher.DispatchDueRemindersAsync(CancellationToken.None);
+
+        Assert.Equal(1, dispatched);
+        Assert.Single(_host.AntenatalCheckupReminderNotifier.Calls);
+        Assert.False(_host.AntenatalCheckupReminderNotifier.Calls[0].HighFrequency);
+    }
+
     private AntenatalCheckupReminderDispatcher CreateDispatcher() =>
         new(
             _clock,
@@ -69,9 +91,14 @@ public sealed class AntenatalCheckupReminderDispatcherTests : IAsyncLifetime
 
     private async Task<Doctor> SeedVerifiedObstetricDoctorAsync()
     {
+        return await SeedVerifiedObstetricDoctorAsync("default");
+    }
+
+    private async Task<Doctor> SeedVerifiedObstetricDoctorAsync(string suffix)
+    {
         var registration = await _host.Sender.Send(
             ObstetricDoctorRegistrationTestData.CreateValidCommand(
-                $"reminder-obstetric-{Guid.NewGuid():N}@example.com"),
+                $"reminder-obstetric-{suffix}-{Guid.NewGuid():N}@example.com"),
             CancellationToken.None);
         await _host.Sender.Send(new VerifyDoctorLicenseCommand(registration.DoctorId), CancellationToken.None);
         return await _host.DbContext.Doctors.SingleAsync(d => d.Id == registration.DoctorId);
@@ -79,12 +106,17 @@ public sealed class AntenatalCheckupReminderDispatcherTests : IAsyncLifetime
 
     private async Task<Patient> SeedPatientAsync()
     {
+        return await SeedPatientAsync("default");
+    }
+
+    private async Task<Patient> SeedPatientAsync(string suffix)
+    {
         await _host.Sender.Send(
             new RegisterPatientCommand(
                 PatientAuthProvider.Email,
                 "Reminder Patient",
                 null,
-                $"reminder-patient-{Guid.NewGuid():N}@example.com",
+                $"reminder-patient-{suffix}-{Guid.NewGuid():N}@example.com",
                 PatientRegistrationTestHost.ValidPassword,
                 null),
             CancellationToken.None);

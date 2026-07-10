@@ -10,6 +10,7 @@ using HealthPlatform.Application.Maternal.BirthPlans.UpdateBirthPlan;
 using HealthPlatform.Application.Maternal.ChildProfiles.CreateChildProfile;
 using HealthPlatform.Application.Vaccinations.ListChildVaccinationRecords;
 using HealthPlatform.Application.Vaccinations.ListChildVaccinationSchedule;
+using HealthPlatform.Application.Maternal.GrowthEntries.RecordGrowthEntry;
 using HealthPlatform.Application.Vaccinations.RecordChildVaccination;
 
 namespace HealthPlatform.API.Mapping;
@@ -85,6 +86,16 @@ public static class MaternalCommandMapper
             request.AdministeredDate,
             request.BatchNumber,
             request.Provider);
+
+    public static RecordGrowthEntryCommand ToRecordGrowthEntryCommand(
+        Guid childProfileId,
+        RecordGrowthEntryRequest request) =>
+        new(
+            childProfileId,
+            request.HeightCm,
+            request.WeightKg,
+            request.MilestoneNote,
+            request.RecordedAtUtc);
 
     private static BirthPlanContentDto ToBirthPlanContentDto(BirthPlanContentRequest request) =>
         new(

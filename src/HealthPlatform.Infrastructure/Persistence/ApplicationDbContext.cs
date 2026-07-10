@@ -135,6 +135,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<VaccinationRecord> VaccinationRecords => Set<VaccinationRecord>();
 
+    public DbSet<GrowthEntry> GrowthEntries => Set<GrowthEntry>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

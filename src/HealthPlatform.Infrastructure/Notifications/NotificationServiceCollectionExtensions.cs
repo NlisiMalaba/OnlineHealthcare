@@ -11,6 +11,7 @@ using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.Maternal.BirthPlans;
+using HealthPlatform.Application.Maternal.GrowthEntries;
 using HealthPlatform.Application.Vaccinations;
 using HealthPlatform.Application.Wellness;
 using HealthPlatform.Infrastructure.Identity;
@@ -68,6 +69,8 @@ public static class NotificationServiceCollectionExtensions
         services.AddScoped<IFetalMonitoringReminderNotifier, RoutingFetalMonitoringReminderNotifier>();
         services.AddScoped<IBirthPlanUpdatedNotifier, RoutingBirthPlanUpdatedNotifier>();
         services.AddScoped<IVaccinationReminderNotifier, RoutingVaccinationReminderNotifier>();
+        services.AddScoped<IChildGrowthOutOfRangeNotifier, RoutingChildGrowthOutOfRangeNotifier>();
+        services.AddScoped<IChildGrowthOutOfRangeNotifier, RoutingChildGrowthOutOfRangeNotifier>();
         services.AddScoped<IMedicationOrderPatientNotifier, RoutingMedicationOrderPatientNotifier>();
         services.AddScoped<IPharmacyOrderReceivedNotifier, RoutingPharmacyOrderReceivedNotifier>();
         services.AddScoped<ILowStockAlertNotifier, RoutingLowStockAlertNotifier>();

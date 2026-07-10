@@ -142,6 +142,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<AntenatalRecordCreatedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Maternal.Events.BirthPlanUpdatedDomainEvent" =>
                 JsonSerializer.Deserialize<BirthPlanUpdatedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Maternal.Events.ChildGrowthOutOfRangeDetectedDomainEvent" =>
+                JsonSerializer.Deserialize<ChildGrowthOutOfRangeDetectedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }
