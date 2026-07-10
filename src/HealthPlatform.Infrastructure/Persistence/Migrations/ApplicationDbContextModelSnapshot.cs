@@ -939,6 +939,39 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("therapy_sessions", (string)null);
                 });
 
+            modelBuilder.Entity("HealthPlatform.Domain.MentalHealth.MoodChartSharingConsent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("GrantedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TherapistId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TherapistId");
+
+                    b.HasIndex("PatientId", "TherapistId");
+
+                    b.ToTable("mood_chart_sharing_consents", (string)null);
+                });
+
             modelBuilder.Entity("HealthPlatform.Domain.NextOfKin.EmergencyAlert", b =>
                 {
                     b.Property<Guid>("Id")

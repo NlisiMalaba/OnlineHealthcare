@@ -366,7 +366,7 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [ ] 23. Mental Health Module
   - [x] 23.1 Implement therapy session booking using the standard appointment flow (appointment type = `therapy`); attach session summary to patient health record (visible only to patient and therapist unless broader access granted)
     - _Requirements: 22.1, 22.2_
-  - [ ] 23.2 Implement mood log CRUD: patient records rating (1–5) and optional notes; store in MongoDB; display time-series chart data endpoint for patient and (with consent) therapist
+  - [x] 23.2 Implement mood log CRUD: patient records rating (1–5) and optional notes; store in MongoDB; display time-series chart data endpoint for patient and (with consent) therapist
     - _Requirements: 22.3, 22.4_
   - [ ] 23.3 Implement consecutive low mood prompt: after 3 consecutive mood log entries with rating = 1, emit mental health resource prompt event for patient
     - _Requirements: 22.5_
