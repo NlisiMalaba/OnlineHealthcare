@@ -8,10 +8,13 @@ using HealthPlatform.Domain.Payments;
 using HealthPlatform.Domain.Payments.CreditLine;
 using HealthPlatform.Domain.Payments.Instalments;
 using HealthPlatform.Domain.Prescriptions;
+using HealthPlatform.Domain.Labs;
 using HealthPlatform.Domain.NextOfKin;
 using HealthPlatform.Domain.Notifications;
 using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
+using HealthPlatform.Domain.Queue;
+using HealthPlatform.Domain.Referrals;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -76,6 +79,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<InsuranceClaim> InsuranceClaims => Set<InsuranceClaim>();
 
+    public DbSet<LabOrder> LabOrders => Set<LabOrder>();
+
+    public DbSet<LabResult> LabResults => Set<LabResult>();
+
+    public DbSet<RadiologyReport> RadiologyReports => Set<RadiologyReport>();
+
     public DbSet<PatientInsurancePolicy> PatientInsurancePolicies => Set<PatientInsurancePolicy>();
 
     public DbSet<PatientCreditLine> PatientCreditLines => Set<PatientCreditLine>();
@@ -94,6 +103,13 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<CriticalNotificationSmsFallback> CriticalNotificationSmsFallbacks =>
         Set<CriticalNotificationSmsFallback>();
+
+    public DbSet<QueueEntry> QueueEntries => Set<QueueEntry>();
+
+    public DbSet<Referral> Referrals => Set<Referral>();
+
+    public DbSet<ReferralHealthRecordAccessGrant> ReferralHealthRecordAccessGrants =>
+        Set<ReferralHealthRecordAccessGrant>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

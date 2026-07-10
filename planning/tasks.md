@@ -297,67 +297,67 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 17.7 Write unit tests for preference-based channel routing, retry queue, and dead-letter handling
     - _Requirements: 16.2, 16.5_
 
-- [ ] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
+- [x] 18. Checkpoint — Health Records, Adherence, and Notification flows complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 19. Lab & Diagnostics Module
-  - [ ] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
+- [x] 19. Lab & Diagnostics Module
+  - [x] 19.1 Implement lab order creation: doctor-ordered and patient-requested (pending doctor approval) flows; transmit order to lab partner REST API; attach order to patient health record
     - _Requirements: 21.1, 21.2_
-  - [ ]* 19.2 Write property test for lab order attached to health record (Property 32)
+  - [x]* 19.2 Write property test for lab order attached to health record (Property 32)
     - **Property 32: Lab Order Attached to Health Record**
     - **Validates: Requirements 21.1**
-  - [ ] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch
+  - [x] 19.3 Implement lab partner search endpoint (filtered by test type, proximity, price) using Elasticsearch
     - _Requirements: 21.3_
-  - [ ] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
+  - [x] 19.4 Implement lab result ingestion webhook: receive result upload from lab partner; store file in S3; attach LabResult to patient health record; notify patient and ordering doctor
     - _Requirements: 21.4, 21.5, 21.6_
-  - [ ] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
+  - [x] 19.5 Implement critical lab result alert: on result upload with `is_critical = true`, immediately emit alert notification to ordering doctor
     - _Requirements: 21.9_
-  - [ ]* 19.6 Write property test for critical lab result alert (Property 33)
+  - [x]* 19.6 Write property test for critical lab result alert (Property 33)
     - **Property 33: Critical Lab Result Alert**
     - **Validates: Requirements 21.9**
-  - [ ] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
+  - [x] 19.7 Implement radiology report ingestion: receive report + imaging files from lab partner; store in S3; attach to health record
     - _Requirements: 21.7_
-  - [ ] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
+  - [x] 19.8 Implement doctor annotation endpoint for lab results and radiology reports; store annotations in MongoDB; share with patient
     - _Requirements: 21.8_
-  - [ ]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
+  - [x]* 19.9 Write unit tests for patient-requested order approval flow, result download, and annotation sharing
     - _Requirements: 21.2, 21.6, 21.8_
 
-- [ ] 20. Referrals Module
-  - [ ] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
+- [x] 20. Referrals Module
+  - [x] 20.1 Implement referral creation: record referring doctor, receiving doctor/hospital, reason, shared health record sections; require and record patient consent with timestamp before dispatching
     - Notify receiving doctor and patient; publish `ReferralCreated` domain event
     - _Requirements: 26.1, 26.2, 30.1, 30.2_
-  - [ ]* 20.2 Write property test for referral requires patient consent (Property 39)
+  - [x]* 20.2 Write property test for referral requires patient consent (Property 39)
     - **Property 39: Referral Requires Patient Consent**
     - **Validates: Requirements 30.2**
-  - [ ] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
+  - [x] 20.3 Implement referral response workflow: accept / decline (with mandatory reason) / request additional information; on acceptance, grant receiving doctor access to shared health record sections and log access grant
     - Notify referring doctor and patient on status change
     - _Requirements: 26.4, 26.5, 30.4, 30.5, 30.6_
-  - [ ] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
+  - [x] 20.4 Implement referral completion: receiving doctor submits consultation summary back to referring doctor; attach summary to patient health record; revoke receiving doctor's access; update referral status
     - _Requirements: 26.6, 30.7, 30.8_
-  - [ ] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
+  - [x] 20.5 Implement 48-hour timeout reminder: if referral remains `pending` for 48 hours, emit follow-up reminder notification to receiving doctor
     - _Requirements: 26.7_
-  - [ ]* 20.6 Write property test for referral timeout reminder (Property 36)
+  - [x]* 20.6 Write property test for referral timeout reminder (Property 36)
     - **Property 36: Referral Timeout Reminder**
     - **Validates: Requirements 26.7**
-  - [ ]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
+  - [x]* 20.7 Write unit tests for referral status transitions, access revocation on completion, and patient consent enforcement
     - _Requirements: 26.4, 30.2, 30.8_
 
-- [ ] 21. Queue Management Module
-  - [ ] 21.1 Implement queue entry creation: patient with confirmed physical appointment joins virtual queue; assign queue position and compute estimated wait time based on patients ahead and doctor's average consultation duration
+- [x] 21. Queue Management Module
+  - [x] 21.1 Implement queue entry creation: patient with confirmed physical appointment joins virtual queue; assign queue position and compute estimated wait time based on patients ahead and doctor's average consultation duration
     - _Requirements: 31.1, 31.2_
-  - [ ]* 21.2 Write property test for queue position and wait time assignment (Property 40)
+  - [x]* 21.2 Write property test for queue position and wait time assignment (Property 40)
     - **Property 40: Queue Position and Wait Time Assignment**
     - **Validates: Requirements 31.2**
-  - [ ] 21.3 Implement real-time queue position display via SignalR; update at least every 2 minutes; push position-2 notification to patient
+  - [x] 21.3 Implement real-time queue position display via SignalR; update at least every 2 minutes; push position-2 notification to patient
     - _Requirements: 31.3, 31.4_
-  - [ ] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
+  - [x] 21.4 Implement queue management actions for doctor/staff: advance queue, mark patient as seen (record actual wait time), mark patient as absent (remove entry + notify patient)
     - _Requirements: 31.5, 31.6, 31.7_
-  - [ ] 21.5 Implement delay recalculation: if doctor schedule delayed >15 minutes, recalculate all estimated wait times in queue and notify all affected patients
+  - [x] 21.5 Implement delay recalculation: if doctor schedule delayed >15 minutes, recalculate all estimated wait times in queue and notify all affected patients
     - _Requirements: 31.8_
-  - [ ]* 21.6 Write property test for queue recalculation on delay (Property 41)
+  - [x]* 21.6 Write property test for queue recalculation on delay (Property 41)
     - **Property 41: Queue Recalculation on Delay**
     - **Validates: Requirements 31.8**
-  - [ ]* 21.7 Write unit tests for zero-length queue, absent patient removal, and wait time analytics recording
+  - [x]* 21.7 Write unit tests for zero-length queue, absent patient removal, and wait time analytics recording
     - _Requirements: 31.6, 31.7_
 
 - [ ] 22. Checkpoint — Lab, Referral, and Queue flows complete

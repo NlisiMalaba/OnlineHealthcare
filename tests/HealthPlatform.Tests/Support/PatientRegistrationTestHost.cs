@@ -6,6 +6,7 @@ using HealthPlatform.Application.Auth;
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.NextOfKin;
+using HealthPlatform.Application.Labs;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -24,6 +25,9 @@ using HealthPlatform.Application.Payments.Instalments;
 using HealthPlatform.Application.Search;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Application.Storage;
+using HealthPlatform.Application.Queue;
+using HealthPlatform.Application.Queue.Realtime;
+using HealthPlatform.Application.Referrals;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
@@ -41,6 +45,7 @@ using HealthPlatform.Application.Telemedicine;
 using HealthPlatform.Application.Telemedicine.Realtime;
 using HealthPlatform.Infrastructure.Insurance;
 using HealthPlatform.Infrastructure.Payments;
+using HealthPlatform.Infrastructure.Queue;
 using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.MongoDb;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
@@ -84,6 +89,22 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     private readonly CapturingPharmacyOrderRealtimeNotifier _pharmacyOrderRealtimeNotifier = new();
 
     public CapturingPharmacyOrderRealtimeNotifier PharmacyOrderRealtimeNotifier => _pharmacyOrderRealtimeNotifier;
+
+    private readonly CapturingQueueRealtimeNotifier _queueRealtimeNotifier = new();
+
+    public CapturingQueueRealtimeNotifier QueueRealtimeNotifier => _queueRealtimeNotifier;
+
+    private readonly CapturingQueuePositionNotifier _queuePositionNotifier = new();
+
+    public CapturingQueuePositionNotifier QueuePositionNotifier => _queuePositionNotifier;
+
+    private readonly CapturingQueueStatusNotifier _queueStatusNotifier = new();
+
+    public CapturingQueueStatusNotifier QueueStatusNotifier => _queueStatusNotifier;
+
+    private readonly CapturingQueueDelayNotifier _queueDelayNotifier = new();
+
+    public CapturingQueueDelayNotifier QueueDelayNotifier => _queueDelayNotifier;
 
     private readonly CapturingPharmacyOrderReceivedNotifier _pharmacyOrderReceivedNotifier = new();
 
@@ -149,6 +170,18 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public CapturingMedicationScheduleCompletionNotifier MedicationScheduleCompletionNotifier =>
         _medicationScheduleCompletionNotifier;
 
+    private readonly CapturingReferralCreatedNotifier _referralCreatedNotifier = new();
+
+    public CapturingReferralCreatedNotifier ReferralCreatedNotifier => _referralCreatedNotifier;
+
+    private readonly CapturingReferralStatusChangedNotifier _referralStatusChangedNotifier = new();
+
+    public CapturingReferralStatusChangedNotifier ReferralStatusChangedNotifier => _referralStatusChangedNotifier;
+
+    private readonly CapturingReferralTimeoutReminderNotifier _referralTimeoutReminderNotifier = new();
+
+    public CapturingReferralTimeoutReminderNotifier ReferralTimeoutReminderNotifier => _referralTimeoutReminderNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -159,6 +192,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         IConsecutiveMissedDosesNextOfKinNotifier? consecutiveMissedDosesNextOfKinNotifier = null,
         INextOfKinEmergencyAlertNotifier? nextOfKinEmergencyAlertNotifier = null,
         INextOfKinChannelDeliveryGateway? nextOfKinChannelDeliveryGateway = null,
+        IReferralCreatedNotifier? referralCreatedNotifier = null,
+        IReferralStatusChangedNotifier? referralStatusChangedNotifier = null,
+        IReferralTimeoutReminderNotifier? referralTimeoutReminderNotifier = null,
         FakeTimeProvider? timeProvider = null)
     {
         var services = new ServiceCollection();
@@ -322,10 +358,20 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ILicenseVerificationWorkflow, LicenseVerificationWorkflow>();
         services.AddSingleton<IDoctorLicenseVerificationNotifier, LoggingDoctorLicenseVerificationNotifier>();
         services.AddScoped<IMedicationOrderRepository, MedicationOrderRepository>();
+        services.AddScoped<ILabOrderRepository, LabOrderRepository>();
+        services.AddScoped<ILabResultRepository, LabResultRepository>();
+        services.AddScoped<IRadiologyReportRepository, RadiologyReportRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPharmacyDashboardRepository, PharmacyDashboardRepository>();
+        services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
+        services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
+        services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
+        services.AddSingleton<IQueueRealtimeNotifier>(_queueRealtimeNotifier);
+        services.AddSingleton<IQueuePositionNotifier>(_queuePositionNotifier);
+        services.AddSingleton<IQueueStatusNotifier>(_queueStatusNotifier);
+        services.AddSingleton<IQueueDelayNotifier>(_queueDelayNotifier);
         services.AddSingleton<IPharmacyOrderReceivedNotifier>(_pharmacyOrderReceivedNotifier);
         services.AddSingleton<IMedicationOrderPatientNotifier>(_medicationOrderPatientNotifier);
         services.AddSingleton<ILowStockAlertNotifier>(_lowStockAlertNotifier);
@@ -336,6 +382,33 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IPharmacyProfileUpdateWorkflow, PharmacyProfileUpdateWorkflow>();
         services.AddScoped<IDoctorProfileUpdateWorkflow, DoctorProfileUpdateWorkflow>();
         services.AddSingleton<ISearchService>(_searchService);
+        if (referralCreatedNotifier is not null)
+        {
+            services.AddSingleton(referralCreatedNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IReferralCreatedNotifier>(_referralCreatedNotifier);
+        }
+
+        if (referralStatusChangedNotifier is not null)
+        {
+            services.AddSingleton(referralStatusChangedNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IReferralStatusChangedNotifier>(_referralStatusChangedNotifier);
+        }
+
+        if (referralTimeoutReminderNotifier is not null)
+        {
+            services.AddSingleton(referralTimeoutReminderNotifier);
+        }
+        else
+        {
+            services.AddSingleton<IReferralTimeoutReminderNotifier>(_referralTimeoutReminderNotifier);
+        }
+
         if (timeProvider is not null)
         {
             services.AddSingleton<TimeProvider>(timeProvider);

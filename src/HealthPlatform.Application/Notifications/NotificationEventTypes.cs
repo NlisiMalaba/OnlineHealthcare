@@ -5,6 +5,9 @@ public static class NotificationEventTypes
     public const string AppointmentConfirmed = "appointment.confirmed";
     public const string AppointmentReminder = "appointment.reminder";
     public const string AppointmentRescheduled = "appointment.rescheduled";
+    public const string QueuePositionTwoReached = "queue.position_two_reached";
+    public const string QueueMarkedAbsent = "queue.marked_absent";
+    public const string QueueDelayRecalculated = "queue.delay_recalculated";
     public const string PrescriptionIssued = "prescription.issued";
     public const string PrescriptionCancelled = "prescription.cancelled";
     public const string DrugInteractionAlert = "prescription.drug_interaction_alert";
@@ -25,4 +28,6 @@ public static class NotificationEventTypes
     public const string DoctorLicenseRejected = "identity.doctor_license_rejected";
     public const string NextOfKinDesignated = "next_of_kin.designated";
     public const string EmergencyAlert = "next_of_kin.emergency_alert";
+    public const string LabResultUploaded = "labs.result_uploaded";
+    public const string CriticalLabResultAlert = "labs.critical_result_alert";
 }

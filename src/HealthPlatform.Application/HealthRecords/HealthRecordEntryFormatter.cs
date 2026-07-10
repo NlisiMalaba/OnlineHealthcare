@@ -14,6 +14,9 @@ public static class HealthRecordEntryFormatter
             HealthRecordEntryType.Allergy => "Allergy",
             HealthRecordEntryType.Vital => "Vital sign",
             HealthRecordEntryType.LabResultRef => "Lab result reference",
+            HealthRecordEntryType.LabOrderRef => "Lab order reference",
+            HealthRecordEntryType.RadiologyReportRef => "Radiology report reference",
+            HealthRecordEntryType.DiagnosticReportAnnotation => "Diagnostic report annotation",
             HealthRecordEntryType.Vaccination => "Vaccination",
             HealthRecordEntryType.TelemedicineSessionSummary => "Telemedicine session summary",
             _ => entryType.ToString()
@@ -67,6 +70,25 @@ public static class HealthRecordEntryFormatter
         if (entry.Content.LabResultRef is { } labResultRef)
         {
             lines.Add($"Lab result: {labResultRef.LabResultId}");
+        }
+
+        if (entry.Content.LabOrderRef is { } labOrderRef)
+        {
+            lines.Add($"Lab order: {labOrderRef.LabOrderId}");
+            lines.Add($"Test code: {labOrderRef.TestCode}");
+            lines.Add($"Lab partner: {labOrderRef.LabPartnerCode}");
+        }
+
+        if (entry.Content.RadiologyReportRef is { } radiologyRef)
+        {
+            lines.Add($"Radiology report: {radiologyRef.RadiologyReportId}");
+        }
+
+        if (entry.Content.DiagnosticReportAnnotation is { } annotation)
+        {
+            lines.Add($"Annotation target: {annotation.TargetType} ({annotation.TargetId})");
+            lines.Add($"Annotation: {annotation.Note}");
+            lines.Add($"Annotated at: {annotation.AnnotatedAtUtc:u}");
         }
 
         if (entry.Content.Vaccination is { } vaccination)

@@ -23,6 +23,12 @@ public static class HealthRecordEntryContentResolver
                 new HealthRecordEntryContentPayload(Vital: payload.Vital),
             HealthRecordEntryType.LabResultRef when payload.LabResultRef is not null =>
                 new HealthRecordEntryContentPayload(LabResultRef: payload.LabResultRef),
+            HealthRecordEntryType.LabOrderRef when payload.LabOrderRef is not null =>
+                new HealthRecordEntryContentPayload(LabOrderRef: payload.LabOrderRef),
+            HealthRecordEntryType.RadiologyReportRef when payload.RadiologyReportRef is not null =>
+                new HealthRecordEntryContentPayload(RadiologyReportRef: payload.RadiologyReportRef),
+            HealthRecordEntryType.DiagnosticReportAnnotation when payload.DiagnosticReportAnnotation is not null =>
+                new HealthRecordEntryContentPayload(DiagnosticReportAnnotation: payload.DiagnosticReportAnnotation),
             HealthRecordEntryType.Vaccination when payload.Vaccination is not null =>
                 new HealthRecordEntryContentPayload(Vaccination: payload.Vaccination),
             HealthRecordEntryType.TelemedicineSessionSummary when payload.TelemedicineSessionSummary is not null =>
@@ -52,6 +58,12 @@ public static class HealthRecordEntryContentResolver
                 Vital: update.Vital ?? existing.Vital),
             HealthRecordEntryType.LabResultRef => new HealthRecordEntryContentPayload(
                 LabResultRef: update.LabResultRef ?? existing.LabResultRef),
+            HealthRecordEntryType.LabOrderRef => new HealthRecordEntryContentPayload(
+                LabOrderRef: update.LabOrderRef ?? existing.LabOrderRef),
+            HealthRecordEntryType.RadiologyReportRef => new HealthRecordEntryContentPayload(
+                RadiologyReportRef: update.RadiologyReportRef ?? existing.RadiologyReportRef),
+            HealthRecordEntryType.DiagnosticReportAnnotation => new HealthRecordEntryContentPayload(
+                DiagnosticReportAnnotation: update.DiagnosticReportAnnotation ?? existing.DiagnosticReportAnnotation),
             HealthRecordEntryType.Vaccination => new HealthRecordEntryContentPayload(
                 Vaccination: update.Vaccination ?? existing.Vaccination),
             HealthRecordEntryType.TelemedicineSessionSummary => new HealthRecordEntryContentPayload(
