@@ -43,6 +43,29 @@ public sealed class MongoHealthRecordEntryRepository(IMongoDatabase database)
         return new HealthRecordEntryReference(created.Id);
     }
 
+    public async Task<HealthRecordEntryReference> AddTherapySessionSummaryEntryAsync(
+        HealthRecordTherapySessionSummaryEntry entry,
+        CancellationToken ct)
+    {
+        var created = await AddAsync(
+            new HealthRecordEntryCreateModel(
+                entry.HealthRecordId,
+                HealthRecordEntryType.TherapySessionSummary,
+                new HealthRecordEntryContentPayload(
+                    TherapySessionSummary: new TherapySessionSummaryContent(
+                        entry.TherapySessionId,
+                        entry.AppointmentId,
+                        entry.TherapistId,
+                        entry.SummaryDocumentId,
+                        BroaderAccessGranted: false)),
+                entry.TherapistId,
+                entry.CreatedAtUtc,
+                IsVisibleToPatient: true),
+            ct);
+
+        return new HealthRecordEntryReference(created.Id);
+    }
+
     public async Task<HealthRecordEntryDto?> GetByIdAsync(string entryId, CancellationToken ct)
     {
         if (!ObjectId.TryParse(entryId, out var objectId))

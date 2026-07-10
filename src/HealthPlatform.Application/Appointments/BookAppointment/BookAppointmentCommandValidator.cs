@@ -1,4 +1,5 @@
 using FluentValidation;
+using HealthPlatform.Domain.Appointments;
 
 namespace HealthPlatform.Application.Appointments.BookAppointment;
 
@@ -11,6 +12,9 @@ public sealed class BookAppointmentCommandValidator : AbstractValidator<BookAppo
 
         RuleFor(x => x.SlotId)
             .NotEmpty();
+
+        RuleFor(x => x.ConsultationType)
+            .IsInEnum();
 
         RuleFor(x => x.ScheduledAtUtc)
             .Must(v => v != default)

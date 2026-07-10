@@ -52,6 +52,29 @@ public sealed class InMemoryHealthRecordEntryRepository : IHealthRecordEntryRepo
         return new HealthRecordEntryReference(created.Id);
     }
 
+    public async Task<HealthRecordEntryReference> AddTherapySessionSummaryEntryAsync(
+        HealthRecordTherapySessionSummaryEntry entry,
+        CancellationToken ct)
+    {
+        var created = await AddAsync(
+            new HealthRecordEntryCreateModel(
+                entry.HealthRecordId,
+                HealthRecordEntryType.TherapySessionSummary,
+                new HealthRecordEntryContentPayload(
+                    TherapySessionSummary: new TherapySessionSummaryContent(
+                        entry.TherapySessionId,
+                        entry.AppointmentId,
+                        entry.TherapistId,
+                        entry.SummaryDocumentId,
+                        BroaderAccessGranted: false)),
+                entry.TherapistId,
+                entry.CreatedAtUtc,
+                IsVisibleToPatient: true),
+            ct);
+
+        return new HealthRecordEntryReference(created.Id);
+    }
+
     public Task<HealthRecordEntryDto?> GetByIdAsync(string entryId, CancellationToken ct)
     {
         var entry = _entries.FirstOrDefault(stored => stored.Dto.Id == entryId && !stored.IsDeleted);

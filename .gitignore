@@ -4,6 +4,7 @@
 **/*.user
 **/*.suo
 **/.vs/
+.tools/
 
 # Node
 node_modules/

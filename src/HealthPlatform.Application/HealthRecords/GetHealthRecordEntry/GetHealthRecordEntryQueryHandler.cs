@@ -1,6 +1,8 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.Security;
+using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Identity;
 using MediatR;
 
@@ -27,6 +29,13 @@ public sealed class GetHealthRecordEntryQueryHandler(
             doctor.Id,
             HealthRecordAccessOperations.GetEntry,
             ct);
+
+        if (!TherapySessionEntryAccessRules.CanDoctorView(entry, doctor.Id))
+        {
+            throw new AccessDeniedException(
+                "ACCESS_DENIED",
+                "Doctor does not have access to this therapy session summary.");
+        }
 
         return entry;
     }

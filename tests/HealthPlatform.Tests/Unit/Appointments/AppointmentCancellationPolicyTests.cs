@@ -63,6 +63,7 @@ public sealed class AppointmentCancellationPolicyTests
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
+            ConsultationType.General,
             scheduledAtUtc,
             DateTime.UtcNow.AddMinutes(10));
 

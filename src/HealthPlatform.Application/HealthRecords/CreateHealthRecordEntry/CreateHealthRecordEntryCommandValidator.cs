@@ -13,7 +13,9 @@ public sealed class CreateHealthRecordEntryCommandValidator : AbstractValidator<
         RuleFor(command => command.EntryType)
             .IsInEnum()
             .Must(entryType => entryType != HealthRecordEntryType.TelemedicineSessionSummary)
-            .WithMessage("Telemedicine session summaries are created automatically.");
+            .WithMessage("Telemedicine session summaries are created automatically.")
+            .Must(entryType => entryType != HealthRecordEntryType.TherapySessionSummary)
+            .WithMessage("Therapy session summaries are created automatically.");
 
         RuleFor(command => command.Content)
             .Must((command, content) => HasMatchingContent(command.EntryType, content))

@@ -15,6 +15,8 @@ public sealed class Appointment : Entity
 
     public Guid SlotId { get; private set; }
 
+    public ConsultationType ConsultationType { get; private set; }
+
     public DateTime ScheduledAtUtc { get; private set; }
 
     public AppointmentStatus Status { get; private set; }
@@ -31,6 +33,7 @@ public sealed class Appointment : Entity
         Guid patientId,
         Guid doctorId,
         Guid slotId,
+        ConsultationType consultationType,
         DateTime scheduledAtUtc,
         DateTime slotHoldExpiresAtUtc)
     {
@@ -70,6 +73,7 @@ public sealed class Appointment : Entity
             PatientId = patientId,
             DoctorId = doctorId,
             SlotId = slotId,
+            ConsultationType = consultationType,
             ScheduledAtUtc = scheduledAtUtc,
             Status = AppointmentStatus.PendingPayment,
             SlotHoldExpiresAtUtc = slotHoldExpiresAtUtc

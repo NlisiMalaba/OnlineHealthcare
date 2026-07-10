@@ -66,6 +66,7 @@ internal static class HealthRecordEntryDocumentMapper
             HealthRecordEntryType.DiagnosticReportAnnotation => "diagnostic_report_annotation",
             HealthRecordEntryType.Vaccination => "vaccination",
             HealthRecordEntryType.TelemedicineSessionSummary => "telemedicine_session_summary",
+            HealthRecordEntryType.TherapySessionSummary => "therapy_session_summary",
             _ => throw new ArgumentOutOfRangeException(nameof(entryType), entryType, "Unsupported entry type.")
         };
 
@@ -83,6 +84,7 @@ internal static class HealthRecordEntryDocumentMapper
             "diagnostic_report_annotation" => HealthRecordEntryType.DiagnosticReportAnnotation,
             "vaccination" => HealthRecordEntryType.Vaccination,
             "telemedicine_session_summary" => HealthRecordEntryType.TelemedicineSessionSummary,
+            "therapy_session_summary" => HealthRecordEntryType.TherapySessionSummary,
             _ => throw new ArgumentOutOfRangeException(nameof(entryType), entryType, "Unsupported entry type.")
         };
 }

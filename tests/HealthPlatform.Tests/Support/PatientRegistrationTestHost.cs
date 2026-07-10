@@ -28,6 +28,9 @@ using HealthPlatform.Application.Storage;
 using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
+using HealthPlatform.Application.MentalHealth;
+using HealthPlatform.Application.MentalHealth.MoodLogs;
+using HealthPlatform.Application.MentalHealth.CrisisProtocol;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
@@ -182,6 +185,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingReferralTimeoutReminderNotifier ReferralTimeoutReminderNotifier => _referralTimeoutReminderNotifier;
 
+    private readonly CapturingConsecutiveLowMoodPromptNotifier _consecutiveLowMoodPromptNotifier = new();
+
+    public CapturingConsecutiveLowMoodPromptNotifier ConsecutiveLowMoodPromptNotifier =>
+        _consecutiveLowMoodPromptNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -331,9 +339,12 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ITelemedicineSessionParticipantService, TelemedicineSessionParticipantService>();
         services.AddSingleton<ITelemedicineRealtimeNotifier>(_telemedicineRealtimeNotifier);
         services.AddSingleton<InMemoryTelemedicineSessionSummaryRepository>();
+        services.AddSingleton<InMemoryTherapySessionSummaryRepository>();
         services.AddSingleton<InMemoryHealthRecordEntryRepository>();
         services.AddSingleton<ITelemedicineSessionSummaryRepository>(sp =>
             sp.GetRequiredService<InMemoryTelemedicineSessionSummaryRepository>());
+        services.AddSingleton<ITherapySessionSummaryRepository>(sp =>
+            sp.GetRequiredService<InMemoryTherapySessionSummaryRepository>());
         services.AddSingleton<IHealthRecordEntryRepository>(sp =>
             sp.GetRequiredService<InMemoryHealthRecordEntryRepository>());
         if (appointmentConfirmationNotifier is not null)
@@ -366,6 +377,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
         services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
+        services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
+        services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
+        services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
+        services.AddScoped<IConsecutiveLowMoodPromptService, ConsecutiveLowMoodPromptService>();
+        services.AddSingleton<ICrisisKeywordDetector, CrisisKeywordDetector>();
+        services.AddScoped<ICrisisProtocolService, CrisisProtocolService>();
+        services.AddSingleton<IConsecutiveLowMoodPromptNotifier>(_consecutiveLowMoodPromptNotifier);
+        services.AddSingleton<InMemoryMoodLogRepository>();
+        services.AddSingleton<IMoodLogRepository>(sp => sp.GetRequiredService<InMemoryMoodLogRepository>());
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
         services.AddSingleton<IQueueRealtimeNotifier>(_queueRealtimeNotifier);

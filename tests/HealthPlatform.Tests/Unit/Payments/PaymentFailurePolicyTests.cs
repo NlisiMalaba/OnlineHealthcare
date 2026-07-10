@@ -15,6 +15,7 @@ public sealed class PaymentFailurePolicyTests
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
+            ConsultationType.General,
             failedAtUtc.AddDays(1),
             failedAtUtc.AddMinutes(2));
 

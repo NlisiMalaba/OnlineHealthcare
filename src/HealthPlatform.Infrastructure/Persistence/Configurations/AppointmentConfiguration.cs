@@ -17,6 +17,11 @@ public sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appointm
             .HasMaxLength(32)
             .IsRequired();
 
+        builder.Property(a => a.ConsultationType)
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .IsRequired();
+
         builder.HasIndex(a => a.PatientId);
         builder.HasIndex(a => a.DoctorId);
         builder.HasIndex(a => a.SlotId);

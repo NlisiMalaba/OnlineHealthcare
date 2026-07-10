@@ -1,6 +1,8 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Domain.Appointments;
+using HealthPlatform.Domain.MentalHealth;
 using HealthPlatform.Domain.Payments;
 using MediatR;
 
@@ -11,6 +13,7 @@ public sealed class BookAppointmentCommandHandler(
     IPatientRepository patientRepository,
     IDoctorRepository doctorRepository,
     IAppointmentRepository appointmentRepository,
+    ITherapySessionRepository therapySessionRepository,
     ISlotHoldService slotHoldService)
     : IRequestHandler<BookAppointmentCommand, BookAppointmentDto>
 {
@@ -39,6 +42,14 @@ public sealed class BookAppointmentCommandHandler(
                 "Availability slot was not found.");
         }
 
+        if (request.ConsultationType == ConsultationType.Therapy
+            && !TherapistPolicies.IsLicensedTherapist(doctor.Specialty))
+        {
+            throw new DomainException(
+                TherapySessionErrorCodes.TherapistRequired,
+                "Therapy sessions can only be booked with a licensed therapist.");
+        }
+
         var acquired = await slotHoldService.TryHoldAsync(request.SlotId, patient.Id, SlotHoldTtl, ct);
         if (!acquired)
         {
@@ -52,10 +63,18 @@ public sealed class BookAppointmentCommandHandler(
             patient.Id,
             doctor.Id,
             request.SlotId,
+            request.ConsultationType,
             request.ScheduledAtUtc,
             holdExpiresAtUtc);
 
         await appointmentRepository.AddAsync(appointment, ct);
+
+        if (request.ConsultationType == ConsultationType.Therapy)
+        {
+            await therapySessionRepository.AddAsync(
+                TherapySession.CreateScheduled(appointment.Id, patient.Id, doctor.Id),
+                ct);
+        }
 
         return new BookAppointmentDto(
             appointment.Id,
@@ -64,6 +83,7 @@ public sealed class BookAppointmentCommandHandler(
             appointment.ScheduledAtUtc,
             "pending_payment",
             appointment.SlotHoldExpiresAtUtc,
+            appointment.ConsultationType,
             slot.AppointmentType,
             AppointmentClinicMappings.ToClinicDto(doctor, slot.AppointmentType));
     }

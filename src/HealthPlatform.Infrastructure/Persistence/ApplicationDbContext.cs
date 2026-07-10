@@ -9,6 +9,7 @@ using HealthPlatform.Domain.Payments.CreditLine;
 using HealthPlatform.Domain.Payments.Instalments;
 using HealthPlatform.Domain.Prescriptions;
 using HealthPlatform.Domain.Labs;
+using HealthPlatform.Domain.MentalHealth;
 using HealthPlatform.Domain.NextOfKin;
 using HealthPlatform.Domain.Notifications;
 using HealthPlatform.Domain.Wellness;
@@ -110,6 +111,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<ReferralHealthRecordAccessGrant> ReferralHealthRecordAccessGrants =>
         Set<ReferralHealthRecordAccessGrant>();
+
+    public DbSet<TherapySession> TherapySessions => Set<TherapySession>();
+
+    public DbSet<MoodChartSharingConsent> MoodChartSharingConsents => Set<MoodChartSharingConsent>();
+
+    public DbSet<ConsecutiveLowMoodPrompt> ConsecutiveLowMoodPrompts => Set<ConsecutiveLowMoodPrompt>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

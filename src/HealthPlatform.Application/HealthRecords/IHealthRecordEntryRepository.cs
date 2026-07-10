@@ -13,6 +13,15 @@ public sealed record HealthRecordTelemedicineSummaryEntry(
     string SummaryDocumentId,
     DateTime CreatedAtUtc);
 
+public sealed record HealthRecordTherapySessionSummaryEntry(
+    Guid HealthRecordId,
+    Guid PatientId,
+    Guid TherapistId,
+    Guid TherapySessionId,
+    Guid AppointmentId,
+    string SummaryDocumentId,
+    DateTime CreatedAtUtc);
+
 public sealed record HealthRecordEntryCreateModel(
     Guid HealthRecordId,
     HealthRecordEntryType EntryType,
@@ -41,6 +50,10 @@ public interface IHealthRecordEntryRepository
 
     Task<HealthRecordEntryReference> AddTelemedicineSessionSummaryEntryAsync(
         HealthRecordTelemedicineSummaryEntry entry,
+        CancellationToken ct);
+
+    Task<HealthRecordEntryReference> AddTherapySessionSummaryEntryAsync(
+        HealthRecordTherapySessionSummaryEntry entry,
         CancellationToken ct);
 
     Task<HealthRecordEntryDto?> GetByIdAsync(string entryId, CancellationToken ct);

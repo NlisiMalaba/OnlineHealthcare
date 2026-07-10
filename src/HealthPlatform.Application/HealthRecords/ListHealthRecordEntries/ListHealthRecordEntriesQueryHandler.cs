@@ -1,5 +1,6 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Domain.Identity;
 using MediatR;
@@ -31,10 +32,12 @@ public sealed class ListHealthRecordEntriesQueryHandler(
             HealthRecordAccessOperations.ListEntries,
             ct);
 
-        return await healthRecordEntryRepository.ListByHealthRecordIdAsync(
+        var entries = await healthRecordEntryRepository.ListByHealthRecordIdAsync(
             request.HealthRecordId,
             patientVisibleOnly: false,
             ct);
+
+        return TherapySessionEntryAccessRules.FilterForDoctor(entries, doctor.Id);
     }
 
     private async Task<Doctor> ResolveVerifiedDoctorAsync(CancellationToken ct)
