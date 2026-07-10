@@ -11,6 +11,7 @@ using HealthPlatform.Application.Telemedicine.Notifications;
 using HealthPlatform.Application.Wellness.Notifications;
 using HealthPlatform.Application.MentalHealth.MoodLogs.Notifications;
 using HealthPlatform.Application.Referrals.Notifications;
+using HealthPlatform.Application.Maternal.AntenatalRecords.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
@@ -24,6 +25,7 @@ using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using HealthPlatform.Domain.MentalHealth.Events;
 using HealthPlatform.Domain.Referrals.Events;
+using HealthPlatform.Domain.Maternal.Events;
 using MediatR;
 
 namespace HealthPlatform.Application.Outbox;
@@ -269,6 +271,16 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.Status.ToString().ToLowerInvariant(),
                     e.Reason,
                     e.RespondedAtUtc,
+                    e.OccurredAtUtc),
+                ct),
+            AntenatalRecordCreatedDomainEvent e => mediator.Publish(
+                new AntenatalRecordCreatedNotification(
+                    e.AntenatalRecordId,
+                    e.PatientId,
+                    e.ObstetricDoctorId,
+                    e.EstimatedDueDate,
+                    e.GestationalAgeWeeks,
+                    e.CreatedAtUtc,
                     e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask

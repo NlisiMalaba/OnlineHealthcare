@@ -9,6 +9,7 @@ using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
+using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.Wellness;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Notifications.Gateways;
@@ -60,6 +61,8 @@ public static class NotificationServiceCollectionExtensions
         services.AddScoped<IMedicationScheduleCompletionNotifier, RoutingMedicationScheduleCompletionNotifier>();
         services.AddScoped<IConsecutiveMissedDosesNextOfKinNotifier, RoutingConsecutiveMissedDosesNextOfKinNotifier>();
         services.AddScoped<IConsecutiveLowMoodPromptNotifier, RoutingConsecutiveLowMoodPromptNotifier>();
+        services.AddScoped<IAntenatalRecordCreatedNotifier, RoutingAntenatalRecordCreatedNotifier>();
+        services.AddScoped<IAntenatalCheckupReminderNotifier, RoutingAntenatalCheckupReminderNotifier>();
         services.AddScoped<IMedicationOrderPatientNotifier, RoutingMedicationOrderPatientNotifier>();
         services.AddScoped<IPharmacyOrderReceivedNotifier, RoutingPharmacyOrderReceivedNotifier>();
         services.AddScoped<ILowStockAlertNotifier, RoutingLowStockAlertNotifier>();

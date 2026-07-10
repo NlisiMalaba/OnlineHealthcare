@@ -379,7 +379,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 22.2, 22.4, 22.7_
 
 - [ ] 24. Maternal & Pediatric Module
-  - [ ] 24.1 Implement antenatal record creation: capture estimated due date, gestational age, assigned obstetric doctor; auto-generate recommended checkup appointment schedule; notify patient
+  - [x] 24.1 Implement antenatal record creation: capture estimated due date, gestational age, assigned obstetric doctor; auto-generate recommended checkup appointment schedule; notify patient
     - Increase reminder frequency when due date is within 4 weeks
     - _Requirements: 24.1, 24.2, 24.8_
   - [ ] 24.2 Implement antenatal checkup recording: doctor records fetal measurements, maternal vitals, and clinical notes into antenatal record; send fetal monitoring reminders at doctor-configured intervals

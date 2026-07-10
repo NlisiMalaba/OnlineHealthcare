@@ -13,6 +13,7 @@ using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
 using HealthPlatform.Domain.MentalHealth.Events;
 using HealthPlatform.Domain.Referrals.Events;
+using HealthPlatform.Domain.Maternal.Events;
 using HealthPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -137,6 +138,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<ReferralCreatedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Referrals.Events.ReferralStatusChangedDomainEvent" =>
                 JsonSerializer.Deserialize<ReferralStatusChangedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.Maternal.Events.AntenatalRecordCreatedDomainEvent" =>
+                JsonSerializer.Deserialize<AntenatalRecordCreatedDomainEvent>(payload, SerializerOptions),
             _ => null
         };
 }

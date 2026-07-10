@@ -28,6 +28,7 @@ using HealthPlatform.Application.Storage;
 using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
+using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
 using HealthPlatform.Application.MentalHealth.CrisisProtocol;
@@ -189,6 +190,15 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingConsecutiveLowMoodPromptNotifier ConsecutiveLowMoodPromptNotifier =>
         _consecutiveLowMoodPromptNotifier;
+
+    private readonly CapturingAntenatalRecordCreatedNotifier _antenatalRecordCreatedNotifier = new();
+
+    public CapturingAntenatalRecordCreatedNotifier AntenatalRecordCreatedNotifier => _antenatalRecordCreatedNotifier;
+
+    private readonly CapturingAntenatalCheckupReminderNotifier _antenatalCheckupReminderNotifier = new();
+
+    public CapturingAntenatalCheckupReminderNotifier AntenatalCheckupReminderNotifier =>
+        _antenatalCheckupReminderNotifier;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -377,6 +387,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
         services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
+        services.AddScoped<IAntenatalRecordRepository, AntenatalRecordRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
@@ -428,6 +439,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         {
             services.AddSingleton<IReferralTimeoutReminderNotifier>(_referralTimeoutReminderNotifier);
         }
+
+        services.AddSingleton<IAntenatalRecordCreatedNotifier>(_antenatalRecordCreatedNotifier);
+        services.AddSingleton<IAntenatalCheckupReminderNotifier>(_antenatalCheckupReminderNotifier);
 
         if (timeProvider is not null)
         {

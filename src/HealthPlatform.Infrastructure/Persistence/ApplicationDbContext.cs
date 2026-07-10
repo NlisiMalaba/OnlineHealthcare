@@ -16,6 +16,7 @@ using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
 using HealthPlatform.Domain.Queue;
 using HealthPlatform.Domain.Referrals;
+using HealthPlatform.Domain.Maternal;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -117,6 +118,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<MoodChartSharingConsent> MoodChartSharingConsents => Set<MoodChartSharingConsent>();
 
     public DbSet<ConsecutiveLowMoodPrompt> ConsecutiveLowMoodPrompts => Set<ConsecutiveLowMoodPrompt>();
+
+    public DbSet<AntenatalRecord> AntenatalRecords => Set<AntenatalRecord>();
+
+    public DbSet<AntenatalCheckupScheduleEntry> AntenatalCheckupScheduleEntries =>
+        Set<AntenatalCheckupScheduleEntry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
