@@ -42,7 +42,8 @@ public static class NotificationPreferenceCatalog
               NotificationEventTypes.DoctorLicenseRejected,
               NotificationEventTypes.AccountLocked,
               NotificationEventTypes.AntenatalRecordCreated,
-              NotificationEventTypes.AntenatalCheckupReminder
+              NotificationEventTypes.AntenatalCheckupReminder,
+              NotificationEventTypes.BirthPlanUpdated
           ],
           [ApplicationRoles.Pharmacy] =
           [

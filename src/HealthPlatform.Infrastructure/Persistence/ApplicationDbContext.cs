@@ -124,6 +124,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<AntenatalCheckupScheduleEntry> AntenatalCheckupScheduleEntries =>
         Set<AntenatalCheckupScheduleEntry>();
 
+    public DbSet<BirthPlan> BirthPlans => Set<BirthPlan>();
+
+    public DbSet<MaternalCareAccessGrant> MaternalCareAccessGrants => Set<MaternalCareAccessGrant>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

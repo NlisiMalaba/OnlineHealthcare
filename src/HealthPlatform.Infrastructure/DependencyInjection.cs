@@ -23,6 +23,7 @@ using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
+using HealthPlatform.Application.Maternal.BirthPlans;
 using HealthPlatform.Infrastructure.Audit;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Application.Telemedicine;
@@ -166,6 +167,9 @@ public static class DependencyInjection
         services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddScoped<IAntenatalRecordRepository, AntenatalRecordRepository>();
+        services.AddScoped<IBirthPlanRepository, BirthPlanRepository>();
+        services.AddScoped<IMaternalCareAccessRepository, MaternalCareAccessRepository>();
+        services.AddScoped<IMaternalCareAccessGuard, MaternalCareAccessGuard>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
@@ -197,6 +201,7 @@ public static class DependencyInjection
         services.AddSingleton<IAntenatalRecordCreatedNotifier, LoggingAntenatalRecordCreatedNotifier>();
         services.AddSingleton<IAntenatalCheckupReminderNotifier, LoggingAntenatalCheckupReminderNotifier>();
         services.AddSingleton<IFetalMonitoringReminderNotifier, LoggingFetalMonitoringReminderNotifier>();
+        services.AddSingleton<IBirthPlanUpdatedNotifier, LoggingBirthPlanUpdatedNotifier>();
         services.AddScoped<IAppointmentReminderDispatcher, AppointmentReminderDispatcher>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();

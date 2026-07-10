@@ -384,7 +384,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 24.1, 24.2, 24.8_
   - [x] 24.2 Implement antenatal checkup recording: doctor records fetal measurements, maternal vitals, and clinical notes into antenatal record; send fetal monitoring reminders at doctor-configured intervals
     - _Requirements: 24.3, 24.4_
-  - [ ] 24.3 Implement birth plan CRUD: patient creates/updates birth plan (labour preferences, delivery method, pain management, postnatal care); notify assigned obstetric doctor on update; support sharing with any doctor
+  - [x] 24.3 Implement birth plan CRUD: patient creates/updates birth plan (labour preferences, delivery method, pain management, postnatal care); notify assigned obstetric doctor on update; support sharing with any doctor
     - _Requirements: 24.5, 24.6, 24.7_
   - [ ] 24.4 Implement child profile management: guardian creates child profiles (name, DOB, blood type, allergies); each profile gets a linked HealthRecord
     - _Requirements: 25.1, 25.2_

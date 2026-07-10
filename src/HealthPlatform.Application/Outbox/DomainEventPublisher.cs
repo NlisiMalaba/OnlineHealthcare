@@ -12,6 +12,7 @@ using HealthPlatform.Application.Wellness.Notifications;
 using HealthPlatform.Application.MentalHealth.MoodLogs.Notifications;
 using HealthPlatform.Application.Referrals.Notifications;
 using HealthPlatform.Application.Maternal.AntenatalRecords.Notifications;
+using HealthPlatform.Application.Maternal.BirthPlans.Notifications;
 using HealthPlatform.Domain.Appointments.Events;
 using HealthPlatform.Domain.Events;
 using HealthPlatform.Domain.Identity.Events;
@@ -281,6 +282,15 @@ public sealed class DomainEventPublisher(IMediator mediator) : IDomainEventPubli
                     e.EstimatedDueDate,
                     e.GestationalAgeWeeks,
                     e.CreatedAtUtc,
+                    e.OccurredAtUtc),
+                ct),
+            BirthPlanUpdatedDomainEvent e => mediator.Publish(
+                new BirthPlanUpdatedNotification(
+                    e.BirthPlanId,
+                    e.AntenatalRecordId,
+                    e.PatientId,
+                    e.ObstetricDoctorId,
+                    e.UpdatedAtUtc,
                     e.OccurredAtUtc),
                 ct),
             _ => Task.CompletedTask

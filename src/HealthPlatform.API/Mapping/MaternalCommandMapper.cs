@@ -2,6 +2,11 @@ using HealthPlatform.API.Requests.Maternal;
 using HealthPlatform.Application.Maternal.AntenatalRecords.ConfigureFetalMonitoringReminders;
 using HealthPlatform.Application.Maternal.AntenatalRecords.CreateAntenatalRecord;
 using HealthPlatform.Application.Maternal.AntenatalRecords.RecordAntenatalCheckup;
+using HealthPlatform.Application.Maternal.BirthPlans;
+using HealthPlatform.Application.Maternal.BirthPlans.CreateBirthPlan;
+using HealthPlatform.Application.Maternal.BirthPlans.GrantMaternalCareAccess;
+using HealthPlatform.Application.Maternal.BirthPlans.RevokeMaternalCareAccess;
+using HealthPlatform.Application.Maternal.BirthPlans.UpdateBirthPlan;
 
 namespace HealthPlatform.API.Mapping;
 
@@ -34,4 +39,35 @@ public static class MaternalCommandMapper
         Guid antenatalRecordId,
         ConfigureFetalMonitoringRemindersRequest request) =>
         new(antenatalRecordId, request.IntervalDays);
+
+    public static CreateBirthPlanCommand ToCreateBirthPlanCommand(
+        Guid antenatalRecordId,
+        BirthPlanContentRequest request) =>
+        new(antenatalRecordId, ToBirthPlanContentDto(request));
+
+    public static UpdateBirthPlanCommand ToUpdateBirthPlanCommand(
+        Guid antenatalRecordId,
+        BirthPlanContentRequest request) =>
+        new(antenatalRecordId, ToBirthPlanContentDto(request));
+
+    public static GrantMaternalCareAccessCommand ToGrantMaternalCareAccessCommand(
+        Guid antenatalRecordId,
+        GrantMaternalCareAccessRequest request) =>
+        new(
+            antenatalRecordId,
+            request.DoctorId,
+            request.ShareAntenatalRecord,
+            request.ShareBirthPlan);
+
+    public static RevokeMaternalCareAccessCommand ToRevokeMaternalCareAccessCommand(
+        Guid antenatalRecordId,
+        Guid doctorId) =>
+        new(antenatalRecordId, doctorId);
+
+    private static BirthPlanContentDto ToBirthPlanContentDto(BirthPlanContentRequest request) =>
+        new(
+            request.LabourPreferences,
+            request.DeliveryMethod,
+            request.PainManagement,
+            request.PostnatalCare);
 }

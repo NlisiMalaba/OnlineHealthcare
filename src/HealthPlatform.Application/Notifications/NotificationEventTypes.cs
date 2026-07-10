@@ -34,4 +34,5 @@ public static class NotificationEventTypes
     public const string AntenatalRecordCreated = "maternal.antenatal_record_created";
     public const string AntenatalCheckupReminder = "maternal.antenatal_checkup_reminder";
     public const string FetalMonitoringReminder = "maternal.fetal_monitoring_reminder";
+    public const string BirthPlanUpdated = "maternal.birth_plan_updated";
 }

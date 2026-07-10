@@ -1,6 +1,8 @@
 using HealthPlatform.API.Mapping;
 using HealthPlatform.API.Requests.Maternal;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
+using HealthPlatform.Application.Maternal.BirthPlans;
+using HealthPlatform.Application.Maternal.BirthPlans.GetBirthPlan;
 using HealthPlatform.Application.Security;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -37,4 +39,11 @@ public sealed class DoctorAntenatalRecordsController(ISender sender) : Controlle
         Ok(await sender.Send(
             MaternalCommandMapper.ToConfigureFetalMonitoringRemindersCommand(antenatalRecordId, request),
             ct));
+
+    [HttpGet("{antenatalRecordId:guid}/birth-plan")]
+    [ProducesResponseType(typeof(BirthPlanDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<BirthPlanDto>> GetBirthPlanAsync(
+        Guid antenatalRecordId,
+        CancellationToken ct) =>
+        Ok(await sender.Send(new GetBirthPlanQuery(antenatalRecordId), ct));
 }
