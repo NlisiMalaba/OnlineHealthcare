@@ -25,7 +25,8 @@ public static class NotificationPreferenceCatalog
               NotificationEventTypes.CreditRepaymentReminder,
               NotificationEventTypes.InstalmentDueReminder,
               NotificationEventTypes.InstalmentMissedPayment,
-              NotificationEventTypes.AccountLocked
+              NotificationEventTypes.AccountLocked,
+              NotificationEventTypes.ConsecutiveLowMoodPrompt
           ],
           [ApplicationRoles.Doctor] =
           [

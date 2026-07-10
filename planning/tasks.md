@@ -368,9 +368,9 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 22.1, 22.2_
   - [x] 23.2 Implement mood log CRUD: patient records rating (1–5) and optional notes; store in MongoDB; display time-series chart data endpoint for patient and (with consent) therapist
     - _Requirements: 22.3, 22.4_
-  - [ ] 23.3 Implement consecutive low mood prompt: after 3 consecutive mood log entries with rating = 1, emit mental health resource prompt event for patient
+  - [x] 23.3 Implement consecutive low mood prompt: after 3 consecutive mood log entries with rating = 1, emit mental health resource prompt event for patient
     - _Requirements: 22.5_
-  - [ ]* 23.4 Write property test for consecutive low mood prompt (Property 34)
+  - [x]* 23.4 Write property test for consecutive low mood prompt (Property 34)
     - **Property 34: Consecutive Low Mood Prompt**
     - **Validates: Requirements 22.5**
   - [ ] 23.5 Implement crisis protocol trigger: on crisis keyword detection in mood log or AI assistant input, immediately display crisis helpline numbers, prompt emergency services contact, and notify patient's mental health next-of-kin

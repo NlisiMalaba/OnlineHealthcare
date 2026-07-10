@@ -184,6 +184,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingReferralTimeoutReminderNotifier ReferralTimeoutReminderNotifier => _referralTimeoutReminderNotifier;
 
+    private readonly CapturingConsecutiveLowMoodPromptNotifier _consecutiveLowMoodPromptNotifier = new();
+
+    public CapturingConsecutiveLowMoodPromptNotifier ConsecutiveLowMoodPromptNotifier =>
+        _consecutiveLowMoodPromptNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -373,6 +378,9 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
+        services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
+        services.AddScoped<IConsecutiveLowMoodPromptService, ConsecutiveLowMoodPromptService>();
+        services.AddSingleton<IConsecutiveLowMoodPromptNotifier>(_consecutiveLowMoodPromptNotifier);
         services.AddSingleton<InMemoryMoodLogRepository>();
         services.AddSingleton<IMoodLogRepository>(sp => sp.GetRequiredService<InMemoryMoodLogRepository>());
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);

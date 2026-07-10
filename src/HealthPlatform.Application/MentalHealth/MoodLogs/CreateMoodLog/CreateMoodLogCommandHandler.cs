@@ -8,6 +8,7 @@ public sealed class CreateMoodLogCommandHandler(
     ICurrentUserAccessor currentUser,
     IPatientRepository patientRepository,
     IMoodLogRepository moodLogRepository,
+    IConsecutiveLowMoodPromptService consecutiveLowMoodPromptService,
     TimeProvider timeProvider)
     : IRequestHandler<CreateMoodLogCommand, MoodLogDto>
 {
@@ -17,7 +18,7 @@ public sealed class CreateMoodLogCommandHandler(
         var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
         var loggedAtUtc = request.LoggedAtUtc ?? nowUtc;
 
-        return await moodLogRepository.AddAsync(
+        var created = await moodLogRepository.AddAsync(
             new MoodLogCreateModel(
                 patient.Id,
                 request.Rating,
@@ -25,6 +26,9 @@ public sealed class CreateMoodLogCommandHandler(
                 loggedAtUtc,
                 nowUtc),
             ct);
+
+        await consecutiveLowMoodPromptService.TryEmitPromptIfThresholdReachedAsync(patient.Id, ct);
+        return created;
     }
 
     private async Task<Domain.Identity.Patient> ResolvePatientAsync(CancellationToken ct)

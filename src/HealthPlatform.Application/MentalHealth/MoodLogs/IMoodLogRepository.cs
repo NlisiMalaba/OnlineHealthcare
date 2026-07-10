@@ -28,6 +28,11 @@ public interface IMoodLogRepository
         DateTime? toUtc,
         CancellationToken ct);
 
+    Task<IReadOnlyList<MoodLogDto>> ListRecentByPatientIdAsync(
+        Guid patientId,
+        int count,
+        CancellationToken ct);
+
     Task<bool> UpdateAsync(MoodLogUpdateModel update, CancellationToken ct);
 
     Task<bool> DeleteAsync(string id, DateTime deletedAtUtc, CancellationToken ct);

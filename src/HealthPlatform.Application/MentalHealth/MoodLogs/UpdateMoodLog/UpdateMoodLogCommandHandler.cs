@@ -8,6 +8,7 @@ public sealed class UpdateMoodLogCommandHandler(
     ICurrentUserAccessor currentUser,
     IPatientRepository patientRepository,
     IMoodLogRepository moodLogRepository,
+    IConsecutiveLowMoodPromptService consecutiveLowMoodPromptService,
     TimeProvider timeProvider)
     : IRequestHandler<UpdateMoodLogCommand, MoodLogDto>
 {
@@ -35,6 +36,8 @@ public sealed class UpdateMoodLogCommandHandler(
                 MoodLogErrorCodes.MoodLogNotFound,
                 "Mood log was not found.");
         }
+
+        await consecutiveLowMoodPromptService.TryEmitPromptIfThresholdReachedAsync(patient.Id, ct);
 
         return (await moodLogRepository.GetByIdForPatientAsync(request.MoodLogId, patient.Id, ct))!;
     }

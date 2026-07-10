@@ -164,6 +164,8 @@ public static class DependencyInjection
         services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
+        services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
+        services.AddScoped<IConsecutiveLowMoodPromptService, ConsecutiveLowMoodPromptService>();
         services.AddScoped<IReferralTimeoutReminderDispatcher, ReferralTimeoutReminderDispatcher>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
         services.AddSingleton<ILowStockAlertNotifier, LoggingLowStockAlertNotifier>();

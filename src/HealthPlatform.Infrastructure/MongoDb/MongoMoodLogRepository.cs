@@ -78,6 +78,22 @@ public sealed class MongoMoodLogRepository(IMongoDatabase database) : IMoodLogRe
         return documents.ConvertAll(MoodLogDocumentMapper.ToDto);
     }
 
+    public async Task<IReadOnlyList<MoodLogDto>> ListRecentByPatientIdAsync(
+        Guid patientId,
+        int count,
+        CancellationToken ct)
+    {
+        var documents = await Collection
+            .Find(log => log.PatientId == patientId && !log.IsDeleted)
+            .Sort(Builders<MoodLogDocument>.Sort
+                .Descending(log => log.LoggedAtUtc)
+                .Descending(log => log.CreatedAtUtc))
+            .Limit(count)
+            .ToListAsync(ct);
+
+        return documents.ConvertAll(MoodLogDocumentMapper.ToDto);
+    }
+
     public async Task<bool> UpdateAsync(MoodLogUpdateModel update, CancellationToken ct)
     {
         if (!ObjectId.TryParse(update.Id, out var objectId))

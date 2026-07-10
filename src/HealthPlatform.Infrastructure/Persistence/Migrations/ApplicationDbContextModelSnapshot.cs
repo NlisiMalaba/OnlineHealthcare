@@ -972,6 +972,42 @@ namespace HealthPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("mood_chart_sharing_consents", (string)null);
                 });
 
+            modelBuilder.Entity("HealthPlatform.Domain.MentalHealth.ConsecutiveLowMoodPrompt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StreakEndLoggedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("TriggeredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TriggeringMoodLogId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("PatientId", "TriggeringMoodLogId")
+                        .IsUnique();
+
+                    b.ToTable("consecutive_low_mood_prompts", (string)null);
+                });
+
             modelBuilder.Entity("HealthPlatform.Domain.NextOfKin.EmergencyAlert", b =>
                 {
                     b.Property<Guid>("Id")

@@ -49,6 +49,23 @@ public sealed class InMemoryMoodLogRepository : IMoodLogRepository
         return Task.FromResult<IReadOnlyList<MoodLogDto>>(logs);
     }
 
+    public Task<IReadOnlyList<MoodLogDto>> ListRecentByPatientIdAsync(
+        Guid patientId,
+        int count,
+        CancellationToken ct)
+    {
+        var logs = _logs
+            .Where(log => !log.IsDeleted)
+            .Select(log => log.Dto)
+            .Where(log => log.PatientId == patientId)
+            .OrderByDescending(log => log.LoggedAtUtc)
+            .ThenByDescending(log => log.CreatedAtUtc)
+            .Take(count)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<MoodLogDto>>(logs);
+    }
+
     public Task<bool> UpdateAsync(MoodLogUpdateModel update, CancellationToken ct)
     {
         var index = _logs.FindIndex(log => log.Dto.Id == update.Id && !log.IsDeleted);

@@ -116,6 +116,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<MoodChartSharingConsent> MoodChartSharingConsents => Set<MoodChartSharingConsent>();
 
+    public DbSet<ConsecutiveLowMoodPrompt> ConsecutiveLowMoodPrompts => Set<ConsecutiveLowMoodPrompt>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

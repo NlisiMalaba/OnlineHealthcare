@@ -11,6 +11,7 @@ using HealthPlatform.Domain.Payments.CreditLine.Events;
 using HealthPlatform.Domain.Payments.Events;
 using HealthPlatform.Domain.Payments.Instalments.Events;
 using HealthPlatform.Domain.Pharmacy.Events;
+using HealthPlatform.Domain.MentalHealth.Events;
 using HealthPlatform.Domain.Referrals.Events;
 using HealthPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -128,6 +129,8 @@ public sealed class OutboxDomainEventDispatcher(
                 JsonSerializer.Deserialize<InstalmentPaymentMissedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Wellness.Events.ConsecutiveMissedDosesDetectedDomainEvent" =>
                 JsonSerializer.Deserialize<ConsecutiveMissedDosesDetectedDomainEvent>(payload, SerializerOptions),
+            "HealthPlatform.Domain.MentalHealth.Events.ConsecutiveLowMoodDetectedDomainEvent" =>
+                JsonSerializer.Deserialize<ConsecutiveLowMoodDetectedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Wellness.Events.MedicationScheduleCompletedDomainEvent" =>
                 JsonSerializer.Deserialize<MedicationScheduleCompletedDomainEvent>(payload, SerializerOptions),
             "HealthPlatform.Domain.Referrals.Events.ReferralCreatedDomainEvent" =>
