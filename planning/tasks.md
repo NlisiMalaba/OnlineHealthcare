@@ -388,7 +388,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 24.5, 24.6, 24.7_
   - [x] 24.4 Implement child profile management: guardian creates child profiles (name, DOB, blood type, allergies); each profile gets a linked HealthRecord
     - _Requirements: 25.1, 25.2_
-  - [ ] 24.5 Implement vaccination record and schedule: generate recommended vaccination schedule from child DOB and national guidelines; send reminder 7 days before due vaccination; record administered vaccines (name, date, batch, provider)
+  - [x] 24.5 Implement vaccination record and schedule: generate recommended vaccination schedule from child DOB and national guidelines; send reminder 7 days before due vaccination; record administered vaccines (name, date, batch, provider)
     - _Requirements: 25.4, 25.5, 25.6, 27.4, 27.5, 27.6_
   - [ ] 24.6 Implement growth tracking: guardian records height, weight, and developmental milestones; display growth chart against age-appropriate reference percentiles; alert guardian if measurements fall outside expected range
     - _Requirements: 25.7, 25.8, 25.9_

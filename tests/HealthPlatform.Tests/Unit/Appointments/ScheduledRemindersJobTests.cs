@@ -1,5 +1,6 @@
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
+using HealthPlatform.Application.Vaccinations;
 using HealthPlatform.Infrastructure.Jobs;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -28,12 +29,17 @@ public sealed class ScheduledRemindersJobTests
         fetalMonitoringDispatcher
             .Setup(d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
+        var vaccinationDispatcher = new Mock<IVaccinationReminderDispatcher>();
+        vaccinationDispatcher
+            .Setup(d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
 
         var job = new ScheduledRemindersJob(
             appointmentDispatcher.Object,
             referralDispatcher.Object,
             antenatalDispatcher.Object,
             fetalMonitoringDispatcher.Object,
+            vaccinationDispatcher.Object,
             NullLogger<ScheduledRemindersJob>.Instance);
 
         await job.RunAsync(CancellationToken.None);
@@ -48,6 +54,9 @@ public sealed class ScheduledRemindersJobTests
             d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
             Times.Once);
         fetalMonitoringDispatcher.Verify(
+            d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+        vaccinationDispatcher.Verify(
             d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }

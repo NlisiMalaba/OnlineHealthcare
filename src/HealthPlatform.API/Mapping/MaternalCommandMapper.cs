@@ -8,6 +8,9 @@ using HealthPlatform.Application.Maternal.BirthPlans.GrantMaternalCareAccess;
 using HealthPlatform.Application.Maternal.BirthPlans.RevokeMaternalCareAccess;
 using HealthPlatform.Application.Maternal.BirthPlans.UpdateBirthPlan;
 using HealthPlatform.Application.Maternal.ChildProfiles.CreateChildProfile;
+using HealthPlatform.Application.Vaccinations.ListChildVaccinationRecords;
+using HealthPlatform.Application.Vaccinations.ListChildVaccinationSchedule;
+using HealthPlatform.Application.Vaccinations.RecordChildVaccination;
 
 namespace HealthPlatform.API.Mapping;
 
@@ -71,6 +74,17 @@ public static class MaternalCommandMapper
             request.DateOfBirth,
             request.BloodType,
             request.KnownAllergies);
+
+    public static RecordChildVaccinationCommand ToRecordChildVaccinationCommand(
+        Guid childProfileId,
+        RecordVaccinationRequest request) =>
+        new(
+            childProfileId,
+            request.ScheduleEntryId,
+            request.VaccineName,
+            request.AdministeredDate,
+            request.BatchNumber,
+            request.Provider);
 
     private static BirthPlanContentDto ToBirthPlanContentDto(BirthPlanContentRequest request) =>
         new(

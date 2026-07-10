@@ -35,4 +35,5 @@ public static class NotificationEventTypes
     public const string AntenatalCheckupReminder = "maternal.antenatal_checkup_reminder";
     public const string FetalMonitoringReminder = "maternal.fetal_monitoring_reminder";
     public const string BirthPlanUpdated = "maternal.birth_plan_updated";
+    public const string VaccinationDueReminder = "wellness.vaccination_due_reminder";
 }

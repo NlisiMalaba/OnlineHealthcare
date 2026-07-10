@@ -29,7 +29,8 @@ public static class NotificationPreferenceCatalog
               NotificationEventTypes.ConsecutiveLowMoodPrompt,
               NotificationEventTypes.AntenatalRecordCreated,
               NotificationEventTypes.AntenatalCheckupReminder,
-              NotificationEventTypes.FetalMonitoringReminder
+              NotificationEventTypes.FetalMonitoringReminder,
+              NotificationEventTypes.VaccinationDueReminder
           ],
           [ApplicationRoles.Doctor] =
           [

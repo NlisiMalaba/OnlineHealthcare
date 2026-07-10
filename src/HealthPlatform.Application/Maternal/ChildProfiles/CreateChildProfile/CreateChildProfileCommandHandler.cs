@@ -3,6 +3,8 @@ using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.Security;
 using HealthPlatform.Domain.HealthRecords;
 using HealthPlatform.Domain.Maternal;
+using HealthPlatform.Application.Maternal.ChildProfiles;
+using HealthPlatform.Application.Vaccinations;
 using MediatR;
 
 namespace HealthPlatform.Application.Maternal.ChildProfiles.CreateChildProfile;
@@ -12,6 +14,7 @@ public sealed class CreateChildProfileCommandHandler(
     IPatientRepository patientRepository,
     IHealthRecordRepository healthRecordRepository,
     IChildProfileRepository childProfileRepository,
+    IVaccinationScheduleInitializer vaccinationScheduleInitializer,
     TimeProvider timeProvider)
     : IRequestHandler<CreateChildProfileCommand, ChildProfileDto>
 {
@@ -35,6 +38,12 @@ public sealed class CreateChildProfileCommandHandler(
         await childProfileRepository.AddAsync(childProfile, ct);
         healthRecord.AssignChildProfile(childProfile.Id);
         await healthRecordRepository.SaveChangesAsync(ct);
+
+        await vaccinationScheduleInitializer.InitializeChildScheduleAsync(
+            childProfile.Id,
+            childProfile.DateOfBirth,
+            createdAtUtc,
+            ct);
 
         return childProfile.ToDto();
     }

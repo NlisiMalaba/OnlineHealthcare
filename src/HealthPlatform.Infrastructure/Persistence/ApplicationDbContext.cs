@@ -17,6 +17,7 @@ using HealthPlatform.Domain.Pharmacy;
 using HealthPlatform.Domain.Queue;
 using HealthPlatform.Domain.Referrals;
 using HealthPlatform.Domain.Maternal;
+using HealthPlatform.Domain.Vaccinations;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -129,6 +130,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<MaternalCareAccessGrant> MaternalCareAccessGrants => Set<MaternalCareAccessGrant>();
 
     public DbSet<ChildProfile> ChildProfiles => Set<ChildProfile>();
+
+    public DbSet<VaccinationScheduleEntry> VaccinationScheduleEntries => Set<VaccinationScheduleEntry>();
+
+    public DbSet<VaccinationRecord> VaccinationRecords => Set<VaccinationRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
