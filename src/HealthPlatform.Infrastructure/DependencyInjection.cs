@@ -24,6 +24,7 @@ using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.Maternal.BirthPlans;
+using HealthPlatform.Application.Maternal.ChildProfiles;
 using HealthPlatform.Infrastructure.Audit;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Application.Telemedicine;
@@ -170,6 +171,7 @@ public static class DependencyInjection
         services.AddScoped<IBirthPlanRepository, BirthPlanRepository>();
         services.AddScoped<IMaternalCareAccessRepository, MaternalCareAccessRepository>();
         services.AddScoped<IMaternalCareAccessGuard, MaternalCareAccessGuard>();
+        services.AddScoped<IChildProfileRepository, ChildProfileRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();

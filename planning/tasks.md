@@ -386,7 +386,7 @@ The full task list below is the **complete platform** backlog. For a **working M
     - _Requirements: 24.3, 24.4_
   - [x] 24.3 Implement birth plan CRUD: patient creates/updates birth plan (labour preferences, delivery method, pain management, postnatal care); notify assigned obstetric doctor on update; support sharing with any doctor
     - _Requirements: 24.5, 24.6, 24.7_
-  - [ ] 24.4 Implement child profile management: guardian creates child profiles (name, DOB, blood type, allergies); each profile gets a linked HealthRecord
+  - [x] 24.4 Implement child profile management: guardian creates child profiles (name, DOB, blood type, allergies); each profile gets a linked HealthRecord
     - _Requirements: 25.1, 25.2_
   - [ ] 24.5 Implement vaccination record and schedule: generate recommended vaccination schedule from child DOB and national guidelines; send reminder 7 days before due vaccination; record administered vaccines (name, date, batch, provider)
     - _Requirements: 25.4, 25.5, 25.6, 27.4, 27.5, 27.6_

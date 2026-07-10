@@ -7,6 +7,7 @@ using HealthPlatform.Application.Maternal.BirthPlans.CreateBirthPlan;
 using HealthPlatform.Application.Maternal.BirthPlans.GrantMaternalCareAccess;
 using HealthPlatform.Application.Maternal.BirthPlans.RevokeMaternalCareAccess;
 using HealthPlatform.Application.Maternal.BirthPlans.UpdateBirthPlan;
+using HealthPlatform.Application.Maternal.ChildProfiles.CreateChildProfile;
 
 namespace HealthPlatform.API.Mapping;
 
@@ -63,6 +64,13 @@ public static class MaternalCommandMapper
         Guid antenatalRecordId,
         Guid doctorId) =>
         new(antenatalRecordId, doctorId);
+
+    public static CreateChildProfileCommand ToCreateChildProfileCommand(CreateChildProfileRequest request) =>
+        new(
+            request.FullName,
+            request.DateOfBirth,
+            request.BloodType,
+            request.KnownAllergies);
 
     private static BirthPlanContentDto ToBirthPlanContentDto(BirthPlanContentRequest request) =>
         new(

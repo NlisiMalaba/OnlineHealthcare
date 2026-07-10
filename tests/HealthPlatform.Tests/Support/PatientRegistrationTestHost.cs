@@ -30,6 +30,7 @@ using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.Maternal.BirthPlans;
+using HealthPlatform.Application.Maternal.ChildProfiles;
 using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
 using HealthPlatform.Application.MentalHealth.CrisisProtocol;
@@ -401,6 +402,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IBirthPlanRepository, BirthPlanRepository>();
         services.AddScoped<IMaternalCareAccessRepository, MaternalCareAccessRepository>();
         services.AddScoped<IMaternalCareAccessGuard, MaternalCareAccessGuard>();
+        services.AddScoped<IChildProfileRepository, ChildProfileRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();

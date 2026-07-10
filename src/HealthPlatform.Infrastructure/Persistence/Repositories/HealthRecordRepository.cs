@@ -8,13 +8,13 @@ namespace HealthPlatform.Infrastructure.Persistence.Repositories;
 public sealed class HealthRecordRepository(ApplicationDbContext db) : IHealthRecordRepository
 {
     public Task<bool> ExistsForPatientAsync(Guid patientId, CancellationToken ct) =>
-        db.HealthRecords.AnyAsync(r => r.PatientId == patientId, ct);
+        db.HealthRecords.AnyAsync(r => r.PatientId == patientId && r.ChildProfileId == null, ct);
 
     public Task<HealthRecord?> GetByIdAsync(Guid healthRecordId, CancellationToken ct) =>
         db.HealthRecords.FirstOrDefaultAsync(r => r.Id == healthRecordId, ct);
 
     public Task<HealthRecord?> GetByPatientIdAsync(Guid patientId, CancellationToken ct) =>
-        db.HealthRecords.FirstOrDefaultAsync(r => r.PatientId == patientId, ct);
+        db.HealthRecords.FirstOrDefaultAsync(r => r.PatientId == patientId && r.ChildProfileId == null, ct);
 
     public Task AddAsync(HealthRecord healthRecord, CancellationToken ct) =>
         db.HealthRecords.AddAsync(healthRecord, ct).AsTask();

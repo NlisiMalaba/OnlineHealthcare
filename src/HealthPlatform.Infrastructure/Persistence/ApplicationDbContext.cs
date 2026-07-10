@@ -128,6 +128,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<MaternalCareAccessGrant> MaternalCareAccessGrants => Set<MaternalCareAccessGrant>();
 
+    public DbSet<ChildProfile> ChildProfiles => Set<ChildProfile>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
