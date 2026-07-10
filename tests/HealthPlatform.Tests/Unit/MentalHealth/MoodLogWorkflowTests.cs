@@ -36,14 +36,16 @@ public sealed class MoodLogWorkflowTests : IAsyncLifetime
             new CreateMoodLogRequest { Rating = 3, Notes = "Steady day" },
             CancellationToken.None);
         var createdResult = Assert.IsType<CreatedResult>(created.Result);
-        var moodLog = Assert.IsType<MoodLogDto>(createdResult.Value);
+        var createdMutation = Assert.IsType<MoodLogMutationResultDto>(createdResult.Value);
+        var moodLog = createdMutation.MoodLog;
+        Assert.False(createdMutation.CrisisProtocol.Triggered);
 
         var updated = await controller.UpdateAsync(
             moodLog.Id,
             new UpdateMoodLogRequest { Rating = 4, Notes = "Improved" },
             CancellationToken.None);
         var updatedPayload = Assert.IsType<OkObjectResult>(updated.Result);
-        Assert.Equal(4, Assert.IsType<MoodLogDto>(updatedPayload.Value).Rating);
+        Assert.Equal(4, Assert.IsType<MoodLogMutationResultDto>(updatedPayload.Value).MoodLog.Rating);
 
         var list = await controller.ListAsync(null, null, CancellationToken.None);
         var listPayload = Assert.IsType<OkObjectResult>(list.Result);

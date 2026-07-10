@@ -1,5 +1,6 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.MentalHealth.CrisisProtocol;
 using MediatR;
 
 namespace HealthPlatform.Application.MentalHealth.MoodLogs.CreateMoodLog;
@@ -9,26 +10,35 @@ public sealed class CreateMoodLogCommandHandler(
     IPatientRepository patientRepository,
     IMoodLogRepository moodLogRepository,
     IConsecutiveLowMoodPromptService consecutiveLowMoodPromptService,
+    ICrisisProtocolService crisisProtocolService,
     TimeProvider timeProvider)
-    : IRequestHandler<CreateMoodLogCommand, MoodLogDto>
+    : IRequestHandler<CreateMoodLogCommand, MoodLogMutationResultDto>
 {
-    public async Task<MoodLogDto> Handle(CreateMoodLogCommand request, CancellationToken ct)
+    public async Task<MoodLogMutationResultDto> Handle(CreateMoodLogCommand request, CancellationToken ct)
     {
         var patient = await ResolvePatientAsync(ct);
         var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
         var loggedAtUtc = request.LoggedAtUtc ?? nowUtc;
+        var notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
 
         var created = await moodLogRepository.AddAsync(
             new MoodLogCreateModel(
                 patient.Id,
                 request.Rating,
-                string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim(),
+                notes,
                 loggedAtUtc,
                 nowUtc),
             ct);
 
         await consecutiveLowMoodPromptService.TryEmitPromptIfThresholdReachedAsync(patient.Id, ct);
-        return created;
+
+        var crisisProtocol = await crisisProtocolService.TryTriggerAsync(
+            patient.Id,
+            notes,
+            CrisisProtocolInputSource.MoodLog,
+            ct);
+
+        return new MoodLogMutationResultDto(created, crisisProtocol);
     }
 
     private async Task<Domain.Identity.Patient> ResolvePatientAsync(CancellationToken ct)

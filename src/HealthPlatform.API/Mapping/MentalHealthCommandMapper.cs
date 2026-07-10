@@ -1,6 +1,7 @@
 using HealthPlatform.API.Requests.MentalHealth;
 using HealthPlatform.Application.MentalHealth.CompleteTherapySession;
 using HealthPlatform.Application.MentalHealth.GrantTherapySessionBroaderAccess;
+using HealthPlatform.Application.MentalHealth.CrisisProtocol.EvaluateCrisisInput;
 using HealthPlatform.Application.MentalHealth.MoodLogs.CreateMoodLog;
 using HealthPlatform.Application.MentalHealth.MoodLogs.GrantMoodChartSharingConsent;
 using HealthPlatform.Application.MentalHealth.MoodLogs.RevokeMoodChartSharingConsent;
@@ -30,4 +31,7 @@ public static class MentalHealthCommandMapper
 
     public static RevokeMoodChartSharingConsentCommand ToRevokeMoodChartConsentCommand(Guid therapistId) =>
         new(therapistId);
+
+    public static EvaluateCrisisInputCommand ToEvaluateCrisisInputCommand(EvaluateCrisisInputRequest request) =>
+        new(request.InputText);
 }

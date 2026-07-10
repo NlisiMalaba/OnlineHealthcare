@@ -1,5 +1,6 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Identity;
+using HealthPlatform.Application.MentalHealth.CrisisProtocol;
 using MediatR;
 
 namespace HealthPlatform.Application.MentalHealth.MoodLogs.UpdateMoodLog;
@@ -9,10 +10,11 @@ public sealed class UpdateMoodLogCommandHandler(
     IPatientRepository patientRepository,
     IMoodLogRepository moodLogRepository,
     IConsecutiveLowMoodPromptService consecutiveLowMoodPromptService,
+    ICrisisProtocolService crisisProtocolService,
     TimeProvider timeProvider)
-    : IRequestHandler<UpdateMoodLogCommand, MoodLogDto>
+    : IRequestHandler<UpdateMoodLogCommand, MoodLogMutationResultDto>
 {
-    public async Task<MoodLogDto> Handle(UpdateMoodLogCommand request, CancellationToken ct)
+    public async Task<MoodLogMutationResultDto> Handle(UpdateMoodLogCommand request, CancellationToken ct)
     {
         var patient = await ResolvePatientAsync(ct);
         var existing = await moodLogRepository.GetByIdForPatientAsync(request.MoodLogId, patient.Id, ct)
@@ -21,11 +23,12 @@ public sealed class UpdateMoodLogCommandHandler(
                 "Mood log was not found.");
 
         var updatedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
+        var notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
         var updated = await moodLogRepository.UpdateAsync(
             new MoodLogUpdateModel(
                 request.MoodLogId,
                 request.Rating,
-                string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim(),
+                notes,
                 request.LoggedAtUtc ?? existing.LoggedAtUtc,
                 updatedAtUtc),
             ct);
@@ -39,7 +42,14 @@ public sealed class UpdateMoodLogCommandHandler(
 
         await consecutiveLowMoodPromptService.TryEmitPromptIfThresholdReachedAsync(patient.Id, ct);
 
-        return (await moodLogRepository.GetByIdForPatientAsync(request.MoodLogId, patient.Id, ct))!;
+        var moodLog = (await moodLogRepository.GetByIdForPatientAsync(request.MoodLogId, patient.Id, ct))!;
+        var crisisProtocol = await crisisProtocolService.TryTriggerAsync(
+            patient.Id,
+            notes,
+            CrisisProtocolInputSource.MoodLog,
+            ct);
+
+        return new MoodLogMutationResultDto(moodLog, crisisProtocol);
     }
 
     private async Task<Domain.Identity.Patient> ResolvePatientAsync(CancellationToken ct)

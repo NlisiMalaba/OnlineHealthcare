@@ -6,4 +6,4 @@ public sealed record UpdateMoodLogCommand(
     string MoodLogId,
     int Rating,
     string? Notes,
-    DateTime? LoggedAtUtc) : ICommand<MoodLogDto>;
+    DateTime? LoggedAtUtc) : ICommand<MoodLogMutationResultDto>;

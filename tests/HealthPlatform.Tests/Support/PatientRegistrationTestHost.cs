@@ -30,6 +30,7 @@ using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
 using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
+using HealthPlatform.Application.MentalHealth.CrisisProtocol;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
@@ -380,6 +381,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptService, ConsecutiveLowMoodPromptService>();
+        services.AddSingleton<ICrisisKeywordDetector, CrisisKeywordDetector>();
+        services.AddScoped<ICrisisProtocolService, CrisisProtocolService>();
         services.AddSingleton<IConsecutiveLowMoodPromptNotifier>(_consecutiveLowMoodPromptNotifier);
         services.AddSingleton<InMemoryMoodLogRepository>();
         services.AddSingleton<IMoodLogRepository>(sp => sp.GetRequiredService<InMemoryMoodLogRepository>());

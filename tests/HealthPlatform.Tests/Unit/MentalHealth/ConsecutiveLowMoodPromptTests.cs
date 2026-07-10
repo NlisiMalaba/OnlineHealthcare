@@ -75,8 +75,8 @@ public sealed class ConsecutiveLowMoodPromptTests : IAsyncLifetime
         for (var index = 0; index < 3; index++)
         {
             var created = await controller.CreateAsync(new CreateMoodLogRequest { Rating = 1 }, CancellationToken.None);
-            triggeringLogId = Assert.IsType<CreatedResult>(created.Result).Value is MoodLogDto dto
-                ? dto.Id
+            triggeringLogId = Assert.IsType<CreatedResult>(created.Result).Value is MoodLogMutationResultDto mutation
+                ? mutation.MoodLog.Id
                 : throw new InvalidOperationException("Expected mood log payload.");
         }
 

@@ -29,14 +29,14 @@ public sealed class MoodLogsControllerTests : IAsyncLifetime
         _host.CurrentUser.UserId = patient.UserId;
 
         var controller = new MoodLogsController(_host.Sender);
-        var result = await controller.CreateAsync(
+        var created = await controller.CreateAsync(
             new CreateMoodLogRequest { Rating = 3, Notes = "Calm" },
             CancellationToken.None);
 
-        var created = Assert.IsType<CreatedResult>(result.Result);
-        var payload = Assert.IsType<MoodLogDto>(created.Value);
-        Assert.Equal(3, payload.Rating);
-        Assert.Equal(patient.Id, payload.PatientId);
+        var createdResult = Assert.IsType<CreatedResult>(created.Result);
+        var payload = Assert.IsType<MoodLogMutationResultDto>(createdResult.Value);
+        Assert.Equal(3, payload.MoodLog.Rating);
+        Assert.Equal(patient.Id, payload.MoodLog.PatientId);
     }
 
     private async Task<Patient> SeedPatientAsync()

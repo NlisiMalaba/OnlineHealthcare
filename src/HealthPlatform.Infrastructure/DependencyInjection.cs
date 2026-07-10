@@ -7,6 +7,7 @@ using HealthPlatform.Application.NextOfKin;
 using HealthPlatform.Application.Labs;
 using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
+using HealthPlatform.Application.MentalHealth.CrisisProtocol;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -166,6 +167,8 @@ public static class DependencyInjection
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptService, ConsecutiveLowMoodPromptService>();
+        services.AddSingleton<ICrisisKeywordDetector, CrisisKeywordDetector>();
+        services.AddScoped<ICrisisProtocolService, CrisisProtocolService>();
         services.AddScoped<IReferralTimeoutReminderDispatcher, ReferralTimeoutReminderDispatcher>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
         services.AddSingleton<ILowStockAlertNotifier, LoggingLowStockAlertNotifier>();

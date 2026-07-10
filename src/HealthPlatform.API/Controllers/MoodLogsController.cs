@@ -21,13 +21,13 @@ public sealed class MoodLogsController(ISender sender) : ControllerBase
 {
     [HttpPost]
     [Authorize(Policy = AuthorizationPolicies.Patient)]
-    [ProducesResponseType(typeof(MoodLogDto), StatusCodes.Status201Created)]
-    public async Task<ActionResult<MoodLogDto>> CreateAsync(
+    [ProducesResponseType(typeof(MoodLogMutationResultDto), StatusCodes.Status201Created)]
+    public async Task<ActionResult<MoodLogMutationResultDto>> CreateAsync(
         [FromBody] CreateMoodLogRequest request,
         CancellationToken ct)
     {
-        var moodLog = await sender.Send(MentalHealthCommandMapper.ToCreateMoodLogCommand(request), ct);
-        return Created($"/api/v1/mental-health/mood-logs/{moodLog.Id}", moodLog);
+        var result = await sender.Send(MentalHealthCommandMapper.ToCreateMoodLogCommand(request), ct);
+        return Created($"/api/v1/mental-health/mood-logs/{result.MoodLog.Id}", result);
     }
 
     [HttpGet]
@@ -56,8 +56,8 @@ public sealed class MoodLogsController(ISender sender) : ControllerBase
 
     [HttpPut("{moodLogId}")]
     [Authorize(Policy = AuthorizationPolicies.Patient)]
-    [ProducesResponseType(typeof(MoodLogDto), StatusCodes.Status200OK)]
-    public async Task<ActionResult<MoodLogDto>> UpdateAsync(
+    [ProducesResponseType(typeof(MoodLogMutationResultDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<MoodLogMutationResultDto>> UpdateAsync(
         string moodLogId,
         [FromBody] UpdateMoodLogRequest request,
         CancellationToken ct) =>
