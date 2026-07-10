@@ -23,4 +23,12 @@ public interface IAntenatalRecordRepository
     Task<bool> HasScheduleEntriesAsync(Guid antenatalRecordId, CancellationToken ct);
 
     Task<IReadOnlyList<AntenatalRecord>> ListActiveDueForReminderAsync(DateTime asOfUtc, CancellationToken ct);
+
+    Task<AntenatalCheckupScheduleEntry?> GetScheduleEntryByIdAsync(Guid scheduleEntryId, CancellationToken ct);
+
+    Task UpdateScheduleEntryAsync(AntenatalCheckupScheduleEntry entry, CancellationToken ct);
+
+    Task<IReadOnlyList<AntenatalRecord>> ListActiveDueForFetalMonitoringReminderAsync(
+        DateTime asOfUtc,
+        CancellationToken ct);
 }

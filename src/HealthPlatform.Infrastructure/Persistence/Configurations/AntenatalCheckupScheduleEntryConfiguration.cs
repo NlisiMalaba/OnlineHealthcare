@@ -16,6 +16,11 @@ public sealed class AntenatalCheckupScheduleEntryConfiguration : IEntityTypeConf
             .HasMaxLength(500)
             .IsRequired();
 
+        builder.Property(entry => entry.CheckupEntryRef)
+            .HasMaxLength(64);
+
+        builder.Property(entry => entry.CompletedAtUtc);
+
         builder.Property(entry => entry.RecommendedDate)
             .HasColumnType("date")
             .IsRequired();

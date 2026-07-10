@@ -200,6 +200,11 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
     public CapturingAntenatalCheckupReminderNotifier AntenatalCheckupReminderNotifier =>
         _antenatalCheckupReminderNotifier;
 
+    private readonly CapturingFetalMonitoringReminderNotifier _fetalMonitoringReminderNotifier = new();
+
+    public CapturingFetalMonitoringReminderNotifier FetalMonitoringReminderNotifier =>
+        _fetalMonitoringReminderNotifier;
+
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
         IAppointmentRescheduleNotifier? appointmentRescheduleNotifier = null,
@@ -396,7 +401,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ICrisisProtocolService, CrisisProtocolService>();
         services.AddSingleton<IConsecutiveLowMoodPromptNotifier>(_consecutiveLowMoodPromptNotifier);
         services.AddSingleton<InMemoryMoodLogRepository>();
+        services.AddSingleton<InMemoryAntenatalCheckupEntryRepository>();
         services.AddSingleton<IMoodLogRepository>(sp => sp.GetRequiredService<InMemoryMoodLogRepository>());
+        services.AddSingleton<IAntenatalCheckupEntryRepository>(sp =>
+            sp.GetRequiredService<InMemoryAntenatalCheckupEntryRepository>());
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
         services.AddSingleton<IQueueRealtimeNotifier>(_queueRealtimeNotifier);
@@ -442,6 +450,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
         services.AddSingleton<IAntenatalRecordCreatedNotifier>(_antenatalRecordCreatedNotifier);
         services.AddSingleton<IAntenatalCheckupReminderNotifier>(_antenatalCheckupReminderNotifier);
+        services.AddSingleton<IFetalMonitoringReminderNotifier>(_fetalMonitoringReminderNotifier);
 
         if (timeProvider is not null)
         {

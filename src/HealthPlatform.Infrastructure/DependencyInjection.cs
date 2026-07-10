@@ -174,6 +174,7 @@ public static class DependencyInjection
         services.AddScoped<ICrisisProtocolService, CrisisProtocolService>();
         services.AddScoped<IReferralTimeoutReminderDispatcher, ReferralTimeoutReminderDispatcher>();
         services.AddScoped<IAntenatalCheckupReminderDispatcher, AntenatalCheckupReminderDispatcher>();
+        services.AddScoped<IFetalMonitoringReminderDispatcher, FetalMonitoringReminderDispatcher>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
         services.AddSingleton<ILowStockAlertNotifier, LoggingLowStockAlertNotifier>();
         services.AddSingleton<IMedicationOrderPatientNotifier, LoggingMedicationOrderPatientNotifier>();
@@ -195,6 +196,7 @@ public static class DependencyInjection
         services.AddSingleton<IReferralTimeoutReminderNotifier, LoggingReferralTimeoutReminderNotifier>();
         services.AddSingleton<IAntenatalRecordCreatedNotifier, LoggingAntenatalRecordCreatedNotifier>();
         services.AddSingleton<IAntenatalCheckupReminderNotifier, LoggingAntenatalCheckupReminderNotifier>();
+        services.AddSingleton<IFetalMonitoringReminderNotifier, LoggingFetalMonitoringReminderNotifier>();
         services.AddScoped<IAppointmentReminderDispatcher, AppointmentReminderDispatcher>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();

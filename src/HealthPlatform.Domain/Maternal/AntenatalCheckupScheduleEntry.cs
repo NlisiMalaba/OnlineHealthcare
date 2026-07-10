@@ -17,6 +17,10 @@ public sealed class AntenatalCheckupScheduleEntry : Entity
 
     public string Description { get; private set; }
 
+    public DateTime? CompletedAtUtc { get; private set; }
+
+    public string? CheckupEntryRef { get; private set; }
+
     public static AntenatalCheckupScheduleEntry Create(
         Guid antenatalRecordId,
         int gestationalAgeWeeks,
@@ -57,5 +61,27 @@ public sealed class AntenatalCheckupScheduleEntry : Entity
             CreatedAtUtc = createdAtUtc,
             UpdatedAtUtc = createdAtUtc
         };
+    }
+
+    public void MarkCompleted(string checkupEntryRef, DateTime completedAtUtc)
+    {
+        if (CompletedAtUtc.HasValue)
+        {
+            throw new AntenatalCheckupCompletionNotAllowedException(Id);
+        }
+
+        if (string.IsNullOrWhiteSpace(checkupEntryRef))
+        {
+            throw new ArgumentException("Checkup entry reference is required.", nameof(checkupEntryRef));
+        }
+
+        if (completedAtUtc == default || completedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Completion timestamp must be UTC.", nameof(completedAtUtc));
+        }
+
+        CheckupEntryRef = checkupEntryRef.Trim();
+        CompletedAtUtc = completedAtUtc;
+        Touch();
     }
 }

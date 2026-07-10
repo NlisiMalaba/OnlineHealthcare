@@ -33,4 +33,5 @@ public static class NotificationEventTypes
     public const string ConsecutiveLowMoodPrompt = "mental_health.consecutive_low_mood_prompt";
     public const string AntenatalRecordCreated = "maternal.antenatal_record_created";
     public const string AntenatalCheckupReminder = "maternal.antenatal_checkup_reminder";
+    public const string FetalMonitoringReminder = "maternal.fetal_monitoring_reminder";
 }

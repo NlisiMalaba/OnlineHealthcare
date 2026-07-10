@@ -24,11 +24,16 @@ public sealed class ScheduledRemindersJobTests
         antenatalDispatcher
             .Setup(d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
+        var fetalMonitoringDispatcher = new Mock<IFetalMonitoringReminderDispatcher>();
+        fetalMonitoringDispatcher
+            .Setup(d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         var job = new ScheduledRemindersJob(
             appointmentDispatcher.Object,
             referralDispatcher.Object,
             antenatalDispatcher.Object,
+            fetalMonitoringDispatcher.Object,
             NullLogger<ScheduledRemindersJob>.Instance);
 
         await job.RunAsync(CancellationToken.None);
@@ -40,6 +45,9 @@ public sealed class ScheduledRemindersJobTests
             d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
             Times.Once);
         antenatalDispatcher.Verify(
+            d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+        fetalMonitoringDispatcher.Verify(
             d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }

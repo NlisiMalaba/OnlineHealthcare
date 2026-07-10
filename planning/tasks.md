@@ -382,7 +382,7 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x] 24.1 Implement antenatal record creation: capture estimated due date, gestational age, assigned obstetric doctor; auto-generate recommended checkup appointment schedule; notify patient
     - Increase reminder frequency when due date is within 4 weeks
     - _Requirements: 24.1, 24.2, 24.8_
-  - [ ] 24.2 Implement antenatal checkup recording: doctor records fetal measurements, maternal vitals, and clinical notes into antenatal record; send fetal monitoring reminders at doctor-configured intervals
+  - [x] 24.2 Implement antenatal checkup recording: doctor records fetal measurements, maternal vitals, and clinical notes into antenatal record; send fetal monitoring reminders at doctor-configured intervals
     - _Requirements: 24.3, 24.4_
   - [ ] 24.3 Implement birth plan CRUD: patient creates/updates birth plan (labour preferences, delivery method, pain management, postnatal care); notify assigned obstetric doctor on update; support sharing with any doctor
     - _Requirements: 24.5, 24.6, 24.7_

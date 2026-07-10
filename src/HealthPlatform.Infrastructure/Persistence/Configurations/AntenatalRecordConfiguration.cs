@@ -37,9 +37,14 @@ public sealed class AntenatalRecordConfiguration : IEntityTypeConfiguration<Ante
         builder.Property(record => record.NextReminderAtUtc);
         builder.Property(record => record.LastReminderSentAtUtc);
 
+        builder.Property(record => record.FetalMonitoringReminderIntervalDays);
+        builder.Property(record => record.NextFetalMonitoringReminderAtUtc);
+        builder.Property(record => record.LastFetalMonitoringReminderSentAtUtc);
+
         builder.HasIndex(record => record.PatientId);
         builder.HasIndex(record => record.ObstetricDoctorId);
         builder.HasIndex(record => new { record.PatientId, record.Status });
         builder.HasIndex(record => record.NextReminderAtUtc);
+        builder.HasIndex(record => record.NextFetalMonitoringReminderAtUtc);
     }
 }

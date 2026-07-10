@@ -26,6 +26,12 @@ public sealed class AntenatalRecord : Entity
 
     public DateTime? LastReminderSentAtUtc { get; private set; }
 
+    public int? FetalMonitoringReminderIntervalDays { get; private set; }
+
+    public DateTime? NextFetalMonitoringReminderAtUtc { get; private set; }
+
+    public DateTime? LastFetalMonitoringReminderSentAtUtc { get; private set; }
+
     public static AntenatalRecord Create(
         Guid patientId,
         DateOnly estimatedDueDate,
@@ -111,6 +117,74 @@ public sealed class AntenatalRecord : Entity
         LastReminderSentAtUtc = sentAtUtc;
         NextReminderAtUtc = AntenatalReminderPolicies.CalculateNextReminderAtUtc(
             EstimatedDueDate,
+            sentAtUtc);
+        Touch();
+        return true;
+    }
+
+    public void AddCheckupEntry(string entryRef, DateTime recordedAtUtc)
+    {
+        if (Status != AntenatalRecordStatus.Active)
+        {
+            throw new InvalidOperationException("Checkup entries can only be added to active antenatal records.");
+        }
+
+        if (string.IsNullOrWhiteSpace(entryRef))
+        {
+            throw new ArgumentException("Entry reference is required.", nameof(entryRef));
+        }
+
+        if (recordedAtUtc == default || recordedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Recorded timestamp must be UTC.", nameof(recordedAtUtc));
+        }
+
+        EntryRefs = EntryRefs.Append(entryRef.Trim()).ToArray();
+        Touch();
+    }
+
+    public void ConfigureFetalMonitoringReminders(int intervalDays, DateTime configuredAtUtc)
+    {
+        if (Status != AntenatalRecordStatus.Active)
+        {
+            throw new InvalidOperationException(
+                "Fetal monitoring reminders can only be configured for active antenatal records.");
+        }
+
+        if (configuredAtUtc == default || configuredAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Configuration timestamp must be UTC.", nameof(configuredAtUtc));
+        }
+
+        FetalMonitoringReminderIntervalDays = intervalDays;
+        NextFetalMonitoringReminderAtUtc = FetalMonitoringReminderPolicies.CalculateNextReminderAtUtc(
+            intervalDays,
+            configuredAtUtc);
+        Touch();
+    }
+
+    public bool MarkFetalMonitoringReminderSent(DateTime sentAtUtc)
+    {
+        if (Status != AntenatalRecordStatus.Active
+            || !FetalMonitoringReminderIntervalDays.HasValue
+            || !NextFetalMonitoringReminderAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        if (sentAtUtc == default || sentAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Sent timestamp must be UTC.", nameof(sentAtUtc));
+        }
+
+        if (sentAtUtc < NextFetalMonitoringReminderAtUtc.Value)
+        {
+            return false;
+        }
+
+        LastFetalMonitoringReminderSentAtUtc = sentAtUtc;
+        NextFetalMonitoringReminderAtUtc = FetalMonitoringReminderPolicies.CalculateNextReminderAtUtc(
+            FetalMonitoringReminderIntervalDays.Value,
             sentAtUtc);
         Touch();
         return true;

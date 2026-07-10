@@ -63,6 +63,7 @@ public static class NotificationServiceCollectionExtensions
         services.AddScoped<IConsecutiveLowMoodPromptNotifier, RoutingConsecutiveLowMoodPromptNotifier>();
         services.AddScoped<IAntenatalRecordCreatedNotifier, RoutingAntenatalRecordCreatedNotifier>();
         services.AddScoped<IAntenatalCheckupReminderNotifier, RoutingAntenatalCheckupReminderNotifier>();
+        services.AddScoped<IFetalMonitoringReminderNotifier, RoutingFetalMonitoringReminderNotifier>();
         services.AddScoped<IMedicationOrderPatientNotifier, RoutingMedicationOrderPatientNotifier>();
         services.AddScoped<IPharmacyOrderReceivedNotifier, RoutingPharmacyOrderReceivedNotifier>();
         services.AddScoped<ILowStockAlertNotifier, RoutingLowStockAlertNotifier>();
