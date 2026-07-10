@@ -12,5 +12,6 @@ public enum HealthRecordEntryType
     TelemedicineSessionSummary = 7,
     LabOrderRef = 8,
     RadiologyReportRef = 9,
-    DiagnosticReportAnnotation = 10
+    DiagnosticReportAnnotation = 10,
+    TherapySessionSummary = 11
 }

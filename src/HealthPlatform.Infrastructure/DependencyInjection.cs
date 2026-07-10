@@ -5,6 +5,7 @@ using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.Identity;
 using HealthPlatform.Application.NextOfKin;
 using HealthPlatform.Application.Labs;
+using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.PharmacyOrders;
 using HealthPlatform.Application.PharmacyOrders.Dashboard;
 using HealthPlatform.Application.PharmacyOrders.Inventory;
@@ -160,6 +161,7 @@ public static class DependencyInjection
         services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
         services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
+        services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IReferralTimeoutReminderDispatcher, ReferralTimeoutReminderDispatcher>();
         services.AddSingleton<IPharmacyOrderReceivedNotifier, LoggingPharmacyOrderReceivedNotifier>();
         services.AddSingleton<ILowStockAlertNotifier, LoggingLowStockAlertNotifier>();

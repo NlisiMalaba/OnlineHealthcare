@@ -28,6 +28,7 @@ using HealthPlatform.Application.Storage;
 using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
+using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Domain.Identity;
 using HealthPlatform.Infrastructure.Auth;
 using HealthPlatform.Infrastructure.Appointments;
@@ -331,9 +332,12 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ITelemedicineSessionParticipantService, TelemedicineSessionParticipantService>();
         services.AddSingleton<ITelemedicineRealtimeNotifier>(_telemedicineRealtimeNotifier);
         services.AddSingleton<InMemoryTelemedicineSessionSummaryRepository>();
+        services.AddSingleton<InMemoryTherapySessionSummaryRepository>();
         services.AddSingleton<InMemoryHealthRecordEntryRepository>();
         services.AddSingleton<ITelemedicineSessionSummaryRepository>(sp =>
             sp.GetRequiredService<InMemoryTelemedicineSessionSummaryRepository>());
+        services.AddSingleton<ITherapySessionSummaryRepository>(sp =>
+            sp.GetRequiredService<InMemoryTherapySessionSummaryRepository>());
         services.AddSingleton<IHealthRecordEntryRepository>(sp =>
             sp.GetRequiredService<InMemoryHealthRecordEntryRepository>());
         if (appointmentConfirmationNotifier is not null)
@@ -366,6 +370,7 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
         services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
+        services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
         services.AddSingleton<IQueueRealtimeNotifier>(_queueRealtimeNotifier);

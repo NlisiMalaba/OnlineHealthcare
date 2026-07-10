@@ -128,6 +128,7 @@ public sealed class QueueRecalculationOnDelayPropertyTests
             patient.Id,
             doctor.Id,
             slot.Id,
+            ConsultationType.General,
             DateTime.UtcNow.AddDays(1),
             DateTime.UtcNow.AddMinutes(10));
         appointment.ConfirmOnPayment(DateTime.UtcNow);

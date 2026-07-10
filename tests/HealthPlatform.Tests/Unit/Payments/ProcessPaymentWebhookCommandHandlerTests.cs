@@ -1,6 +1,7 @@
 using HealthPlatform.Application.Exceptions;
 using HealthPlatform.Application.Payments;
 using HealthPlatform.Application.Payments.Webhooks;
+using HealthPlatform.Domain.Appointments;
 using HealthPlatform.Infrastructure.Payments;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -192,6 +193,7 @@ public sealed class ProcessPaymentWebhookCommandHandlerTests
                     Guid.CreateVersion7(),
                     Guid.CreateVersion7(),
                     Guid.CreateVersion7(),
+                    ConsultationType.General,
                     DateTime.UtcNow.AddDays(1),
                     DateTime.UtcNow.AddMinutes(10)));
 

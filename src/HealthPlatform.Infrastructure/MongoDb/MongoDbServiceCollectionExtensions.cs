@@ -1,4 +1,5 @@
 using HealthPlatform.Application.HealthRecords;
+using HealthPlatform.Application.MentalHealth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -23,14 +24,18 @@ public static class MongoDbServiceCollectionExtensions
             services.AddSingleton(sp =>
                 sp.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
             services.AddSingleton<ITelemedicineSessionSummaryRepository, MongoTelemedicineSessionSummaryRepository>();
+            services.AddSingleton<ITherapySessionSummaryRepository, MongoTherapySessionSummaryRepository>();
             services.AddSingleton<IHealthRecordEntryRepository, MongoHealthRecordEntryRepository>();
         }
         else
         {
             services.AddSingleton<InMemoryTelemedicineSessionSummaryRepository>();
+            services.AddSingleton<InMemoryTherapySessionSummaryRepository>();
             services.AddSingleton<InMemoryHealthRecordEntryRepository>();
             services.AddSingleton<ITelemedicineSessionSummaryRepository>(sp =>
                 sp.GetRequiredService<InMemoryTelemedicineSessionSummaryRepository>());
+            services.AddSingleton<ITherapySessionSummaryRepository>(sp =>
+                sp.GetRequiredService<InMemoryTherapySessionSummaryRepository>());
             services.AddSingleton<IHealthRecordEntryRepository>(sp =>
                 sp.GetRequiredService<InMemoryHealthRecordEntryRepository>());
         }

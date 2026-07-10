@@ -34,6 +34,13 @@ public sealed record TelemedicineSessionSummaryContent(
     Guid DoctorId,
     string SummaryDocumentId);
 
+public sealed record TherapySessionSummaryContent(
+    Guid TherapySessionId,
+    Guid AppointmentId,
+    Guid TherapistId,
+    string SummaryDocumentId,
+    bool BroaderAccessGranted);
+
 public sealed record HealthRecordEntryContentPayload(
     ConsultationNoteContent? ConsultationNote = null,
     DiagnosisContent? Diagnosis = null,
@@ -45,4 +52,5 @@ public sealed record HealthRecordEntryContentPayload(
     RadiologyReportRefContent? RadiologyReportRef = null,
     DiagnosticReportAnnotationContent? DiagnosticReportAnnotation = null,
     VaccinationContent? Vaccination = null,
-    TelemedicineSessionSummaryContent? TelemedicineSessionSummary = null);
+    TelemedicineSessionSummaryContent? TelemedicineSessionSummary = null,
+    TherapySessionSummaryContent? TherapySessionSummary = null);

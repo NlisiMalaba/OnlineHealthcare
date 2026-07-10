@@ -33,6 +33,8 @@ public static class HealthRecordEntryContentResolver
                 new HealthRecordEntryContentPayload(Vaccination: payload.Vaccination),
             HealthRecordEntryType.TelemedicineSessionSummary when payload.TelemedicineSessionSummary is not null =>
                 new HealthRecordEntryContentPayload(TelemedicineSessionSummary: payload.TelemedicineSessionSummary),
+            HealthRecordEntryType.TherapySessionSummary when payload.TherapySessionSummary is not null =>
+                new HealthRecordEntryContentPayload(TherapySessionSummary: payload.TherapySessionSummary),
             _ => throw new DomainException(
                 HealthRecordErrorCodes.InvalidEntryContent,
                 $"Content does not match entry type '{entryType}'.")
@@ -68,6 +70,8 @@ public static class HealthRecordEntryContentResolver
                 Vaccination: update.Vaccination ?? existing.Vaccination),
             HealthRecordEntryType.TelemedicineSessionSummary => new HealthRecordEntryContentPayload(
                 TelemedicineSessionSummary: update.TelemedicineSessionSummary ?? existing.TelemedicineSessionSummary),
+            HealthRecordEntryType.TherapySessionSummary => new HealthRecordEntryContentPayload(
+                TherapySessionSummary: update.TherapySessionSummary ?? existing.TherapySessionSummary),
             _ => throw new DomainException(
                 HealthRecordErrorCodes.InvalidEntryContent,
                 $"Unsupported entry type '{entryType}'.")

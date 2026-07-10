@@ -174,6 +174,7 @@ public sealed class JoinQueueCommandHandlerTests : IAsyncLifetime
             patient.Id,
             doctor.Id,
             slot.Id,
+            ConsultationType.General,
             DateTime.UtcNow.AddDays(1),
             DateTime.UtcNow.AddMinutes(10));
     }

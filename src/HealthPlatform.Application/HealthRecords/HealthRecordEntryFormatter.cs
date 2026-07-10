@@ -19,6 +19,7 @@ public static class HealthRecordEntryFormatter
             HealthRecordEntryType.DiagnosticReportAnnotation => "Diagnostic report annotation",
             HealthRecordEntryType.Vaccination => "Vaccination",
             HealthRecordEntryType.TelemedicineSessionSummary => "Telemedicine session summary",
+            HealthRecordEntryType.TherapySessionSummary => "Therapy session summary",
             _ => entryType.ToString()
         };
 
@@ -111,6 +112,14 @@ public static class HealthRecordEntryFormatter
             lines.Add($"Session: {summary.SessionId}");
             lines.Add($"Appointment: {summary.AppointmentId}");
             lines.Add($"Summary document: {summary.SummaryDocumentId}");
+        }
+
+        if (entry.Content.TherapySessionSummary is { } therapySummary)
+        {
+            lines.Add($"Therapy session: {therapySummary.TherapySessionId}");
+            lines.Add($"Appointment: {therapySummary.AppointmentId}");
+            lines.Add($"Summary document: {therapySummary.SummaryDocumentId}");
+            lines.Add($"Broader access granted: {therapySummary.BroaderAccessGranted}");
         }
 
         return lines;
