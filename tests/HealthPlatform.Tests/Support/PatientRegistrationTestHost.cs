@@ -28,6 +28,11 @@ using HealthPlatform.Application.Storage;
 using HealthPlatform.Application.Queue;
 using HealthPlatform.Application.Queue.Realtime;
 using HealthPlatform.Application.Referrals;
+using HealthPlatform.Application.Maternal.AntenatalRecords;
+using HealthPlatform.Application.Maternal.BirthPlans;
+using HealthPlatform.Application.Maternal.ChildProfiles;
+using HealthPlatform.Application.Maternal.GrowthEntries;
+using HealthPlatform.Application.Vaccinations;
 using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
 using HealthPlatform.Application.MentalHealth.CrisisProtocol;
@@ -51,6 +56,7 @@ using HealthPlatform.Infrastructure.Payments;
 using HealthPlatform.Infrastructure.Queue;
 using HealthPlatform.Infrastructure.Telemedicine;
 using HealthPlatform.Infrastructure.MongoDb;
+using HealthPlatform.Infrastructure.Vaccinations;
 using HealthPlatform.Infrastructure.Persistence.Repositories;
 using HealthPlatform.Infrastructure.Storage;
 using MediatR;
@@ -189,6 +195,28 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
 
     public CapturingConsecutiveLowMoodPromptNotifier ConsecutiveLowMoodPromptNotifier =>
         _consecutiveLowMoodPromptNotifier;
+
+    private readonly CapturingAntenatalRecordCreatedNotifier _antenatalRecordCreatedNotifier = new();
+
+    public CapturingAntenatalRecordCreatedNotifier AntenatalRecordCreatedNotifier => _antenatalRecordCreatedNotifier;
+
+    private readonly CapturingAntenatalCheckupReminderNotifier _antenatalCheckupReminderNotifier = new();
+
+    public CapturingAntenatalCheckupReminderNotifier AntenatalCheckupReminderNotifier =>
+        _antenatalCheckupReminderNotifier;
+
+    private readonly CapturingFetalMonitoringReminderNotifier _fetalMonitoringReminderNotifier = new();
+
+    public CapturingFetalMonitoringReminderNotifier FetalMonitoringReminderNotifier =>
+        _fetalMonitoringReminderNotifier;
+
+    private readonly CapturingBirthPlanUpdatedNotifier _birthPlanUpdatedNotifier = new();
+
+    public CapturingBirthPlanUpdatedNotifier BirthPlanUpdatedNotifier => _birthPlanUpdatedNotifier;
+
+    private readonly CapturingChildGrowthOutOfRangeNotifier _childGrowthOutOfRangeNotifier = new();
+
+    public CapturingChildGrowthOutOfRangeNotifier ChildGrowthOutOfRangeNotifier => _childGrowthOutOfRangeNotifier;
 
     public PatientRegistrationTestHost(
         IAppointmentConfirmationNotifier? appointmentConfirmationNotifier = null,
@@ -377,6 +405,16 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IQueueEntryRepository, QueueEntryRepository>();
         services.AddScoped<IQueueRealtimeDispatcher, QueueRealtimeDispatcher>();
         services.AddScoped<IReferralRepository, ReferralRepository>();
+        services.AddScoped<IAntenatalRecordRepository, AntenatalRecordRepository>();
+        services.AddScoped<IBirthPlanRepository, BirthPlanRepository>();
+        services.AddScoped<IMaternalCareAccessRepository, MaternalCareAccessRepository>();
+        services.AddScoped<IMaternalCareAccessGuard, MaternalCareAccessGuard>();
+        services.AddScoped<IChildProfileRepository, ChildProfileRepository>();
+        services.AddScoped<IVaccinationScheduleRepository, VaccinationScheduleRepository>();
+        services.AddScoped<IVaccinationRecordRepository, VaccinationRecordRepository>();
+        services.AddScoped<IVaccinationScheduleInitializer, VaccinationScheduleInitializer>();
+        services.AddScoped<IVaccinationReminderDispatcher, VaccinationReminderDispatcher>();
+        services.AddScoped<IGrowthEntryRepository, GrowthEntryRepository>();
         services.AddScoped<ITherapySessionRepository, TherapySessionRepository>();
         services.AddScoped<IMoodChartSharingConsentRepository, MoodChartSharingConsentRepository>();
         services.AddScoped<IConsecutiveLowMoodPromptRepository, ConsecutiveLowMoodPromptRepository>();
@@ -385,7 +423,10 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<ICrisisProtocolService, CrisisProtocolService>();
         services.AddSingleton<IConsecutiveLowMoodPromptNotifier>(_consecutiveLowMoodPromptNotifier);
         services.AddSingleton<InMemoryMoodLogRepository>();
+        services.AddSingleton<InMemoryAntenatalCheckupEntryRepository>();
         services.AddSingleton<IMoodLogRepository>(sp => sp.GetRequiredService<InMemoryMoodLogRepository>());
+        services.AddSingleton<IAntenatalCheckupEntryRepository>(sp =>
+            sp.GetRequiredService<InMemoryAntenatalCheckupEntryRepository>());
         services.AddSingleton<IPharmacyStockAvailabilityService>(_pharmacyStockAvailability);
         services.AddSingleton<IPharmacyOrderRealtimeNotifier>(_pharmacyOrderRealtimeNotifier);
         services.AddSingleton<IQueueRealtimeNotifier>(_queueRealtimeNotifier);
@@ -428,6 +469,12 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         {
             services.AddSingleton<IReferralTimeoutReminderNotifier>(_referralTimeoutReminderNotifier);
         }
+
+        services.AddSingleton<IAntenatalRecordCreatedNotifier>(_antenatalRecordCreatedNotifier);
+        services.AddSingleton<IAntenatalCheckupReminderNotifier>(_antenatalCheckupReminderNotifier);
+        services.AddSingleton<IFetalMonitoringReminderNotifier>(_fetalMonitoringReminderNotifier);
+        services.AddSingleton<IBirthPlanUpdatedNotifier>(_birthPlanUpdatedNotifier);
+        services.AddSingleton<IChildGrowthOutOfRangeNotifier>(_childGrowthOutOfRangeNotifier);
 
         if (timeProvider is not null)
         {

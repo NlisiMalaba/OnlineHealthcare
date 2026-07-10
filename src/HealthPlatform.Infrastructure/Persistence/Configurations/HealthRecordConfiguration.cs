@@ -13,7 +13,12 @@ public sealed class HealthRecordConfiguration : IEntityTypeConfiguration<HealthR
         builder.HasKey(r => r.Id);
 
         builder.HasIndex(r => r.PatientId)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"ChildProfileId\" IS NULL");
+
+        builder.HasIndex(r => r.ChildProfileId)
+            .IsUnique()
+            .HasFilter("\"ChildProfileId\" IS NOT NULL");
 
         builder.HasQueryFilter(r => !r.IsDeleted);
     }

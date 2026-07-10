@@ -16,6 +16,8 @@ using HealthPlatform.Domain.Wellness;
 using HealthPlatform.Domain.Pharmacy;
 using HealthPlatform.Domain.Queue;
 using HealthPlatform.Domain.Referrals;
+using HealthPlatform.Domain.Maternal;
+using HealthPlatform.Domain.Vaccinations;
 using HealthPlatform.Infrastructure.Identity;
 using HealthPlatform.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -117,6 +119,23 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<MoodChartSharingConsent> MoodChartSharingConsents => Set<MoodChartSharingConsent>();
 
     public DbSet<ConsecutiveLowMoodPrompt> ConsecutiveLowMoodPrompts => Set<ConsecutiveLowMoodPrompt>();
+
+    public DbSet<AntenatalRecord> AntenatalRecords => Set<AntenatalRecord>();
+
+    public DbSet<AntenatalCheckupScheduleEntry> AntenatalCheckupScheduleEntries =>
+        Set<AntenatalCheckupScheduleEntry>();
+
+    public DbSet<BirthPlan> BirthPlans => Set<BirthPlan>();
+
+    public DbSet<MaternalCareAccessGrant> MaternalCareAccessGrants => Set<MaternalCareAccessGrant>();
+
+    public DbSet<ChildProfile> ChildProfiles => Set<ChildProfile>();
+
+    public DbSet<VaccinationScheduleEntry> VaccinationScheduleEntries => Set<VaccinationScheduleEntry>();
+
+    public DbSet<VaccinationRecord> VaccinationRecords => Set<VaccinationRecord>();
+
+    public DbSet<GrowthEntry> GrowthEntries => Set<GrowthEntry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

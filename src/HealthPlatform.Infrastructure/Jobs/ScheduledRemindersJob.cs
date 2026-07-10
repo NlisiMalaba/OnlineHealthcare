@@ -1,5 +1,7 @@
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Referrals;
+using HealthPlatform.Application.Maternal.AntenatalRecords;
+using HealthPlatform.Application.Vaccinations;
 using Microsoft.Extensions.Logging;
 
 namespace HealthPlatform.Infrastructure.Jobs;
@@ -10,23 +12,37 @@ namespace HealthPlatform.Infrastructure.Jobs;
 public sealed class ScheduledRemindersJob(
     IAppointmentReminderDispatcher appointmentReminderDispatcher,
     IReferralTimeoutReminderDispatcher referralTimeoutReminderDispatcher,
+    IAntenatalCheckupReminderDispatcher antenatalCheckupReminderDispatcher,
+    IFetalMonitoringReminderDispatcher fetalMonitoringReminderDispatcher,
+    IVaccinationReminderDispatcher vaccinationReminderDispatcher,
     ILogger<ScheduledRemindersJob> logger)
 {
     public async Task RunAsync(CancellationToken ct = default)
     {
         var appointmentDispatched = await appointmentReminderDispatcher.DispatchDueRemindersAsync(ct);
         var referralDispatched = await referralTimeoutReminderDispatcher.DispatchDueRemindersAsync(ct);
-        var totalDispatched = appointmentDispatched + referralDispatched;
+        var antenatalDispatched = await antenatalCheckupReminderDispatcher.DispatchDueRemindersAsync(ct);
+        var fetalMonitoringDispatched = await fetalMonitoringReminderDispatcher.DispatchDueRemindersAsync(ct);
+        var vaccinationDispatched = await vaccinationReminderDispatcher.DispatchDueRemindersAsync(ct);
+        var totalDispatched = appointmentDispatched
+            + referralDispatched
+            + antenatalDispatched
+            + fetalMonitoringDispatched
+            + vaccinationDispatched;
         if (totalDispatched > 0)
         {
             logger.LogInformation(
-                "Scheduled reminders dispatched {AppointmentCount} appointment and {ReferralCount} referral timeout reminder(s).",
+                "Scheduled reminders dispatched {AppointmentCount} appointment, {ReferralCount} referral timeout, {AntenatalCount} antenatal, {FetalMonitoringCount} fetal monitoring, and {VaccinationCount} vaccination reminder(s).",
                 appointmentDispatched,
-                referralDispatched);
+                referralDispatched,
+                antenatalDispatched,
+                fetalMonitoringDispatched,
+                vaccinationDispatched);
         }
         else
         {
-            logger.LogDebug("Scheduled reminders tick — no appointment or referral timeout reminders due.");
+            logger.LogDebug(
+                "Scheduled reminders tick — no appointment, referral timeout, antenatal, fetal monitoring, or vaccination reminders due.");
         }
     }
 

@@ -26,7 +26,12 @@ public static class NotificationPreferenceCatalog
               NotificationEventTypes.InstalmentDueReminder,
               NotificationEventTypes.InstalmentMissedPayment,
               NotificationEventTypes.AccountLocked,
-              NotificationEventTypes.ConsecutiveLowMoodPrompt
+              NotificationEventTypes.ConsecutiveLowMoodPrompt,
+              NotificationEventTypes.AntenatalRecordCreated,
+              NotificationEventTypes.AntenatalCheckupReminder,
+              NotificationEventTypes.FetalMonitoringReminder,
+              NotificationEventTypes.VaccinationDueReminder,
+              NotificationEventTypes.ChildGrowthOutOfRangeAlert
           ],
           [ApplicationRoles.Doctor] =
           [
@@ -37,7 +42,10 @@ public static class NotificationPreferenceCatalog
               NotificationEventTypes.MedicationScheduleCompleted,
               NotificationEventTypes.DoctorLicenseVerified,
               NotificationEventTypes.DoctorLicenseRejected,
-              NotificationEventTypes.AccountLocked
+              NotificationEventTypes.AccountLocked,
+              NotificationEventTypes.AntenatalRecordCreated,
+              NotificationEventTypes.AntenatalCheckupReminder,
+              NotificationEventTypes.BirthPlanUpdated
           ],
           [ApplicationRoles.Pharmacy] =
           [

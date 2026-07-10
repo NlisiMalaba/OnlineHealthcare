@@ -378,24 +378,24 @@ The full task list below is the **complete platform** backlog. For a **working M
   - [x]* 23.6 Write unit tests for broader access consent toggle, crisis protocol with no mental health contact, and mood chart data aggregation
     - _Requirements: 22.2, 22.4, 22.7_
 
-- [ ] 24. Maternal & Pediatric Module
-  - [ ] 24.1 Implement antenatal record creation: capture estimated due date, gestational age, assigned obstetric doctor; auto-generate recommended checkup appointment schedule; notify patient
+- [x] 24. Maternal & Pediatric Module
+  - [x] 24.1 Implement antenatal record creation: capture estimated due date, gestational age, assigned obstetric doctor; auto-generate recommended checkup appointment schedule; notify patient
     - Increase reminder frequency when due date is within 4 weeks
     - _Requirements: 24.1, 24.2, 24.8_
-  - [ ] 24.2 Implement antenatal checkup recording: doctor records fetal measurements, maternal vitals, and clinical notes into antenatal record; send fetal monitoring reminders at doctor-configured intervals
+  - [x] 24.2 Implement antenatal checkup recording: doctor records fetal measurements, maternal vitals, and clinical notes into antenatal record; send fetal monitoring reminders at doctor-configured intervals
     - _Requirements: 24.3, 24.4_
-  - [ ] 24.3 Implement birth plan CRUD: patient creates/updates birth plan (labour preferences, delivery method, pain management, postnatal care); notify assigned obstetric doctor on update; support sharing with any doctor
+  - [x] 24.3 Implement birth plan CRUD: patient creates/updates birth plan (labour preferences, delivery method, pain management, postnatal care); notify assigned obstetric doctor on update; support sharing with any doctor
     - _Requirements: 24.5, 24.6, 24.7_
-  - [ ] 24.4 Implement child profile management: guardian creates child profiles (name, DOB, blood type, allergies); each profile gets a linked HealthRecord
+  - [x] 24.4 Implement child profile management: guardian creates child profiles (name, DOB, blood type, allergies); each profile gets a linked HealthRecord
     - _Requirements: 25.1, 25.2_
-  - [ ] 24.5 Implement vaccination record and schedule: generate recommended vaccination schedule from child DOB and national guidelines; send reminder 7 days before due vaccination; record administered vaccines (name, date, batch, provider)
+  - [x] 24.5 Implement vaccination record and schedule: generate recommended vaccination schedule from child DOB and national guidelines; send reminder 7 days before due vaccination; record administered vaccines (name, date, batch, provider)
     - _Requirements: 25.4, 25.5, 25.6, 27.4, 27.5, 27.6_
-  - [ ] 24.6 Implement growth tracking: guardian records height, weight, and developmental milestones; display growth chart against age-appropriate reference percentiles; alert guardian if measurements fall outside expected range
+  - [x] 24.6 Implement growth tracking: guardian records height, weight, and developmental milestones; display growth chart against age-appropriate reference percentiles; alert guardian if measurements fall outside expected range
     - _Requirements: 25.7, 25.8, 25.9_
-  - [ ]* 24.7 Write property test for child growth out-of-range alert (Property 35)
+  - [x]* 24.7 Write property test for child growth out-of-range alert (Property 35)
     - **Property 35: Child Growth Out-of-Range Alert**
     - **Validates: Requirements 25.9**
-  - [ ]* 24.8 Write unit tests for due-date proximity reminder escalation, birth plan sharing, and vaccination schedule generation
+  - [x]* 24.8 Write unit tests for due-date proximity reminder escalation, birth plan sharing, and vaccination schedule generation
     - _Requirements: 24.7, 24.8, 25.4_
 
 - [ ] 25. Wellness & Care Plan Module

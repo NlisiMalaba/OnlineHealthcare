@@ -1,6 +1,7 @@
 using HealthPlatform.Application.HealthRecords;
 using HealthPlatform.Application.MentalHealth;
 using HealthPlatform.Application.MentalHealth.MoodLogs;
+using HealthPlatform.Application.Maternal.AntenatalRecords;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -27,6 +28,7 @@ public static class MongoDbServiceCollectionExtensions
             services.AddSingleton<ITelemedicineSessionSummaryRepository, MongoTelemedicineSessionSummaryRepository>();
             services.AddSingleton<ITherapySessionSummaryRepository, MongoTherapySessionSummaryRepository>();
             services.AddSingleton<IMoodLogRepository, MongoMoodLogRepository>();
+            services.AddSingleton<IAntenatalCheckupEntryRepository, MongoAntenatalCheckupEntryRepository>();
             services.AddSingleton<IHealthRecordEntryRepository, MongoHealthRecordEntryRepository>();
         }
         else
@@ -34,6 +36,7 @@ public static class MongoDbServiceCollectionExtensions
             services.AddSingleton<InMemoryTelemedicineSessionSummaryRepository>();
             services.AddSingleton<InMemoryTherapySessionSummaryRepository>();
             services.AddSingleton<InMemoryMoodLogRepository>();
+            services.AddSingleton<InMemoryAntenatalCheckupEntryRepository>();
             services.AddSingleton<InMemoryHealthRecordEntryRepository>();
             services.AddSingleton<ITelemedicineSessionSummaryRepository>(sp =>
                 sp.GetRequiredService<InMemoryTelemedicineSessionSummaryRepository>());
@@ -41,6 +44,8 @@ public static class MongoDbServiceCollectionExtensions
                 sp.GetRequiredService<InMemoryTherapySessionSummaryRepository>());
             services.AddSingleton<IMoodLogRepository>(sp =>
                 sp.GetRequiredService<InMemoryMoodLogRepository>());
+            services.AddSingleton<IAntenatalCheckupEntryRepository>(sp =>
+                sp.GetRequiredService<InMemoryAntenatalCheckupEntryRepository>());
             services.AddSingleton<IHealthRecordEntryRepository>(sp =>
                 sp.GetRequiredService<InMemoryHealthRecordEntryRepository>());
         }
