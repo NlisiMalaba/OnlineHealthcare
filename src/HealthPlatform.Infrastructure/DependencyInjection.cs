@@ -14,6 +14,8 @@ using HealthPlatform.Application.PharmacyOrders.Inventory;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
 using HealthPlatform.Application.Wellness;
+using HealthPlatform.Application.Wellness.HealthGoals;
+using HealthPlatform.Application.Wellness.WellnessEntries;
 using HealthPlatform.Application.Storage;
 using HealthPlatform.Infrastructure.Storage;
 using HealthPlatform.Application.Outbox;
@@ -150,6 +152,8 @@ public static class DependencyInjection
         services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
         services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
         services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
+        services.AddScoped<IHealthGoalRepository, HealthGoalRepository>();
+        services.AddScoped<IWellnessEntryRepository, WellnessEntryRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
         services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();

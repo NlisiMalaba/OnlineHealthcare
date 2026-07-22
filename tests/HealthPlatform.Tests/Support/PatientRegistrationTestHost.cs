@@ -14,6 +14,8 @@ using HealthPlatform.Application.PharmacyOrders.Realtime;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
 using HealthPlatform.Application.Wellness;
+using HealthPlatform.Application.Wellness.HealthGoals;
+using HealthPlatform.Application.Wellness.WellnessEntries;
 using HealthPlatform.Application.Identity.RegisterPatient;
 using HealthPlatform.Application.Identity.UpdatePatientProfile;
 using HealthPlatform.Application.Identity.UpdateDoctorProfile;
@@ -284,6 +286,8 @@ public sealed class PatientRegistrationTestHost : IAsyncDisposable
         services.AddScoped<IMedicationDoseReminderRepository, MedicationDoseReminderRepository>();
         services.AddScoped<IMedicationDoseReminderDispatcher, MedicationDoseReminderDispatcher>();
         services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
+        services.AddScoped<IHealthGoalRepository, HealthGoalRepository>();
+        services.AddScoped<IWellnessEntryRepository, WellnessEntryRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
         services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();

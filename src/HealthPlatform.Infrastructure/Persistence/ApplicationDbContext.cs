@@ -137,6 +137,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<GrowthEntry> GrowthEntries => Set<GrowthEntry>();
 
+    public DbSet<HealthGoal> HealthGoals => Set<HealthGoal>();
+
+    public DbSet<WellnessEntry> WellnessEntries => Set<WellnessEntry>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

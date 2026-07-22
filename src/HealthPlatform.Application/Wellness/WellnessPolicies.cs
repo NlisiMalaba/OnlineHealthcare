@@ -25,4 +25,24 @@ public static class WellnessPolicies
 
     public static bool CanConfirmDose(DateTime scheduledAtUtc, DateTime nowUtc) =>
         nowUtc >= scheduledAtUtc && nowUtc < scheduledAtUtc.Add(MissedDoseGracePeriod);
+
+    public const int MaxUnitLength = 32;
+
+    public const int MaxCustomLabelLength = 100;
+
+    public const decimal MinTargetValue = 0.01m;
+
+    public const decimal MaxTargetValue = 1_000_000m;
+
+    public const decimal MaxEntryValue = 1_000_000m;
+
+    public static readonly TimeSpan WellnessChartDefaultLookback = TimeSpan.FromDays(30);
+
+    public const string DefaultStepsUnit = "steps";
+
+    public const string DefaultWeightUnit = "kg";
+
+    public const string DefaultSleepHoursUnit = "hours";
+
+    public const string DefaultWaterMlUnit = "ml";
 }

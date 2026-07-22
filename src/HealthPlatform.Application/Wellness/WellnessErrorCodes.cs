@@ -19,4 +19,12 @@ public static class WellnessErrorCodes
     public const string ScheduleNotActive = "MEDICATION_SCHEDULE_NOT_ACTIVE";
 
     public const string AdherenceSummaryAccessDenied = "ADHERENCE_SUMMARY_ACCESS_DENIED";
+
+    public const string HealthGoalNotFound = "HEALTH_GOAL_NOT_FOUND";
+
+    public const string HealthGoalNotActive = "HEALTH_GOAL_NOT_ACTIVE";
+
+    public const string WellnessEntryAccessDenied = "WELLNESS_ENTRY_ACCESS_DENIED";
+
+    public const string HealthGoalMetricMismatch = "HEALTH_GOAL_METRIC_MISMATCH";
 }
