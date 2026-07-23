@@ -45,4 +45,22 @@ public static class WellnessPolicies
     public const string DefaultSleepHoursUnit = "hours";
 
     public const string DefaultWaterMlUnit = "ml";
+
+    public const int CarePlanReminderBatchSize = 100;
+
+    public const int MaxCarePlanConditionLength = 200;
+
+    public const int MaxCarePlanTaskTitleLength = 200;
+
+    public const int MaxCarePlanTaskDescriptionLength = 1000;
+
+    public const int MaxCarePlanMetricNameLength = 100;
+
+    public const int MaxCarePlanTasks = 50;
+
+    public const int MaxCarePlanMonitoringTargets = 20;
+
+    public const int MinCarePlanReviewIntervalDays = 1;
+
+    public const int MaxCarePlanReviewIntervalDays = 365;
 }

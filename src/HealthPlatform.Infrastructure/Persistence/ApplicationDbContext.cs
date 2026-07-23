@@ -141,6 +141,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<WellnessEntry> WellnessEntries => Set<WellnessEntry>();
 
+    public DbSet<CarePlan> CarePlans => Set<CarePlan>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

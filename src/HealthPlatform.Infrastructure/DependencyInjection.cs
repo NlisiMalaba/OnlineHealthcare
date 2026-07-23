@@ -14,6 +14,7 @@ using HealthPlatform.Application.PharmacyOrders.Inventory;
 using HealthPlatform.Application.Prescriptions;
 using HealthPlatform.Application.Prescriptions.DrugInteractions;
 using HealthPlatform.Application.Wellness;
+using HealthPlatform.Application.Wellness.CarePlans;
 using HealthPlatform.Application.Wellness.HealthGoals;
 using HealthPlatform.Application.Wellness.WellnessEntries;
 using HealthPlatform.Application.Storage;
@@ -154,6 +155,9 @@ public static class DependencyInjection
         services.AddScoped<IAdherenceEventRepository, AdherenceEventRepository>();
         services.AddScoped<IHealthGoalRepository, HealthGoalRepository>();
         services.AddScoped<IWellnessEntryRepository, WellnessEntryRepository>();
+        services.AddScoped<ICarePlanRepository, CarePlanRepository>();
+        services.AddScoped<ICarePlanTaskDueReminderDispatcher, CarePlanTaskDueReminderDispatcher>();
+        services.AddScoped<ICarePlanReviewReminderDispatcher, CarePlanReviewReminderDispatcher>();
         services.AddScoped<IConsecutiveMissedDoseAlertRepository, ConsecutiveMissedDoseAlertRepository>();
         services.AddScoped<IConsecutiveMissedDoseAlertService, ConsecutiveMissedDoseAlertService>();
         services.AddScoped<IMedicationScheduleCompletionService, MedicationScheduleCompletionService>();
@@ -219,7 +223,8 @@ public static class DependencyInjection
         services.AddSingleton<IBirthPlanUpdatedNotifier, LoggingBirthPlanUpdatedNotifier>();
         services.AddSingleton<IVaccinationReminderNotifier, LoggingVaccinationReminderNotifier>();
         services.AddSingleton<IChildGrowthOutOfRangeNotifier, LoggingChildGrowthOutOfRangeNotifier>();
-        services.AddSingleton<IChildGrowthOutOfRangeNotifier, LoggingChildGrowthOutOfRangeNotifier>();
+        services.AddSingleton<ICarePlanTaskDueReminderNotifier, LoggingCarePlanTaskDueReminderNotifier>();
+        services.AddSingleton<ICarePlanReviewReminderNotifier, LoggingCarePlanReviewReminderNotifier>();
         services.AddScoped<IAppointmentReminderDispatcher, AppointmentReminderDispatcher>();
         services.AddScoped<ILicenseVerificationQueueRepository, LicenseVerificationQueueRepository>();
         services.AddScoped<IDoctorRegistrationWorkflow, DoctorRegistrationWorkflow>();

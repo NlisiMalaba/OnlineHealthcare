@@ -27,4 +27,16 @@ public static class WellnessErrorCodes
     public const string WellnessEntryAccessDenied = "WELLNESS_ENTRY_ACCESS_DENIED";
 
     public const string HealthGoalMetricMismatch = "HEALTH_GOAL_METRIC_MISMATCH";
+
+    public const string CarePlanNotFound = "CARE_PLAN_NOT_FOUND";
+
+    public const string CarePlanNotActive = "CARE_PLAN_NOT_ACTIVE";
+
+    public const string CarePlanTaskNotFound = "CARE_PLAN_TASK_NOT_FOUND";
+
+    public const string CarePlanTaskAlreadyCompleted = "CARE_PLAN_TASK_ALREADY_COMPLETED";
+
+    public const string CarePlanAccessDenied = "CARE_PLAN_ACCESS_DENIED";
+
+    public const string DoctorNotVerified = "DOCTOR_NOT_VERIFIED";
 }

@@ -401,9 +401,9 @@ The full task list below is the **complete platform** backlog. For a **working M
 - [ ] 25. Wellness & Care Plan Module
   - [x] 25.1 Implement health goal CRUD: patient creates goals for steps, weight, sleep, water intake, or custom metrics; on wellness entry recording, compare against active goals and return progress
     - _Requirements: 27.1, 27.2, 27.3_
-  - [ ] 25.2 Implement care plan management: doctor assigns care plan to patient (condition, tasks, monitoring targets, review interval); send task-due reminders to patient; record task completions with timestamp; notify doctor when review interval is reached
+  - [x] 25.2 Implement care plan management: doctor assigns care plan to patient (condition, tasks, monitoring targets, review interval); send task-due reminders to patient; record task completions with timestamp; notify doctor when review interval is reached
     - _Requirements: 27.7, 27.8, 27.9, 27.10_
-  - [ ]* 25.3 Write unit tests for goal progress calculation, care plan task completion, and review interval notification
+  - [x]* 25.3 Write unit tests for goal progress calculation, care plan task completion, and review interval notification
     - _Requirements: 27.2, 27.9, 27.10_
 
 - [ ] 26. Second Opinion Module

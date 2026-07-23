@@ -1,6 +1,7 @@
 using HealthPlatform.Application.Appointments;
 using HealthPlatform.Application.Maternal.AntenatalRecords;
 using HealthPlatform.Application.Vaccinations;
+using HealthPlatform.Application.Wellness.CarePlans;
 using HealthPlatform.Infrastructure.Jobs;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -33,6 +34,14 @@ public sealed class ScheduledRemindersJobTests
         vaccinationDispatcher
             .Setup(d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
+        var carePlanTaskDispatcher = new Mock<ICarePlanTaskDueReminderDispatcher>();
+        carePlanTaskDispatcher
+            .Setup(d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+        var carePlanReviewDispatcher = new Mock<ICarePlanReviewReminderDispatcher>();
+        carePlanReviewDispatcher
+            .Setup(d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         var job = new ScheduledRemindersJob(
             appointmentDispatcher.Object,
@@ -40,6 +49,8 @@ public sealed class ScheduledRemindersJobTests
             antenatalDispatcher.Object,
             fetalMonitoringDispatcher.Object,
             vaccinationDispatcher.Object,
+            carePlanTaskDispatcher.Object,
+            carePlanReviewDispatcher.Object,
             NullLogger<ScheduledRemindersJob>.Instance);
 
         await job.RunAsync(CancellationToken.None);
@@ -57,6 +68,12 @@ public sealed class ScheduledRemindersJobTests
             d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
             Times.Once);
         vaccinationDispatcher.Verify(
+            d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+        carePlanTaskDispatcher.Verify(
+            d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+        carePlanReviewDispatcher.Verify(
             d => d.DispatchDueRemindersAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }

@@ -37,4 +37,6 @@ public static class NotificationEventTypes
     public const string BirthPlanUpdated = "maternal.birth_plan_updated";
     public const string VaccinationDueReminder = "wellness.vaccination_due_reminder";
     public const string ChildGrowthOutOfRangeAlert = "maternal.child_growth_out_of_range_alert";
+    public const string CarePlanTaskDueReminder = "wellness.care_plan_task_due_reminder";
+    public const string CarePlanReviewReminder = "wellness.care_plan_review_reminder";
 }
